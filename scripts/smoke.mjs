@@ -19,11 +19,20 @@ server.stdout.on('data', (d) => log.push(String(d)));
 server.stderr.on('data', (d) => log.push(String(d)));
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+class SmokeFailure extends Error {}
 function fail(msg) {
-  console.error('SMOKE FAIL: ' + msg);
-  console.error(log.join('').split('\n').slice(-30).join('\n'));
-  server.kill();
-  process.exit(1);
+  throw new SmokeFailure(msg);
+}
+// Never call process.exit() while the child's pipes are closing: on Windows that trips a libuv assertion
+// (src\win\async.c) and turns a passing run into a crash. Kill, wait for 'close', then let the loop drain.
+async function stopServer() {
+  if (server.exitCode === null && server.signalCode === null) {
+    const closed = new Promise((r) => server.once('close', r));
+    server.kill();
+    await Promise.race([closed, sleep(5000)]);
+  }
+  server.stdout?.destroy();
+  server.stderr?.destroy();
 }
 async function call(pathname, body) {
   const init = body === undefined ? {} : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
@@ -32,6 +41,7 @@ async function call(pathname, body) {
   return res.json();
 }
 
+let exitCode = 0;
 try {
   let health = null;
   for (let i = 0; i < 80 && !health; i++) {
@@ -63,8 +73,12 @@ try {
   if (!isDeepStrictEqual(url, E.analyzeUrl(u, cfg))) fail('url analysis differs from the reference engine');
   console.log(`ok  url: ${url.score}/100 ${url.level}`);
   console.log('SMOKE OK');
-  server.kill();
-  process.exit(0);
 } catch (e) {
-  fail(e?.stack || String(e));
+  exitCode = 1;
+  console.error('SMOKE FAIL: ' + (e instanceof SmokeFailure ? e.message : e?.stack || String(e)));
+  console.error(log.join('').split('\n').slice(-30).join('\n'));
 }
+await stopServer();
+process.exitCode = exitCode;
+// Last resort only: an unref'd timer never keeps the process alive, but ends it if a stray handle would.
+setTimeout(() => process.exit(exitCode), 10000).unref();
