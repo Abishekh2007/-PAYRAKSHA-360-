@@ -1,7 +1,13 @@
 import { type ButtonHTMLAttributes, type ReactNode, forwardRef } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Link, type LinkProps } from 'react-router-dom';
 
 export type ButtonVariant = 'primary' | 'danger' | 'safe' | 'ghost' | 'outline';
+
+function buttonClasses(variant: ButtonVariant, fullWidth: boolean, className: string) {
+  return `btn-${variant} ${fullWidth ? 'w-full' : ''} ${className}`.trim();
+}
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: 'sm' | 'md' | 'lg';
@@ -29,7 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       ref={ref}
       type={type}
       data-size={size}
-      className={`btn-${variant} ${fullWidth ? 'w-full' : ''} ${className}`.trim()}
+      className={buttonClasses(variant, fullWidth, className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
@@ -40,3 +46,33 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   );
 });
 Button.displayName = 'Button';
+
+export interface ButtonLinkProps extends LinkProps {
+  variant?: ButtonVariant;
+  size?: 'sm' | 'md' | 'lg';
+  icon?: ReactNode;
+  fullWidth?: boolean;
+}
+
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({
+  variant = 'primary',
+  size = 'md',
+  icon,
+  fullWidth = false,
+  className = '',
+  children,
+  ...rest
+}, ref) => {
+  return (
+    <Link
+      ref={ref}
+      data-size={size}
+      className={buttonClasses(variant, fullWidth, className)}
+      {...rest}
+    >
+      {icon}
+      {children}
+    </Link>
+  );
+});
+ButtonLink.displayName = 'ButtonLink';

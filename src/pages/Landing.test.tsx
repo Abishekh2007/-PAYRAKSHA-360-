@@ -35,12 +35,17 @@ describe('Landing', () => {
     expect(scoreCard).toHaveAttribute('data-score', String(utilScam.score));
   });
 
-  it('renders JUDGE MODE button with correct link', () => {
+  it('renders CTA links with correct paths', () => {
     renderWithRouter(<Landing />);
-    
-    const judgeBtn = screen.getByRole('button', { name: /JUDGE MODE/i });
-    expect(judgeBtn).toBeInTheDocument();
-    // In our component, we use useNavigate for the buttons, so let's fire event or just rely on it existing with right text.
+
+    const judgeLink = screen.getByRole('link', { name: /JUDGE MODE/i });
+    expect(judgeLink.getAttribute('href')).toMatch(/\/judge$/);
+
+    const scanQrLink = screen.getByRole('link', { name: /SCAN QR/i });
+    expect(scanQrLink.getAttribute('href')).toMatch(/\/qr$/);
+
+    const simLink = screen.getByRole('link', { name: /RUN LIVE SCAM SIMULATION/i });
+    expect(simLink.getAttribute('href')).toMatch(/\/simulation$/);
   });
 
   it('has literal 0 real payments', () => {

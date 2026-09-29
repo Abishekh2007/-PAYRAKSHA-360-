@@ -1,13 +1,12 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { QrCode, MessageSquare, Link as LinkIcon, HandCoins, Dna, GitBranch, Lightbulb, FlaskConical, UserCheck, Accessibility, ShieldAlert, Shield } from 'lucide-react';
-import { SimulationBadge, GlassCard, Button } from '../components/ui';
+import { SimulationBadge, GlassCard, Button, ButtonLink } from '../components/ui';
 import { RiskScoreCard } from '../components/risk';
 import { HeroScene } from '../components/three';
 import { FLAGSHIP_SCENARIO_ID, runScenarioLocal, FACTOR_KEYS, scenarios } from '../engine';
 
 export default function Landing() {
-  const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
   const report = runScenarioLocal(FLAGSHIP_SCENARIO_ID);
 
@@ -59,10 +58,10 @@ export default function Landing() {
           </motion.div>
 
           <motion.div className="flex flex-wrap gap-4" {...animateFadeProp} transition={{ delay: 0.4 }}>
-            <Button onClick={() => navigate('/qr')} icon={<QrCode />}>SCAN QR</Button>
-            <Button onClick={() => navigate('/message')} icon={<MessageSquare />}>ANALYZE MESSAGE</Button>
-            <Button onClick={() => navigate('/simulation')} variant="danger">🚨 RUN LIVE SCAM SIMULATION</Button>
-            <Button onClick={() => navigate('/judge')} variant="primary">🏆 JUDGE MODE</Button>
+            <ButtonLink to="/qr" icon={<QrCode />}>SCAN QR</ButtonLink>
+            <ButtonLink to="/message" icon={<MessageSquare />}>ANALYZE MESSAGE</ButtonLink>
+            <ButtonLink to="/simulation" variant="danger">🚨 RUN LIVE SCAM SIMULATION</ButtonLink>
+            <ButtonLink to="/judge" variant="primary">🏆 JUDGE MODE</ButtonLink>
           </motion.div>
         </div>
 
@@ -79,7 +78,7 @@ export default function Landing() {
               <RiskScoreCard report={report} />
             </div>
             <div>
-              <Button onClick={() => navigate('/qr?demo=QR001')} variant="outline">See it in QR Shield</Button>
+              <ButtonLink to="/qr?demo=QR001" variant="outline">See it in QR Shield</ButtonLink>
             </div>
           </div>
         </GlassCard>

@@ -2,13 +2,19 @@ import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDemoStore } from '../store/demoStore';
 import { labScenarios, runScenarioLocal, scenarioToInput, analyzeLocal, getScenario } from '../engine';
+import { analyzeRisk } from '../services/api';
 import { PageShell } from '../components/layout';
-import { GlassCard, Button, SimulationBadge, SectionHeader } from '../components/ui';
+import { ErrorNotice, GlassCard, Button, SimulationBadge, SectionHeader } from '../components/ui';
 import { RiskResultView, ScamDnaChart, AttackChainView } from '../components/risk';
-import type { RiskReport, Scenario } from '../types';
+import type { RiskReport, Scenario, EngineSource } from '../types';
 
 export default function ScamLab() {
-  const [activeReport, setActiveReport] = useState<RiskReport | null>(null);
+  const [activeResponse, setActiveResponse] = useState<{ report: RiskReport; source: EngineSource; latencyMs?: number | null; ml?: any } | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState('');
+  const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
+
+  const activeReport = activeResponse?.report || null;
   const resultRef = useRef<HTMLDivElement>(null);
   const recordAnalysis = useDemoStore(s => s.recordAnalysis);
 
@@ -30,16 +36,28 @@ export default function ScamLab() {
     });
   }, []);
 
-  const handleRun = (scenario: Scenario) => {
-    const input = scenarioToInput(scenario);
-    const rep = analyzeLocal(input);
-    setActiveReport(rep);
-    recordAnalysis({
-      label: `Scam Lab · ${scenario.labLabel || scenario.title}`,
-      input,
-      report: rep,
-      source: 'browser'
-    });
+  const handleRun = async (scenario: Scenario) => {
+    setError('');
+    setIsAnalyzing(true);
+    setActiveScenarioId(scenario.id);
+    try {
+      const input = scenarioToInput(scenario);
+      const response = await analyzeRisk(input);
+      setActiveResponse(response);
+      recordAnalysis({
+        label: `Scam Lab · ${scenario.labLabel || scenario.title}`,
+        input,
+        report: response.report,
+        source: response.source,
+        ml: response.ml,
+        latencyMs: response.latencyMs
+      });
+    } catch {
+      setError('Analysis failed.');
+    } finally {
+      setIsAnalyzing(false);
+      setActiveScenarioId(null);
+    }
   };
 
   useEffect(() => {
@@ -70,8 +88,13 @@ export default function ScamLab() {
                 </div>
               )}
               <div className="mt-auto">
-                <Button fullWidth onClick={() => handleRun(s)} aria-label={`RUN IN LAB: ${s.labLabel || s.title}`}>
-                  RUN IN LAB
+                <Button
+                  fullWidth
+                  onClick={() => handleRun(s)}
+                  disabled={isAnalyzing}
+                  aria-label={`RUN IN LAB: ${s.labLabel || s.title}`}
+                >
+                  {isAnalyzing && activeScenarioId === s.id ? 'Analyzing...' : 'RUN IN LAB'}
                 </Button>
               </div>
             </GlassCard>
@@ -84,10 +107,17 @@ export default function ScamLab() {
         </div>
       </section>
 
-      {activeReport && (
+      {error && <ErrorNotice message={error} className="mb-8" />}
+
+      {activeReport && activeResponse && (
         <section className="mb-12" ref={resultRef}>
           <SectionHeader title="Analysis Result" />
-          <RiskResultView report={activeReport} source="browser" />
+          <RiskResultView
+            report={activeReport}
+            source={activeResponse.source}
+            latencyMs={activeResponse.latencyMs}
+            ml={activeResponse.ml}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
             <GlassCard>
