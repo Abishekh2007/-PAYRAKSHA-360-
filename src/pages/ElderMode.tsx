@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '../components/layout';
 import { useDemoStore, useCurrentReport } from '../store/demoStore';
-import { controlScenarios } from '../engine';
+import { controlScenarios, runScenarioLocal, scenarioToInput } from '../engine';
 import { Button, GlassCard, SimulationBadge, Toggle } from '../components/ui';
 import { HeartHandshake, Volume2, ShieldCheck, ShieldAlert } from 'lucide-react';
 
@@ -18,10 +18,10 @@ export default function ElderMode() {
     const scenarios = controlScenarios();
     const scenario = scenarios.find((s) => s.id === id);
     if (!scenario) return;
-    const scenarioReport = require('../engine').runScenarioLocal(scenario.id);
+    const scenarioReport = runScenarioLocal(scenario.id);
     recordAnalysis({
       label: scenario.title,
-      input: require('../engine').scenarioToInput(scenario),
+      input: scenarioToInput(scenario.id),
       report: scenarioReport,
       source: 'browser',
     });

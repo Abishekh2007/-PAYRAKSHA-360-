@@ -14,7 +14,7 @@ export default function TrustedContact() {
   const contactName = trustedAlert?.contactName ?? 'Trusted Contact';
 
   const handleSend = () => {
-    sendTrustedAlert(defaultReport);
+    sendTrustedAlert(report, trustedAlert?.contactName);
   };
 
   const statusText = () => {
