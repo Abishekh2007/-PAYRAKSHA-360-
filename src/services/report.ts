@@ -1,4 +1,3 @@
-// STUB: the services task finishes this. Incident reports are DEMO documents, never official cybercrime reports.
 import type { IncidentReportDoc, RiskReport } from '../types';
 import { fmtINR } from '../engine';
 
@@ -7,6 +6,29 @@ export const DEMO_REPORT_TITLE = 'DEMO REPORT — NOT AN OFFICIAL CYBERCRIME REP
 export function buildIncidentReport(report: RiskReport, opts: { generatedAt?: Date | string } = {}): IncidentReportDoc {
   const at = opts.generatedAt ?? new Date();
   const p = report.payment;
+
+  let safeActions: string[] = [];
+  if (report.level === 'HIGH' || report.level === 'HIGH_CAUTION') {
+    safeActions = [
+      'Do not pay until the recipient is verified through an official channel.',
+      'Open the official app or website yourself. Do not use links, QR codes or phone numbers from the message.',
+      'Ask a trusted person before paying.',
+      'Never share your UPI PIN, OTP, password or CVV. PAYRAKSHA never asks for them.',
+      'If money was already sent, contact your bank immediately and use the official cybercrime helpline 1930 / cybercrime.gov.in (real-world guidance; this demo files nothing).'
+    ];
+  } else if (report.level === 'CAUTION') {
+    safeActions = [
+      'Do not pay until the recipient is verified through an official channel.',
+      'Open the official app or website yourself. Do not use links, QR codes or phone numbers from the message.',
+      'Never share your UPI PIN, OTP, password or CVV. PAYRAKSHA never asks for them.'
+    ];
+  } else if (report.level === 'LOW') {
+    safeActions = [
+      'No strong warning signals were found. Still confirm the recipient name before paying.',
+      'Never share your UPI PIN, OTP, password or CVV.'
+    ];
+  }
+
   return {
     title: DEMO_REPORT_TITLE,
     reportId: report.id,
@@ -25,14 +47,44 @@ export function buildIncidentReport(report: RiskReport, opts: { generatedAt?: Da
     dna: report.dna.map((d) => ({ label: d.label, percent: d.percent })),
     attackChain: report.attackChain.filter((n) => n.active).map((n) => `${n.label}: ${n.detail}`),
     recommendation: report.recommendation.title,
-    safeActions: ['Do not pay until the recipient is verified through an official channel.'],
+    safeActions,
     disclaimer: report.explanation.disclaimer,
     notice: report.notice,
   };
 }
 
 export function incidentReportToText(doc: IncidentReportDoc): string {
-  return [doc.title, `Report ID: ${doc.reportId}`, `Risk: ${doc.score} / 100 (${doc.levelLabel})`].join('\n');
+  const lines = [
+    doc.title,
+    doc.notice,
+    `Report ID: ${doc.reportId}`,
+    `Generated: ${doc.generatedAt}`,
+    `Risk score: ${doc.score} / 100 (${doc.levelLabel})`,
+    `Pattern: ${doc.patternName}`,
+    '',
+    'PAYMENT (DEMO DATA)',
+    `Recipient: ${doc.payment.recipient}`,
+    `Amount: ${doc.payment.amount}`,
+    `Merchant: ${doc.payment.merchant}`,
+    `Source: ${doc.payment.source}`,
+    '',
+    'WARNING SIGNALS',
+    ...(doc.signals.length ? doc.signals.map(s => `- ${s}`) : ['- None']),
+    '',
+    'SCAM DNA',
+    ...(doc.dna.length ? doc.dna.map(d => `- ${d.label}: ${d.percent}%`) : ['- None']),
+    '',
+    'ATTACK CHAIN',
+    ...(doc.attackChain.length ? doc.attackChain.map((c, i) => `${i + 1}. ${c}`) : ['- None']),
+    '',
+    `RECOMMENDATION: ${doc.recommendation}`,
+    '',
+    'SAFE ACTIONS',
+    ...(doc.safeActions.length ? doc.safeActions.map(a => `- ${a}`) : ['- None']),
+    '',
+    `DISCLAIMER: ${doc.disclaimer}`
+  ];
+  return lines.join('\n');
 }
 
 export function downloadIncidentReport(doc: IncidentReportDoc, format: 'txt' | 'json' = 'txt'): void {
@@ -41,6 +93,8 @@ export function downloadIncidentReport(doc: IncidentReportDoc, format: 'txt' | '
   const a = document.createElement('a');
   a.href = url;
   a.download = `payraksha-demo-report-${doc.reportId}.${format}`;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
