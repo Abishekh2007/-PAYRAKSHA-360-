@@ -51,17 +51,27 @@ export default function Landing() {
             An Explainable AI Pre-Payment Scam Defense System
           </motion.p>
 
-          <motion.div className="flex flex-col gap-2 mb-8" {...animateFadeProp} transition={{ delay: 0.3 }}>
-            <p>Don't detect fraud after the loss.</p>
-            <p>Understand the risk before the payment.</p>
-            <p>Pause. Understand. Pay Safely.</p>
+          <motion.div className="flex flex-col gap-4 mb-8" {...animateFadeProp} transition={{ delay: 0.3 }}>
+            <blockquote className="font-display font-semibold text-2xl md:text-4xl text-white">
+              <p>Don't detect fraud after the loss.</p>
+              <p className="text-brand-400 mt-2">Understand the risk before the payment.</p>
+            </blockquote>
+            <p className="text-neutral-400 max-w-2xl mt-4">
+              An explainable, privacy-conscious pre-payment safety layer that analyzes suspicious signals surrounding digital payments before money is sent.
+            </p>
+            <p className="text-sm tracking-[0.2em] text-neutral-500 uppercase mt-4">Pause. Understand. Pay Safely.</p>
           </motion.div>
 
-          <motion.div className="flex flex-wrap gap-4" {...animateFadeProp} transition={{ delay: 0.4 }}>
-            <ButtonLink to="/qr" icon={<QrCode />}>SCAN QR</ButtonLink>
-            <ButtonLink to="/message" icon={<MessageSquare />}>ANALYZE MESSAGE</ButtonLink>
-            <ButtonLink to="/simulation" variant="danger">🚨 RUN LIVE SCAM SIMULATION</ButtonLink>
-            <ButtonLink to="/judge" variant="primary">🏆 JUDGE MODE</ButtonLink>
+          <motion.div className="flex flex-col gap-4" {...animateFadeProp} transition={{ delay: 0.4 }}>
+            <div className="flex flex-wrap gap-4">
+              <ButtonLink to="/simulation" variant="danger">🚨 TRY LIVE DEMO</ButtonLink>
+              <ButtonLink to="/qr" icon={<QrCode />} variant="primary">SCAN QR</ButtonLink>
+              <ButtonLink to="/technology" variant="outline">EXPLORE TECHNOLOGY</ButtonLink>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <ButtonLink to="/judge" variant="primary" size="sm">🏆 JUDGE MODE</ButtonLink>
+              <ButtonLink to="/message" icon={<MessageSquare />} variant="primary" size="sm">ANALYZE MESSAGE</ButtonLink>
+            </div>
           </motion.div>
         </div>
 
@@ -152,11 +162,14 @@ export default function Landing() {
 
       <section className="px-4 md:px-8 pb-32 text-center">
         <div className="max-w-2xl mx-auto space-y-6 text-xl md:text-2xl font-display">
-          <p className="text-neutral-400">Most fraud detection asks:</p>
-          <p className="font-bold text-neutral-200">Was this transaction fraudulent?</p>
-          <p className="text-neutral-400 pt-8">We ask:</p>
-          <p className="font-bold text-neutral-200">Does this payment situation make sense BEFORE you pay?</p>
-          <p className="pt-8 text-3xl md:text-4xl font-bold tracking-wider text-brand-400">PAUSE. UNDERSTAND. VERIFY. PAY SAFELY.</p>
+          <p className="text-neutral-400">Most fraud detection asks: <span className="font-bold text-neutral-200">Was this transaction fraudulent?</span></p>
+          <p className="text-neutral-400 pt-8">We ask: <span className="font-bold text-neutral-200">Does this payment situation make sense BEFORE you pay?</span></p>
+          <div className="pt-8 flex flex-col items-center gap-2 text-3xl md:text-4xl font-bold tracking-wider">
+            <span className="text-brand-400">PAUSE.</span>
+            <span className="text-brand-400">UNDERSTAND.</span>
+            <span className="text-brand-400">VERIFY.</span>
+            <span className="text-green-500">PAY SAFELY.</span>
+          </div>
         </div>
       </section>
     </div>
