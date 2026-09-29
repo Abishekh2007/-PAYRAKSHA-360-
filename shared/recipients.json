@@ -1,0 +1,7 @@
+{
+  "verified-electricity@demo": { "name": "Electricity Board - Verified Demo Biller", "verified": true, "category": "utility", "previousPayments": 7, "typicalAmount": 750 },
+  "merchant@demo": { "name": "Demo Kirana Store", "verified": true, "category": "shopping", "previousPayments": 3, "typicalAmount": 450 },
+  "verified@demo": { "name": "Verified Demo Merchant", "verified": true, "category": "shopping", "previousPayments": 0, "typicalAmount": 1500 },
+  "friend-ravi@demo": { "name": "Ravi - Saved Contact", "verified": false, "category": "personal", "previousPayments": 12, "typicalAmount": 600 },
+  "official-bank@demo": { "name": "Official Demo Bank", "verified": true, "category": "bank_kyc", "previousPayments": 2, "typicalAmount": 500 }
+}

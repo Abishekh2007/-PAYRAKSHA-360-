@@ -1,0 +1,346 @@
+{
+  "primary": [
+    {
+      "id": "utility_impersonation",
+      "name": "UTILITY IMPERSONATION",
+      "category": "utility",
+      "anyOf": [
+        {
+          "feature": "impersonation",
+          "min": 0.4
+        },
+        {
+          "feature": "contextMismatch",
+          "min": 0.4
+        }
+      ]
+    },
+    {
+      "id": "kyc_impersonation",
+      "name": "KYC IMPERSONATION",
+      "category": "bank_kyc",
+      "anyOf": [
+        {
+          "feature": "impersonation",
+          "min": 0.4
+        },
+        {
+          "feature": "contextMismatch",
+          "min": 0.4
+        }
+      ]
+    },
+    {
+      "id": "fake_customer_care",
+      "name": "FAKE CUSTOMER CARE",
+      "category": "customer_care",
+      "anyOf": [
+        {
+          "feature": "impersonation",
+          "min": 0.4
+        },
+        {
+          "feature": "contextMismatch",
+          "min": 0.4
+        }
+      ]
+    },
+    {
+      "id": "fake_shopping",
+      "name": "FAKE SHOPPING OFFER",
+      "category": "shopping",
+      "anyOf": [
+        {
+          "feature": "suspiciousURL",
+          "min": 0.3
+        },
+        {
+          "feature": "socialEngineering",
+          "min": 0.3
+        },
+        {
+          "feature": "contextMismatch",
+          "min": 0.3
+        }
+      ]
+    },
+    {
+      "id": "prize_lure",
+      "name": "PRIZE / LOTTERY LURE",
+      "category": "prize",
+      "anyOf": [
+        {
+          "feature": "socialEngineering",
+          "min": 0.3
+        },
+        {
+          "feature": "contextMismatch",
+          "min": 0.3
+        }
+      ]
+    },
+    {
+      "id": "job_fee",
+      "name": "JOB FEE SCAM",
+      "category": "job",
+      "anyOf": [
+        {
+          "feature": "contextMismatch",
+          "min": 0.3
+        },
+        {
+          "feature": "socialEngineering",
+          "min": 0.3
+        }
+      ]
+    },
+    {
+      "id": "investment_lure",
+      "name": "INVESTMENT FRAUD LURE",
+      "category": "investment",
+      "anyOf": [
+        {
+          "feature": "socialEngineering",
+          "min": 0.3
+        },
+        {
+          "feature": "recipientNovelty",
+          "min": 0.5
+        }
+      ]
+    },
+    {
+      "id": "refund_trap",
+      "name": "REFUND REVERSAL TRAP",
+      "category": "refund",
+      "anyOf": [
+        {
+          "feature": "contextMismatch",
+          "min": 0.3
+        }
+      ]
+    },
+    {
+      "id": "parcel_fee",
+      "name": "PARCEL FEE SCAM",
+      "category": "parcel",
+      "anyOf": [
+        {
+          "feature": "impersonation",
+          "min": 0.4
+        },
+        {
+          "feature": "contextMismatch",
+          "min": 0.3
+        },
+        {
+          "feature": "suspiciousURL",
+          "min": 0.3
+        }
+      ]
+    },
+    {
+      "id": "qr_receive_trap",
+      "name": "QR 'RECEIVE MONEY' TRAP",
+      "category": "qr_receive",
+      "anyOf": [
+        {
+          "feature": "contextMismatch",
+          "min": 0.3
+        }
+      ]
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "urgency",
+      "name": "URGENCY",
+      "feature": "urgency",
+      "min": 0.6
+    },
+    {
+      "id": "qr_redirection",
+      "name": "QR REDIRECTION",
+      "feature": "qrRedirection",
+      "min": 0.5
+    },
+    {
+      "id": "suspicious_link",
+      "name": "SUSPICIOUS LINK",
+      "feature": "suspiciousURL",
+      "min": 0.5
+    },
+    {
+      "id": "remote_access",
+      "name": "REMOTE ACCESS",
+      "feature": "behaviouralAnomaly",
+      "min": 0.4
+    },
+    {
+      "id": "unknown_recipient",
+      "name": "UNKNOWN RECIPIENT",
+      "feature": "recipientNovelty",
+      "min": 0.7
+    },
+    {
+      "id": "social_engineering",
+      "name": "SOCIAL ENGINEERING",
+      "feature": "socialEngineering",
+      "min": 0.4
+    },
+    {
+      "id": "amount_anomaly",
+      "name": "UNUSUAL AMOUNT",
+      "feature": "amountAnomaly",
+      "min": 0.6
+    }
+  ],
+  "maxModifiers": 2,
+  "minScoreForPattern": 30,
+  "noPatternName": "NO SIGNIFICANT SCAM PATTERN",
+  "genericPatternName": "MULTI-SIGNAL PAYMENT RISK",
+  "combos": [
+    {
+      "id": "urgency_qr_unknown",
+      "name": "Urgency + QR + Unknown Recipient",
+      "points": 4,
+      "all": [
+        {
+          "feature": "urgency",
+          "min": 0.5
+        },
+        {
+          "feature": "qrRedirection",
+          "min": 0.5
+        },
+        {
+          "feature": "recipientNovelty",
+          "min": 0.5
+        }
+      ]
+    },
+    {
+      "id": "pressure_payment",
+      "name": "Pressure Tactics + Payment Request",
+      "points": 2,
+      "all": [
+        {
+          "feature": "socialEngineering",
+          "min": 0.3
+        }
+      ],
+      "paymentRequest": true
+    },
+    {
+      "id": "link_unverified_payee",
+      "name": "Suspicious Link + Unverified Payee",
+      "points": 3,
+      "all": [
+        {
+          "feature": "suspiciousURL",
+          "min": 0.5
+        }
+      ],
+      "paymentRequest": true,
+      "recipientUnverified": true
+    },
+    {
+      "id": "refund_outgoing",
+      "name": "Refund + Outgoing Payment",
+      "points": 8,
+      "all": [],
+      "category": "refund",
+      "paymentRequest": true
+    },
+    {
+      "id": "care_payment",
+      "name": "Fake Customer Care + Payment Request",
+      "points": 2,
+      "all": [],
+      "category": "customer_care",
+      "paymentRequest": true
+    },
+    {
+      "id": "remote_payment",
+      "name": "Remote Access + Payment Request",
+      "points": 6,
+      "all": [
+        {
+          "feature": "behaviouralAnomaly",
+          "min": 0.4
+        }
+      ],
+      "paymentRequest": true
+    },
+    {
+      "id": "receive_qr",
+      "name": "'Receive Money' QR + Payment",
+      "points": 20,
+      "all": [],
+      "category": "qr_receive",
+      "viaQr": true
+    },
+    {
+      "id": "kyc_payment",
+      "name": "Bank KYC + Payment Request",
+      "points": 6,
+      "all": [],
+      "category": "bank_kyc",
+      "paymentRequest": true
+    },
+    {
+      "id": "prize_fee",
+      "name": "Prize Win + Upfront Fee",
+      "points": 8,
+      "all": [],
+      "category": "prize",
+      "paymentRequest": true
+    },
+    {
+      "id": "job_fee",
+      "name": "Job Offer + Registration Fee",
+      "points": 8,
+      "all": [],
+      "category": "job",
+      "paymentRequest": true
+    },
+    {
+      "id": "parcel_fee",
+      "name": "Courier Hold + Fee Demand",
+      "points": 8,
+      "all": [],
+      "category": "parcel",
+      "paymentRequest": true
+    },
+    {
+      "id": "unrealistic_offer",
+      "name": "Unrealistic Offer + New Domain",
+      "points": 8,
+      "all": [
+        {
+          "feature": "socialEngineering",
+          "min": 0.3
+        },
+        {
+          "feature": "suspiciousURL",
+          "min": 0.2
+        }
+      ],
+      "category": "shopping",
+      "paymentRequest": true
+    },
+    {
+      "id": "secret_returns",
+      "name": "Guaranteed Returns + Secrecy",
+      "points": 8,
+      "all": [
+        {
+          "feature": "socialEngineering",
+          "min": 0.4
+        }
+      ],
+      "category": "investment",
+      "paymentRequest": true
+    }
+  ]
+}

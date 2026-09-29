@@ -1,0 +1,33 @@
+{
+  "matching": "Lowercase the text. A cue matches if it occurs anywhere such that: when the cue's first char is [a-z0-9] the char before the match is not [a-z0-9] (or the match is at index 0); when the cue's last char is [a-z0-9] the char after the match is not [a-z0-9] (or the match ends the text). Each cue counts at most once.",
+  "signals": {
+    "urgency": ["urgent", "urgently", "immediately", "immediate", "today", "right now", "asap", "within 24 hours", "within 2 hours", "within 1 hour", "expire", "expires", "expiring", "expired", "last chance", "last date", "final notice", "final reminder", "act now", "hurry", "limited time", "slots left", "tonight", "deadline", "before midnight", "quickly", "instantly"],
+    "threat": ["disconnect", "disconnected", "disconnection", "suspend", "suspended", "suspension", "block", "blocked", "deactivate", "deactivated", "deactivation", "legal action", "penalty", "arrest", "terminated", "freeze", "frozen", "will be closed", "police case", "court", "seized", "returned to sender"],
+    "authority": ["electricity board", "electricity department", "power department", "electricity", "bank", "rbi", "reserve bank", "kyc", "customer care", "customer support", "support team", "helpdesk", "help desk", "income tax", "cyber cell", "police", "customs", "courier", "government", "official", "department", "sbi", "hdfc", "icici", "paytm", "phonepe", "amazon", "flipkart", "hr team", "recruiter", "executive", "officer"],
+    "paymentRequest": ["pay", "paying", "payment", "₹", "rs.", "rs", "inr", "transfer", "send money", "scan", "qr", "upi", "deposit", "fee", "fees", "charges", "invest"],
+    "lure": ["won", "winner", "congratulations", "prize", "lottery", "lucky draw", "reward", "cashback", "bonus", "free", "gift", "selected", "guaranteed", "double your money", "returns", "profit", "earn", "offer", "discount", "80% off", "refund"],
+    "secrecy": ["do not share", "don't share", "do not tell", "don't tell", "confidential", "secret", "anydesk", "teamviewer", "quicksupport", "screen share", "screen sharing", "remote access", "install the app", "download the app", "click the link", "click here", "tap the link"],
+    "credential": ["otp", "upi pin", "pin", "mpin", "atm pin", "password", "cvv", "card number"]
+  },
+  "categories": {
+    "utility": ["electricity", "electricity board", "power", "bill", "connection", "meter", "gas", "water bill", "broadband"],
+    "bank_kyc": ["kyc", "bank", "account", "pan", "aadhaar", "net banking", "debit card", "account suspension"],
+    "customer_care": ["customer care", "customer support", "helpline", "support team", "failed transaction", "reversal", "executive", "complaint"],
+    "shopping": ["sale", "flash sale", "offer", "discount", "order", "iphone", "store", "shop", "deal", "deals"],
+    "prize": ["won", "winner", "lottery", "prize", "lucky draw", "congratulations", "jackpot", "reward"],
+    "job": ["job", "hiring", "work from home", "salary", "registration fee", "recruiter", "part-time", "part time", "per day"],
+    "investment": ["invest", "investment", "returns", "profit", "trading", "crypto", "double your money", "guaranteed"],
+    "refund": ["refund", "cashback", "reimbursement", "money back", "tax refund"],
+    "parcel": ["parcel", "courier", "customs", "shipment", "package", "delivery failed"],
+    "qr_receive": ["receive money", "to receive", "receive the money", "receive payment", "olx", "buyer", "advance for"],
+    "personal": ["bro", "dinner", "split", "rent", "mom", "dad"]
+  },
+  "cueWeights": {
+    "urgency": 0.35,
+    "threat": 0.3,
+    "lure": 0.3,
+    "secrecy": 0.3,
+    "credential": 0.5,
+    "authority": 0.35
+  }
+}

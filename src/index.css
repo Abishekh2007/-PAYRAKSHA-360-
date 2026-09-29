@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PAYRAKSHA 360 design tokens: deep navy, glass cards, red / amber / green risk colours. */
+:root {
+  color-scheme: dark;
+  --navy-950: #030817;
+  --navy-900: #071029;
+  --brand: #38bdf8;
+  --risk-low: #22c55e;
+  --risk-caution: #f59e0b;
+  --risk-elevated: #f97316;
+  --risk-high: #ef4444;
+}
+
+@layer base {
+  html { @apply bg-navy-950 text-slate-100 antialiased; font-family: theme('fontFamily.sans'); }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(1100px 600px at 8% -10%, rgba(56, 189, 248, 0.13), transparent 60%),
+      radial-gradient(900px 520px at 105% 5%, rgba(239, 68, 68, 0.09), transparent 60%),
+      linear-gradient(180deg, #030817 0%, #071029 55%, #030817 100%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4 { font-family: theme('fontFamily.display'); letter-spacing: -0.01em; }
+  ::selection { background: rgba(56, 189, 248, 0.35); }
+  /* Elder mode: <html class="elder"> scales every rem-based size up. */
+  html.elder { font-size: 20px; }
+  html.elder .elder-hide { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  .glass { @apply rounded-2xl border border-white/10 bg-white/[0.04] shadow-glass backdrop-blur-xl; }
+  .glass-strong { @apply rounded-2xl border border-white/15 bg-white/[0.08] shadow-glass backdrop-blur-2xl; }
+  .glass-light { @apply rounded-2xl border border-white/60 bg-white/95 text-navy-900 shadow-glass; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold tracking-wide transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply btn bg-brand-400 text-navy-950 shadow-glow-brand hover:bg-brand-300; }
+  .btn-danger { @apply btn bg-risk-high text-white shadow-glow-high hover:bg-red-400; }
+  .btn-safe { @apply btn bg-risk-low text-navy-950 shadow-glow-low hover:bg-green-400; }
+  .btn-ghost { @apply btn border border-white/10 bg-white/5 text-slate-100 hover:bg-white/10; }
+  .btn-outline { @apply btn border border-brand-400/60 text-brand-300 hover:bg-brand-400/10; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.25em] text-brand-300; }
+  .text-gradient { @apply bg-gradient-to-r from-brand-200 via-white to-brand-400 bg-clip-text text-transparent; }
+  .input { @apply w-full rounded-xl border border-white/10 bg-navy-900/70 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30; }
+  .mono { font-family: theme('fontFamily.mono'); }
+  .grid-overlay {
+    background-image: linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "demoTlds": ["demo", "example", "test"],
+  "suspiciousTlds": ["xyz", "top", "click", "zip", "tk", "ml", "ga", "cf", "gq", "buzz", "rest", "mov", "loan", "country"],
+  "shorteners": ["bit.ly", "tinyurl.com", "t.co", "goo.gl", "is.gd", "cutt.ly", "rb.gy", "shorturl.at"],
+  "brandTokens": ["bank", "sbi", "hdfc", "icici", "axis", "kotak", "paytm", "phonepe", "gpay", "googlepay", "bhim", "npci", "upi", "amazon", "flipkart", "electricity", "tneb", "bescom", "rbi", "incometax", "income-tax"],
+  "officialDomains": ["official-demo-bank.example", "verified-electricity.demo", "merchant-store.demo", "payraksha.demo"],
+  "hostKeywords": ["secure", "verify", "verification", "update", "kyc", "login", "account", "refund", "reward", "prize", "bonus", "offer", "free", "claim", "wallet", "support", "care", "helpdesk", "pay", "bill"],
+  "pathKeywords": ["kyc", "otp", "pin", "verify", "refund", "claim", "pay", "upi", "reward", "prize", "update", "login", "urgent"],
+  "reputation": {
+    "official-demo-bank.example": { "status": "trusted", "note": "Official demo bank domain (simulated allowlist)" },
+    "verified-electricity.demo": { "status": "trusted", "note": "Verified demo biller domain (simulated allowlist)" },
+    "merchant-store.demo": { "status": "trusted", "note": "Known demo merchant (simulated allowlist)" },
+    "secure-bank-kyc-demo.example": { "status": "reported", "note": "Reported 37 times in the simulated community threat feed" },
+    "electricity-bill-update.demo": { "status": "reported", "note": "Reported 21 times in the simulated community threat feed" },
+    "customer-care-helpdesk.demo": { "status": "reported", "note": "Reported 14 times in the simulated community threat feed" },
+    "example-shopping-offer.demo": { "status": "new", "note": "Domain first observed 3 days ago (simulated)" },
+    "lucky-draw-winner.demo": { "status": "new", "note": "Domain first observed 2 days ago (simulated)" },
+    "quick-refund-claim.demo": { "status": "new", "note": "Domain first observed 5 days ago (simulated)" }
+  },
+  "points": {
+    "trusted": -40,
+    "reported": 36,
+    "new": 15,
+    "http": 10,
+    "ipHost": 25,
+    "punycode": 20,
+    "atSign": 20,
+    "shortener": 15,
+    "excessiveSubdomains": 12,
+    "hyphens": 8,
+    "brandLookalike": 20,
+    "hostKeywordEach": 7,
+    "hostKeywordMax": 3,
+    "pathKeywordEach": 6,
+    "pathKeywordMax": 2,
+    "suspiciousTld": 10,
+    "longUrl": 5,
+    "digitsInName": 5
+  }
+}

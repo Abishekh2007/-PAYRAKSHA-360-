@@ -1,0 +1,465 @@
+{
+  "scenarios": [
+    {
+      "id": "utility_scam",
+      "qrId": "QR001",
+      "kind": "scam",
+      "icon": "⚡",
+      "title": "Electricity Disconnection Scam",
+      "shortLabel": "UTILITY SCAM",
+      "labLabel": "Electricity Scam",
+      "summary": "A WhatsApp message threatens same-day disconnection and pushes a QR that pays an unknown account.",
+      "messageSource": "WhatsApp — DEMO",
+      "message": "URGENT: Your electricity connection will be disconnected today. Pay ₹1,999 immediately using the QR below.",
+      "url": "https://electricity-bill-update.demo/pay-now",
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=unknown-electricity@demo\namount=1999\nmerchant=Electricity Board Demo\nsource=WhatsApp Demo\nurgency=true\nrecipientVerified=false\nscenario=utility_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "legit_utility",
+      "qrId": "QR002",
+      "kind": "legit",
+      "icon": "✅",
+      "title": "Legitimate Electricity Bill",
+      "shortLabel": "LEGITIMATE PAYMENT",
+      "labLabel": null,
+      "summary": "Your usual monthly bill to a verified biller, raised inside the official demo app.",
+      "messageSource": "Official Demo App",
+      "message": "Your electricity bill of ₹750 for September has been generated. You can pay it in the official app before the due date.",
+      "url": null,
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=verified-electricity@demo\namount=750\nmerchant=Electricity Board (Verified Demo Biller)\nnote=Monthly electricity bill\nsource=Official Demo App\nscenario=legit_utility",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "kyc_scam",
+      "qrId": "QR003",
+      "kind": "scam",
+      "icon": "🏦",
+      "title": "Fake Bank KYC Update",
+      "shortLabel": "FAKE KYC",
+      "labLabel": "KYC Scam",
+      "summary": "An SMS claims your bank KYC expires today and asks for a small 'verification' payment by QR.",
+      "messageSource": "SMS — DEMO",
+      "message": "URGENT! Your bank KYC will expire today. Pay ₹10 immediately using this QR to avoid account suspension.",
+      "url": "https://secure-bank-kyc-demo.example",
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=kyc-update-desk@demo\namount=10\nmerchant=Bank KYC Update Desk\nsource=SMS Demo\nscenario=kyc_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "shopping_scam",
+      "qrId": "QR004",
+      "kind": "scam",
+      "icon": "🛍️",
+      "title": "Fake Flash-Sale Offer",
+      "shortLabel": "FAKE SHOPPING",
+      "labLabel": "Fake Shopping",
+      "summary": "A social-media ad offers an impossible discount on a new domain and asks for advance payment.",
+      "messageSource": "Social Media — DEMO",
+      "message": "Flash sale! iPhone 15 at 80% off, only 3 slots left, limited time. Pay ₹4,999 now to book your order at https://example-shopping-offer.demo/iphone-deal",
+      "url": "https://example-shopping-offer.demo/iphone-deal",
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=flashdeals-store@demo\namount=4999\nmerchant=Mega Flash Deals\nsource=Social Media Demo\nscenario=shopping_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "customer_care_scam",
+      "qrId": "QR005",
+      "kind": "scam",
+      "icon": "🎧",
+      "title": "Fake Customer Care Call",
+      "shortLabel": "FAKE CUSTOMER CARE",
+      "labLabel": "Fake Customer Care",
+      "summary": "A caller posing as customer care asks for a large 'reversal' payment while you are on the phone.",
+      "messageSource": "Phone Call — DEMO",
+      "message": "This is customer care. Your failed transaction can be reversed today. Pay ₹15,000 now using this QR and our executive will refund it.",
+      "url": null,
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=care-support-desk@demo\namount=15000\nmerchant=Customer Care Support\nsource=Phone Call Demo\nscenario=customer_care_scam",
+      "payment": {},
+      "behaviour": {
+        "onCall": true
+      }
+    },
+    {
+      "id": "prize_scam",
+      "qrId": "QR006",
+      "kind": "scam",
+      "icon": "🎁",
+      "title": "Prize / Reward Scam",
+      "shortLabel": "PRIZE SCAM",
+      "labLabel": "Prize Scam",
+      "summary": "A 'lucky draw' win that needs a processing fee first.",
+      "messageSource": "SMS — DEMO",
+      "message": "Congratulations! You have won ₹25,00,000 in the Lucky Draw. Pay a processing fee of ₹4,999 today to claim your prize.",
+      "url": "https://lucky-draw-winner.demo/claim",
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=prize-claims@demo\namount=4999\nmerchant=Lucky Draw Prize Desk\nsource=SMS Demo\nscenario=prize_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "job_scam",
+      "qrId": "QR007",
+      "kind": "scam",
+      "icon": "💼",
+      "title": "Work-From-Home Job Fee",
+      "shortLabel": "JOB SCAM",
+      "labLabel": "Job Scam",
+      "summary": "A job offer that asks you to pay a registration fee before joining.",
+      "messageSource": "WhatsApp — DEMO",
+      "message": "Congratulations, you are selected for a work from home job. Earn ₹3,000 per day. Pay the registration fee of ₹1,499 today to confirm your joining. - HR Team",
+      "url": null,
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=hr-onboarding@demo\namount=1499\nmerchant=HR Team Recruitment Demo\nsource=WhatsApp Demo\nscenario=job_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "investment_scam",
+      "qrId": "QR008",
+      "kind": "scam",
+      "icon": "📈",
+      "title": "Guaranteed-Returns Investment",
+      "shortLabel": "INVESTMENT SCAM",
+      "labLabel": "Investment Scam",
+      "summary": "A 'secret' crypto plan promising to double your money in a week.",
+      "messageSource": "Social Media — DEMO",
+      "message": "Guaranteed returns! Double your money in 7 days with our crypto trading plan. Invest ₹10,000 today, limited time offer. Do not tell anyone about this plan.",
+      "url": null,
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=wealth-growth@demo\namount=10000\nmerchant=Crypto Wealth Plan\nsource=Social Media Demo\nscenario=investment_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "refund_scam",
+      "qrId": "QR009",
+      "kind": "scam",
+      "icon": "💸",
+      "title": "Refund Reversal Trap",
+      "shortLabel": "REFUND SCAM",
+      "labLabel": "Refund Scam",
+      "summary": "A 'refund' that actually asks you to send money and enter your UPI PIN.",
+      "messageSource": "SMS — DEMO",
+      "message": "Your refund of ₹2,500 is pending. Scan the QR and enter your UPI PIN to receive the refund instantly.",
+      "url": "https://quick-refund-claim.demo/refund",
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=refund-desk@demo\namount=2500\nmerchant=Refund Processing Desk\nsource=SMS Demo\nscenario=refund_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "parcel_scam",
+      "qrId": null,
+      "kind": "scam",
+      "icon": "📦",
+      "title": "Parcel Customs Fee",
+      "shortLabel": "PARCEL SCAM",
+      "labLabel": "Parcel Scam",
+      "summary": "A courier message demanding a small customs fee within hours.",
+      "messageSource": "SMS — DEMO",
+      "message": "URGENT: Your parcel is held at customs. Pay ₹299 customs fee within 24 hours or the package will be returned to sender.",
+      "url": "https://parcel-customs-fee.demo/pay",
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=customs-clearance@demo\namount=299\nmerchant=Courier Customs Desk\nsource=SMS Demo\nscenario=parcel_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "qr_receive_scam",
+      "qrId": null,
+      "kind": "scam",
+      "icon": "🔁",
+      "title": "'Scan to Receive Money' QR",
+      "shortLabel": "QR SCAM",
+      "labLabel": "QR Scam",
+      "summary": "A marketplace 'buyer' sends a QR claiming you must scan it to receive money.",
+      "messageSource": "WhatsApp — DEMO",
+      "message": "Hi, I am buying your sofa listed on OLX. I will send ₹8,000 advance. Just scan this QR quickly to receive the money.",
+      "url": null,
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=buyer-olx@demo\namount=8000\nmerchant=OLX Buyer Payment\nnote=Scan to receive money\nsource=WhatsApp Demo\nscenario=qr_receive_scam",
+      "payment": {},
+      "behaviour": {}
+    },
+    {
+      "id": "legit_merchant",
+      "qrId": null,
+      "kind": "legit",
+      "icon": "🏪",
+      "title": "Neighbourhood Store Payment",
+      "shortLabel": "LEGIT MERCHANT",
+      "labLabel": null,
+      "summary": "Paying your regular kirana store at the counter.",
+      "messageSource": "Known Merchant — DEMO",
+      "message": null,
+      "url": null,
+      "qrText": "PAYRAKSHA://demo-payment\nrecipient=merchant@demo\namount=450\nmerchant=Demo Kirana Store\nsource=Known Merchant Demo\nscenario=legit_merchant",
+      "payment": {},
+      "behaviour": {}
+    }
+  ],
+  "qrOrder": [
+    "utility_scam",
+    "legit_utility",
+    "kyc_scam",
+    "shopping_scam",
+    "customer_care_scam",
+    "prize_scam",
+    "job_scam",
+    "investment_scam",
+    "refund_scam"
+  ],
+  "labOrder": [
+    "kyc_scam",
+    "customer_care_scam",
+    "qr_receive_scam",
+    "shopping_scam",
+    "job_scam",
+    "investment_scam",
+    "parcel_scam",
+    "refund_scam",
+    "prize_scam",
+    "utility_scam"
+  ],
+  "controlOrder": [
+    "utility_scam",
+    "kyc_scam",
+    "shopping_scam",
+    "customer_care_scam",
+    "prize_scam",
+    "job_scam",
+    "refund_scam",
+    "legit_utility"
+  ],
+  "sequences": {
+    "counterfactual": {
+      "baseScenario": "utility_scam",
+      "steps": [
+        {
+          "id": "verify",
+          "prompt": "What if we verify the recipient?",
+          "button": "VERIFY RECIPIENT",
+          "patch": {
+            "payment": {
+              "recipientVerified": true
+            }
+          }
+        },
+        {
+          "id": "official",
+          "prompt": "What if we use the official app?",
+          "button": "USE OFFICIAL APP",
+          "patch": {
+            "payment": {
+              "source": "official_app"
+            }
+          }
+        },
+        {
+          "id": "urgency",
+          "prompt": "What if urgency is removed?",
+          "button": "REMOVE URGENCY",
+          "patch": {
+            "payment": {
+              "urgency": "none"
+            }
+          }
+        }
+      ],
+      "finalText": "Context changed. Risk reduced because multiple suspicious signals were removed."
+    },
+    "whatIf": {
+      "baseScenario": "utility_scam",
+      "title": "WHAT WOULD MAKE THIS PAYMENT SAFER?",
+      "controls": [
+        {
+          "id": "recipient",
+          "label": "Recipient",
+          "from": "Unknown",
+          "to": "Verified",
+          "patch": {
+            "payment": {
+              "recipientVerified": true
+            }
+          }
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "from": "WhatsApp",
+          "to": "Official App",
+          "patch": {
+            "payment": {
+              "source": "official_app"
+            }
+          }
+        },
+        {
+          "id": "urgency",
+          "label": "Urgency",
+          "from": "High",
+          "to": "None",
+          "patch": {
+            "payment": {
+              "urgency": "none"
+            }
+          }
+        },
+        {
+          "id": "amount",
+          "label": "Amount",
+          "from": "₹1,999",
+          "to": "₹499",
+          "patch": {
+            "payment": {
+              "amount": 499
+            }
+          }
+        },
+        {
+          "id": "relationship",
+          "label": "Previous relationship",
+          "from": "None",
+          "to": "Existing",
+          "patch": {
+            "payment": {
+              "previousPayments": 6
+            }
+          }
+        }
+      ],
+      "finalText": "Risk context changed because suspicious signals were removed."
+    },
+    "signalsConnected": {
+      "title": "SIGNALS CONNECTED",
+      "base": {
+        "qrText": "PAYRAKSHA://demo-payment\nrecipient=unknown-electricity@demo\namount=1999\nmerchant=Electricity Board Demo\nscenario=signals_connected",
+        "payment": {
+          "recipientChecked": false
+        }
+      },
+      "steps": [
+        {
+          "id": "qr",
+          "label": "QR alone",
+          "patch": {}
+        },
+        {
+          "id": "message",
+          "label": "+ Message",
+          "patch": {
+            "message": "Pay immediately or account will be blocked.",
+            "payment": {
+              "source": "whatsapp"
+            }
+          }
+        },
+        {
+          "id": "url",
+          "label": "+ Suspicious URL",
+          "patch": {
+            "url": "https://secure-bank-kyc-demo.example"
+          }
+        },
+        {
+          "id": "recipient",
+          "label": "+ Unknown recipient",
+          "patch": {
+            "payment": {
+              "recipientChecked": true
+            }
+          }
+        }
+      ],
+      "finalText": "PAYRAKSHA does not rely on one indicator. Risk increases when multiple contextual signals appear together."
+    },
+    "liveSimulation": {
+      "baseScenario": "utility_scam",
+      "phases": [
+        {
+          "id": "message",
+          "icon": "📱",
+          "text": "Suspicious message received",
+          "stage": "message"
+        },
+        {
+          "id": "urgency",
+          "icon": "⚠️",
+          "text": "Urgency detected",
+          "stage": "message"
+        },
+        {
+          "id": "link",
+          "icon": "🌐",
+          "text": "Suspicious link opened",
+          "stage": "url"
+        },
+        {
+          "id": "qr",
+          "icon": "📷",
+          "text": "QR detected",
+          "stage": "qr"
+        },
+        {
+          "id": "recipient",
+          "icon": "👤",
+          "text": "Unknown recipient identified",
+          "stage": "full"
+        },
+        {
+          "id": "amount",
+          "icon": "💰",
+          "text": "Payment amount analyzed",
+          "stage": "full"
+        },
+        {
+          "id": "context",
+          "icon": "🧠",
+          "text": "Context engine running",
+          "stage": "full"
+        },
+        {
+          "id": "dna",
+          "icon": "🧬",
+          "text": "Scam DNA generated",
+          "stage": "full"
+        },
+        {
+          "id": "score",
+          "icon": "🚨",
+          "text": "Risk score generated",
+          "stage": "full"
+        }
+      ],
+      "stages": {
+        "message": {
+          "fields": [
+            "message"
+          ]
+        },
+        "url": {
+          "fields": [
+            "message",
+            "url"
+          ]
+        },
+        "qr": {
+          "fields": [
+            "message",
+            "url",
+            "qrText"
+          ],
+          "payment": {
+            "recipientChecked": false
+          }
+        },
+        "full": {
+          "fields": [
+            "message",
+            "url",
+            "qrText",
+            "payment",
+            "behaviour"
+          ]
+        }
+      }
+    }
+  }
+}
