@@ -1,4 +1,3 @@
-// STUB: replaced by the ui-kit task. Keep the export name and props.
 import type { HTMLAttributes } from 'react';
 import type { RiskLevelId } from '../../types';
 
@@ -13,5 +12,19 @@ export interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
 
 export function GlassCard({ variant = 'glass', glow = null, padded = true, className = '', ...rest }: GlassCardProps) {
   const base = variant === 'strong' ? 'glass-strong' : variant === 'light' ? 'glass-light' : 'glass';
-  return <div data-glow={glow ?? undefined} className={`${base} ${padded ? 'p-5' : ''} ${className}`} {...rest} />;
+
+  let glowClass = '';
+  if (glow === 'LOW') glowClass = 'shadow-glow-low';
+  else if (glow === 'CAUTION') glowClass = 'shadow-glow-caution';
+  else if (glow === 'HIGH_CAUTION') glowClass = 'shadow-glow-elevated';
+  else if (glow === 'HIGH') glowClass = 'shadow-glow-high';
+  else if (glow === 'brand') glowClass = 'shadow-glow-brand';
+
+  return (
+    <div
+      data-glow={glow ?? undefined}
+      className={`${base} ${padded ? 'p-5 sm:p-6' : ''} ${glowClass} ${className}`.trim()}
+      {...rest}
+    />
+  );
 }
