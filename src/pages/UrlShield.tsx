@@ -5,7 +5,14 @@ import { GuardianRobot } from '../components/three';
 import { analyzeUrlRisk } from '../services/api';
 import { getScenario, analyzeUrlLocal } from '../engine';
 import type { UrlResponse } from '../types';
-import { riskHeadline } from '../lib/risk';
+import { levelTheme } from '../lib/risk';
+
+const URL_VERDICT: Record<string, string> = {
+  LOW: 'No strong warning signals detected in this link.',
+  CAUTION: 'Some warning signals detected. Verify before you continue.',
+  HIGH_CAUTION: 'Potentially risky link. Multiple warning signals detected.',
+  HIGH: 'Suspicious link. Multiple strong warning signals detected.',
+};
 
 export default function UrlShield() {
   const [urlInput, setUrlInput] = useState('');
@@ -83,39 +90,48 @@ export default function UrlShield() {
             <div className="mt-6">
               <p className="text-sm text-gray-400 mb-3 font-semibold uppercase tracking-wider">Demo URLs:</p>
               <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const u = 'https://official-demo-bank.example';
-                    setUrlInput(u);
-                    handleAnalyze(u);
-                  }}
-                >
-                  Official bank (demo)
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const u = 'https://secure-bank-kyc-demo.example';
-                    setUrlInput(u);
-                    handleAnalyze(u);
-                  }}
-                >
-                  KYC look-alike (demo)
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const u = 'https://example-shopping-offer.demo';
-                    setUrlInput(u);
-                    handleAnalyze(u);
-                  }}
-                >
-                  Shopping offer (demo)
-                </Button>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const u = 'https://official-demo-bank.example';
+                      setUrlInput(u);
+                      handleAnalyze(u);
+                    }}
+                  >
+                    Official bank (demo)
+                  </Button>
+                  <p className="mt-1 font-mono text-xs text-slate-400 break-all">https://official-demo-bank.example</p>
+                </div>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const u = 'https://secure-bank-kyc-demo.example';
+                      setUrlInput(u);
+                      handleAnalyze(u);
+                    }}
+                  >
+                    KYC look-alike (demo)
+                  </Button>
+                  <p className="mt-1 font-mono text-xs text-slate-400 break-all">https://secure-bank-kyc-demo.example</p>
+                </div>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const u = 'https://example-shopping-offer.demo';
+                      setUrlInput(u);
+                      handleAnalyze(u);
+                    }}
+                  >
+                    Shopping offer (demo)
+                  </Button>
+                  <p className="mt-1 font-mono text-xs text-slate-400 break-all">https://example-shopping-offer.demo</p>
+                </div>
               </div>
             </div>
 
@@ -169,9 +185,15 @@ export default function UrlShield() {
                    showLabel={false}
                  />
                  <div className="mt-2 text-center">
-                   <div className="text-xl font-bold bg-clip-text text-transparent flex items-center justify-center gap-2">
-                     {riskHeadline(urlResult.analysis.level)}
-                   </div>
+                   {(() => {
+                     const theme = levelTheme(urlResult.analysis.level);
+                     return (
+                       <>
+                         <p data-testid="url-level" className={`text-xl font-bold ${theme.text}`}>{theme.emoji} {theme.short}</p>
+                         <p className="text-sm text-slate-300 mt-1">{URL_VERDICT[urlResult.analysis.level] ?? URL_VERDICT.CAUTION}</p>
+                       </>
+                     );
+                   })()}
                  </div>
                </div>
 

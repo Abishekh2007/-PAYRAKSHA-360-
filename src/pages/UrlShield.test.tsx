@@ -6,6 +6,19 @@ import UrlShield from './UrlShield';
 import { analyzeUrlLocal } from '../engine';
 
 describe('UrlShield', () => {
+  it('renders demo URLs on first render without link elements', () => {
+    renderWithRouter(<UrlShield />);
+
+    expect(screen.getByText('https://official-demo-bank.example')).toBeInTheDocument();
+    expect(screen.getByText('https://secure-bank-kyc-demo.example')).toBeInTheDocument();
+    expect(screen.getByText('https://example-shopping-offer.demo')).toBeInTheDocument();
+
+    const links = screen.queryAllByRole('link');
+    links.forEach(link => {
+      expect(link.getAttribute('href') ?? '').not.toContain('example');
+    });
+  });
+
   it('shows error notice for invalid url', async () => {
     const user = userEvent.setup();
     renderWithRouter(<UrlShield />);
@@ -33,6 +46,11 @@ describe('UrlShield', () => {
     expect(document.body.textContent).toContain('URL RISK');
     expect(document.body.textContent).toContain('78 / 100');
     expect(document.body.textContent).toContain('Reported in threat feed (simulated)');
+
+    const urlLevel = await screen.findByTestId('url-level');
+    expect(urlLevel).toHaveTextContent('HIGH CAUTION');
+    expect(urlLevel).not.toHaveClass('text-transparent');
+    expect(document.body.textContent).toContain('Potentially risky link. Multiple warning signals detected.');
   });
 
   it('runs analysis for Official bank demo and shows data-score 0', async () => {
@@ -44,6 +62,9 @@ describe('UrlShield', () => {
 
     const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
     expect(resultView).toHaveAttribute('data-score', '0');
+
+    const urlLevel = await screen.findByTestId('url-level');
+    expect(urlLevel).toHaveTextContent('LOW');
   });
 
   it('runs analysis for Shopping offer demo and shows data-score 30', async () => {
