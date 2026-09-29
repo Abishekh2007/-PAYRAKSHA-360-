@@ -146,7 +146,7 @@ def scenarios_endpoint():
 
 # Static app routing
 repodir = Path(__file__).resolve().parent.parent.parent
-distdir = repodir / 'dist'
+distdir = Path(os.environ['PAYRAKSHA_DIST_DIR']) if os.environ.get('PAYRAKSHA_DIST_DIR') else repodir / 'dist'
 
 if (distdir / 'index.html').is_file():
     app.mount("/", StaticFiles(directory=str(distdir), html=True), name="static")
