@@ -26,6 +26,7 @@ export function RecommendationPanel({ recommendation, level, onAction, className
 
   return (
     <GlassCard data-level={level} className={className}>
+      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">RECOMMENDED ACTION</p>
       <h3 className="text-xl font-display font-bold mb-2 text-slate-200">
         {prefix}{recommendation.title}
       </h3>
