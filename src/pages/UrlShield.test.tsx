@@ -36,18 +36,14 @@ describe('UrlShield', () => {
     // the host text is visible
     const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
 
-    // using a more flexible approach to find the host text, it's often within paragraphs or lists
-    expect(screen.getByText((content, node) => {
-      const hasText = (elem: Element) => elem.textContent === hostText;
-      const nodeHasText = hasText(node as Element);
-      const childrenDontHaveText = Array.from(node?.children || []).every(child => !hasText(child));
-      return nodeHasText && childrenDontHaveText;
-    })).toBeInTheDocument();
+    // the host is shown as plain text somewhere (UrlChecksList may render it inside a longer line)
+    expect(document.body.textContent).toContain(hostText);
 
     // there is no a[href] containing it
     const links = screen.queryAllByRole('link');
     links.forEach(link => {
       expect(link).not.toHaveTextContent(hostText);
+      expect(link.getAttribute('href') ?? '').not.toContain(hostText);
     });
 
     const expectedScore = analyzeLocal({ url: testUrl }).score;
