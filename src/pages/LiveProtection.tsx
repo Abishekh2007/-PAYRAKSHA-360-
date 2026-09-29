@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getBackendHealth } from '../services/api';
-import { useDemoStore, useCurrentReport } from '../store/demoStore';
+import { useDemoStore } from '../store/demoStore';
 import { PageShell } from '../components/layout';
 import { GlassCard, SimulationBadge, Badge } from '../components/ui';
 import { EngineCore, GuardianRobot } from '../components/three';
-import { ENGINE_VERSION, levelTheme, riskHeadline } from '../engine'; // wait, levelTheme is in lib/risk
 
 export default function LiveProtection() {
-  const [healthText, setHealthText] = useState('Checking backend status...');
-  const latestReport = useCurrentReport();
+  const [healthText, setHealthText] = useState('Checking engine…');
   const history = useDemoStore((s) => s.history);
+  const latestReport = history[0]?.report ?? null;
 
   useEffect(() => {
     let mounted = true;
@@ -71,14 +70,17 @@ export default function LiveProtection() {
       <section className="mb-8">
         <h3 className="text-lg font-bold mb-4">Recent analyses (this session)</h3>
         {history.length === 0 ? (
-          <GlassCard>No analyses yet. Try a demo QR.</GlassCard>
+          <GlassCard>
+            No analyses yet. Try a demo QR.{' '}
+            <Link to="/qr?demo=QR001" className="text-blue-400 underline">Try demo QR</Link>
+          </GlassCard>
         ) : (
           <div className="space-y-4">
             {history.map((record, i) => (
               <GlassCard key={i} className="flex justify-between items-center">
                 <div>
                   <div className="font-semibold">{record.label}</div>
-                  <div className="text-xs text-gray-500">{new Date(record.timestamp || Date.now()).toLocaleTimeString()}</div>
+                  <div className="text-xs text-gray-500">{new Date(record.at).toLocaleTimeString()}</div>
                 </div>
                 <div className="flex items-center gap-4">
                   <Badge>{record.report.score}</Badge>

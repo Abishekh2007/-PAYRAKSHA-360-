@@ -5,19 +5,24 @@ import { labScenarios, runScenarioLocal, scenarioToInput, analyzeLocal, getScena
 import { PageShell } from '../components/layout';
 import { GlassCard, Button, SimulationBadge, SectionHeader } from '../components/ui';
 import { RiskResultView, ScamDnaChart, AttackChainView } from '../components/risk';
+import type { RiskReport, Scenario } from '../types';
 
 export default function ScamLab() {
-  const [activeReport, setActiveReport] = useState<any | null>(null);
+  const [activeReport, setActiveReport] = useState<RiskReport | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const recordAnalysis = useDemoStore(s => s.recordAnalysis);
 
   const comparisonTable = useMemo(() => {
-    const list = [...labScenarios(), getScenario('legit_utility'), getScenario('legit_merchant')];
-    return list.map(s => {
+    const labList = labScenarios();
+    const extras: Scenario[] = [];
+    try { extras.push(getScenario('legit_utility')); } catch { /* ignore */ }
+    try { extras.push(getScenario('legit_merchant')); } catch { /* ignore */ }
+    const list = [...labList, ...extras.filter(e => !labList.find(s => s.id === e.id))];
+    return list.map((s: Scenario) => {
       const rep = runScenarioLocal(s.id);
       return {
         id: s.id,
-        title: s.labLabel || s.name || s.id,
+        title: s.labLabel || s.title || s.id,
         score: rep.score,
         levelLabel: rep.levelLabel,
         patternName: rep.patternName
@@ -25,12 +30,13 @@ export default function ScamLab() {
     });
   }, []);
 
-  const handleRun = (scenario: any) => {
-    const rep = analyzeLocal(scenarioToInput(scenario));
+  const handleRun = (scenario: Scenario) => {
+    const input = scenarioToInput(scenario);
+    const rep = analyzeLocal(input);
     setActiveReport(rep);
     recordAnalysis({
-      label: `Scam Lab · ${scenario.labLabel || scenario.name}`,
-      input: scenarioToInput(scenario),
+      label: `Scam Lab · ${scenario.labLabel || scenario.title}`,
+      input,
       report: rep,
       source: 'browser'
     });
@@ -38,7 +44,7 @@ export default function ScamLab() {
 
   useEffect(() => {
     if (activeReport && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      resultRef.current.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
     }
   }, [activeReport]);
 
@@ -55,7 +61,7 @@ export default function ScamLab() {
             <GlassCard key={s.id} className="flex flex-col h-full">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">{s.icon}</span>
-                <h3 className="font-bold text-lg">{s.labLabel || s.name}</h3>
+                <h3 className="font-bold text-lg">{s.labLabel || s.title}</h3>
               </div>
               <p className="text-sm text-gray-300 mb-4">{s.summary}</p>
               {s.message && (
@@ -64,7 +70,7 @@ export default function ScamLab() {
                 </div>
               )}
               <div className="mt-auto">
-                <Button fullWidth onClick={() => handleRun(s)} aria-label={`RUN IN LAB: ${s.labLabel || s.name}`}>
+                <Button fullWidth onClick={() => handleRun(s)} aria-label={`RUN IN LAB: ${s.labLabel || s.title}`}>
                   RUN IN LAB
                 </Button>
               </div>
@@ -82,7 +88,7 @@ export default function ScamLab() {
         <section className="mb-12" ref={resultRef}>
           <SectionHeader title="Analysis Result" />
           <RiskResultView report={activeReport} source="browser" />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
             <GlassCard>
                 <h3 className="font-bold mb-4">Scam DNA</h3>
