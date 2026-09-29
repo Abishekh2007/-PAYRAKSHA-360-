@@ -9,3 +9,5 @@ __pycache__/
 .wt/
 *.log
 .env
+release/
+.pyinstaller/
