@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../test/utils';
 import UrlShield from './UrlShield';
-import { getScenario, analyzeLocal, analyzeUrlLocal } from '../engine';
+import { analyzeUrlLocal } from '../engine';
 
 describe('UrlShield', () => {
   it('shows error notice for invalid url', async () => {
@@ -13,40 +13,74 @@ describe('UrlShield', () => {
     const input = screen.getByLabelText('URL to analyze');
     await user.type(input, 'not a url');
 
-    const analyzeBtn = screen.getByRole('button', { name: 'ANALYZE URL' });
-    await user.click(analyzeBtn);
+    const checkBtn = screen.getByRole('button', { name: 'CHECK URL' });
+    await user.click(checkBtn);
 
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a valid URL.');
   });
 
-  it('runs analysis for sample mallicious url', async () => {
+  it('runs analysis for KYC look-alike and shows correct results', async () => {
     const user = userEvent.setup();
     renderWithRouter(<UrlShield />);
 
-    const input = screen.getByLabelText('URL to analyze');
+    const kycBtn = screen.getByRole('button', { name: 'KYC look-alike (demo)' });
+    await user.click(kycBtn);
+
+    const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
+
+    expect(resultView).toHaveAttribute('data-score', '78');
+
+    expect(document.body.textContent).toContain('URL RISK');
+    expect(document.body.textContent).toContain('78 / 100');
+    expect(document.body.textContent).toContain('Reported in threat feed (simulated)');
+  });
+
+  it('runs analysis for Official bank demo and shows data-score 0', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<UrlShield />);
+
+    const bankBtn = screen.getByRole('button', { name: 'Official bank (demo)' });
+    await user.click(bankBtn);
+
+    const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
+    expect(resultView).toHaveAttribute('data-score', '0');
+  });
+
+  it('runs analysis for Shopping offer demo and shows data-score 30', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<UrlShield />);
+
+    const shoppingBtn = screen.getByRole('button', { name: 'Shopping offer (demo)' });
+    await user.click(shoppingBtn);
+
+    const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
+    expect(resultView).toHaveAttribute('data-score', '30');
+  });
+
+  it('runs analysis for sample malicious url and does not render clickable link', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<UrlShield />);
+
     const testUrl = 'http://kyc-update-verify.xyz/login';
+    const input = screen.getByLabelText('URL to analyze');
     await user.type(input, testUrl);
 
-    const analyzeBtn = screen.getByRole('button', { name: 'ANALYZE URL' });
-    await user.click(analyzeBtn);
+    const checkBtn = screen.getByRole('button', { name: 'CHECK URL' });
+    await user.click(checkBtn);
 
     const urlAnalysis = analyzeUrlLocal(testUrl);
     const hostText = urlAnalysis.host;
 
-    // the host text is visible
     const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
 
-    // the host is shown as plain text somewhere (UrlChecksList may render it inside a longer line)
+    expect(resultView).toHaveAttribute('data-score', String(urlAnalysis.score));
+
     expect(document.body.textContent).toContain(hostText);
 
-    // there is no a[href] containing it
     const links = screen.queryAllByRole('link');
     links.forEach(link => {
-      expect(link).not.toHaveTextContent(hostText);
-      expect(link.getAttribute('href') ?? '').not.toContain(hostText);
+      expect(link).not.toHaveTextContent('kyc-update-verify');
+      expect(link.getAttribute('href') ?? '').not.toContain('kyc-update-verify');
     });
-
-    const expectedScore = analyzeLocal({ url: testUrl }).score;
-    expect(resultView).toHaveAttribute('data-score', String(expectedScore));
   });
 });

@@ -113,7 +113,7 @@ export default function MessageShield() {
                 maxLength={2000}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full h-32 p-3 border rounded text-black bg-white" // ensure proper styling if needed or rely on parent
+                className="w-full h-32 p-3 bg-slate-900/50 text-slate-100 border border-slate-700/50 rounded focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 placeholder:text-slate-500"
               />
               <div className="text-right text-sm text-gray-400">
                 {message.length} / 2000
