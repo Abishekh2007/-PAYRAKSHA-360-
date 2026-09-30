@@ -61,4 +61,21 @@ describe('MessageShield', () => {
     expect(link).toBeInTheDocument();
     expect(link.getAttribute('href')).toContain('/qr?demo=QR002');
   });
+
+  it('updates shield-status state from idle to hold on high risk message', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<MessageShield />);
+
+    const shieldStatus = screen.getByTestId('shield-status');
+    expect(shieldStatus).toHaveAttribute('data-state', 'idle');
+
+    const scenario = getScenario('kyc_scam');
+    const sampleBtn = screen.getByRole('button', { name: scenario.shortLabel });
+    await user.click(sampleBtn);
+
+    const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
+    expect(resultView).toBeInTheDocument();
+
+    expect(shieldStatus).toHaveAttribute('data-state', 'hold');
+  });
 });

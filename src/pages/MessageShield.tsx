@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageShell } from '../components/layout';
-import { Button, ErrorNotice, GlassCard, SimulationBadge, SectionHeader } from '../components/ui';
+import { Button, ErrorNotice } from '../components/ui';
 import { RiskResultView } from '../components/risk';
-import { GuardianRobot } from '../components/three';
+import { HudPanel, ShieldStatus, shieldStateFor } from '../components/soc';
 import { analyzeRisk } from '../services/api';
 import { getScenario } from '../engine';
 import { useDemoStore } from '../store/demoStore';
@@ -22,7 +22,7 @@ function HighlightedMessage({ text, cues }: { text: string; cues: { word: string
         newHighlighted.push(segment);
       } else {
         const parts = segment.text.split(cueRegex);
-        parts.forEach((part, i) => {
+        parts.forEach((part) => {
           if (part.toLowerCase() === cue.word.toLowerCase()) {
             newHighlighted.push({ text: part, severity: cue.severity });
           } else if (part !== '') {
@@ -35,12 +35,17 @@ function HighlightedMessage({ text, cues }: { text: string; cues: { word: string
   });
 
   return (
-    <div className="whitespace-pre-wrap">
+    <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-300 p-3 bg-black/40 border border-cyan-400/20 rounded-[3px]">
       {highlighted.map((segment, i) =>
         segment.severity ? (
-          <mark key={i} data-severity={segment.severity}>
+          <span
+            key={i}
+            className={`font-semibold px-1 rounded-[2px] ${
+              segment.severity === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+            }`}
+          >
             {segment.text}
-          </mark>
+          </span>
         ) : (
           <span key={i}>{segment.text}</span>
         )
@@ -52,7 +57,7 @@ function HighlightedMessage({ text, cues }: { text: string; cues: { word: string
 const SEVERITY_DOT: Record<string, string> = {
   high: '🔴',
   medium: '🟠',
-  low: '🟡',
+  low: '🟢',
 };
 
 export default function MessageShield() {
@@ -103,23 +108,21 @@ export default function MessageShield() {
   const primaryPattern =
     result?.report.patterns?.find((p: DetectedPattern) => p.kind === 'primary')?.name ??
     result?.report.patternName;
+
   const hasPattern =
     Boolean(primaryPattern) &&
     primaryPattern?.toUpperCase() !== 'NO SIGNIFICANT SCAM PATTERN';
 
-  const mood = isAnalyzing ? 'thinking' : result ? (result.report.level === 'LOW' ? 'safe' : 'alert') : 'idle';
-
   return (
     <PageShell
-      eyebrow="Shield"
-      title="Message Shield"
-      subtitle="Analyze suspicious messages"
-      icon={<span aria-hidden="true">✉️</span>}
+      eyebrow="SHIELDS"
+      title="MESSAGE SHIELD"
+      subtitle="Suspicious payload analysis"
+      width="wide"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <GlassCard>
-            <SectionHeader title="Input Message" />
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          <HudPanel title="MESSAGE INTAKE">
             <div className="mb-4">
               <label htmlFor="message-input" className="sr-only">
                 Message to analyze
@@ -131,9 +134,9 @@ export default function MessageShield() {
                 maxLength={2000}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full h-32 p-3 bg-slate-900/50 text-slate-100 border border-slate-700/50 rounded focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 placeholder:text-slate-500"
+                className="w-full h-40 p-3 bg-black/40 text-slate-100 border border-cyan-400/20 rounded-[3px] focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 placeholder:text-slate-600 font-mono text-sm caret-cyan-300 resize-none"
               />
-              <div className="text-right text-sm text-gray-400">
+              <div className="text-right text-xs text-slate-500 font-mono mt-1">
                 {message.length} / 2000
               </div>
             </div>
@@ -147,108 +150,100 @@ export default function MessageShield() {
             >
               ANALYZE MESSAGE
             </Button>
+          </HudPanel>
 
-            <div className="mt-4">
-              <p className="text-sm text-gray-500 mb-2">Try a sample:</p>
-              <div className="flex flex-wrap gap-2">
-                {sampleIds.map((id) => {
-                  const scenario = getScenario(id);
-                  return (
-                    <Button
-                      key={id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setMessage(scenario.message);
-                        handleAnalyze(scenario.message);
-                      }}
-                    >
-                      {scenario.shortLabel}
-                    </Button>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-xs text-gray-400">
-                Looking for a safe example? A verified biller payment is checked with its full context in QR Shield.
-              </p>
-              <div className="mt-1">
-                <Link
-                  to="/qr?demo=QR002"
-                  className="text-xs text-brand-400 hover:text-brand-300 underline inline-flex items-center gap-1"
-                >
-                  See a safe payment (QR002) →
-                </Link>
-              </div>
+          <HudPanel title="SAMPLE MESSAGES">
+            <p className="text-xs text-slate-400 mb-3 font-mono uppercase">Load standard vector:</p>
+            <div className="flex flex-wrap gap-2">
+              {sampleIds.map((id) => {
+                const scenario = getScenario(id);
+                return (
+                  <Button
+                    key={id}
+                    variant="outline"
+                    size="sm"
+                    className="font-mono text-xs uppercase"
+                    onClick={() => {
+                      setMessage(scenario.message);
+                      handleAnalyze(scenario.message);
+                    }}
+                  >
+                    {scenario.shortLabel}
+                  </Button>
+                );
+              })}
             </div>
 
-            <p className="mt-6 text-xs text-gray-400">
-              Analysed in memory for this demo. Nothing is stored or sent anywhere else.
-            </p>
-          </GlassCard>
+            <div className="mt-6 pt-4 border-t border-dashed border-cyan-400/15">
+              <Link
+                to="/qr?demo=QR002"
+                className="text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 uppercase tracking-wide group w-fit"
+              >
+                See a safe payment (QR002)
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </Link>
+            </div>
+          </HudPanel>
         </div>
 
-        <div>
-          <div className="h-48 mb-6 relative">
-            <GuardianRobot mood={mood} />
-          </div>
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <ShieldStatus
+            state={shieldStateFor(result?.report.level ?? null, isAnalyzing)}
+            shield="MESSAGE SHIELD"
+            score={result?.report.score ?? null}
+            detail={result ? (hasPattern ? `Pattern match: ${primaryPattern}` : `Category: ${result.report.analyses.text.categoryLabel}`) : (isAnalyzing ? 'Running linguistic analysis...' : 'Awaiting text input')}
+          />
 
           {result && (
-            <GlassCard className="mb-6">
-              <SimulationBadge />
-              <h3 className="text-lg font-bold mb-2 mt-2">Analysis Result</h3>
-              <p className="mb-2 text-sm text-gray-300">
-                Detected Category: {result.report.analyses.text.categoryLabel}
-              </p>
-
-              <div className="p-3 bg-gray-800 rounded mb-4">
+            <div className="flex flex-col gap-4">
+              <HudPanel title="DECODED PAYLOAD">
                 <HighlightedMessage text={result.report.input.message || ''} cues={cuesList} />
-              </div>
+              </HudPanel>
 
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold mb-1">SCAM DNA</h4>
-                <ul aria-label="Scam DNA" className="space-y-1 text-sm">
-                  {activeSignals.length === 0 ? (
-                    <li className="text-slate-300">
-                      🟢 No scam signals detected in this message.
-                    </li>
-                  ) : (
-                    activeSignals.map((signal) => (
-                      <li key={signal.id} className="text-slate-300">
-                        <span>
-                          {SEVERITY_DOT[signal.severity] || '🟡'} {signal.label}
-                        </span>
-                        {signal.cues.length > 0 && (
-                          <span className="text-xs text-gray-400 ml-2">
-                            {signal.cues.join(', ')}
-                          </span>
-                        )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <HudPanel title="SCAM DNA">
+                  <ul aria-label="Scam DNA" className="space-y-2 text-xs font-mono">
+                    {activeSignals.length === 0 ? (
+                      <li className="text-cyan-600/80 uppercase">
+                        [ NO SCAM SIGNALS DETECTED ]
                       </li>
-                    ))
+                    ) : (
+                      activeSignals.map((signal) => (
+                        <li key={signal.id} className="text-slate-300 block">
+                          <span className="flex items-center gap-2">
+                             <span>{SEVERITY_DOT[signal.severity] || '🟡'} {signal.label}</span>
+                          </span>
+                          {signal.cues.length > 0 && (
+                            <span className="block mt-1 text-[10px] text-slate-500 ml-6 break-words">
+                              MATCHES: {signal.cues.join(', ')}
+                            </span>
+                          )}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </HudPanel>
+
+                <HudPanel title="PATTERN DETECT" className="h-full">
+                  <div className="text-sm font-semibold mb-2 text-slate-300 hud-label">Detected pattern:</div>
+                  {hasPattern ? (
+                    <div className="font-mono text-sm uppercase font-bold text-red-400">
+                      {primaryPattern}
+                    </div>
+                  ) : (
+                    <div className="font-mono text-sm uppercase text-slate-400">
+                      NO SIGNIFICANT SCAM PATTERN
+                    </div>
                   )}
-                </ul>
-              </div>
 
-              <div className="mb-4">
-                <div className="text-sm font-semibold mb-1 text-slate-300">
-                  Detected pattern:
-                </div>
-                {hasPattern ? (
-                  <span className="inline-block font-bold uppercase text-sm px-2.5 py-1 bg-red-950/60 text-red-200 border border-red-700/60 rounded">
-                    {primaryPattern}
-                  </span>
-                ) : (
-                  <span className="inline-block text-sm px-2.5 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded">
-                    No significant scam pattern
-                  </span>
-                )}
+                  {result.report.explanation?.summary && (
+                    <p className="mt-4 text-xs text-slate-400 leading-relaxed font-sans">
+                      <span className="font-semibold text-slate-300">In simple words: </span>
+                      {result.report.explanation.summary}
+                    </p>
+                  )}
+                </HudPanel>
               </div>
-
-              {result.report.explanation?.summary && (
-                <p className="text-sm text-slate-300 mb-4">
-                  <span className="font-semibold text-slate-200">In simple words: </span>
-                  {result.report.explanation.summary}
-                </p>
-              )}
 
               <RiskResultView
                 report={result.report}
@@ -257,7 +252,7 @@ export default function MessageShield() {
                 ml={result.ml}
                 showPayment={false}
               />
-            </GlassCard>
+            </div>
           )}
         </div>
       </div>

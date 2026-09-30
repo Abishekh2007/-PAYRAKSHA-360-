@@ -78,11 +78,28 @@ describe('QrShield', () => {
 
   it('runs analysis for QR005 via deep link and gets 88', async () => {
     renderWithRouter(<QrShield />, { route: '/qr?demo=QR005' });
-    
+
     // Automatically runs
     await act(() => vi.advanceTimersByTime(2000));
 
     const res = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
     expect(res).toHaveAttribute('data-score', '88');
+  });
+
+  it('updates shield-status state from idle to hold on high risk QR', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    renderWithRouter(<QrShield />, { route: '/qr' });
+
+    const shieldStatus = screen.getByTestId('shield-status');
+    expect(shieldStatus).toHaveAttribute('data-state', 'idle');
+
+    await user.click(await screen.findByRole('button', { name: 'USE DEMO QR' }));
+
+    const qr001Btn = await screen.findByRole('button', { name: /QR001 \· /i });
+    await user.click(qr001Btn);
+
+    await act(() => vi.advanceTimersByTime(2000));
+
+    expect(shieldStatus).toHaveAttribute('data-state', 'hold');
   });
 });

@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageShell } from '../components/layout';
-import { Button, SimulationBadge, ScanSteps, ErrorNotice } from '../components/ui';
+import { Button, ScanSteps, ErrorNotice } from '../components/ui';
 import { RiskResultView } from '../components/risk';
-import { GuardianRobot } from '../components/three';
+import { HudPanel, ShieldStatus, shieldStateFor } from '../components/soc';
+import { useReducedMotion } from 'framer-motion';
 import {
   decodeQrFromFile,
   startCameraScan,
@@ -13,7 +14,7 @@ import {
 import { analyzeRisk } from '../services/api';
 import { parseQrLocal, scenarioToInput, qrScenarios } from '../engine';
 import { useDemoStore } from '../store/demoStore';
-import type { RiskReport, EngineSource, MlInsight, Scenario, RobotMood, AnalyzeInput } from '../types';
+import type { RiskReport, EngineSource, MlInsight, Scenario, AnalyzeInput } from '../types';
 import { QrCode, ScanLine, Upload, X, Camera } from 'lucide-react';
 
 const SCAN_STEP_TEXTS = [
@@ -39,10 +40,13 @@ export default function QrShield() {
   const [source, setSource] = useState<EngineSource | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [ml, setMl] = useState<MlInsight | null>(null);
+  const [qrText, setQrText] = useState<string>('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const stopCameraRef = useRef<(() => void) | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const demoId = searchParams.get('demo');
@@ -81,7 +85,6 @@ export default function QrShield() {
     }
   };
 
-  // Needed for async mounting of video tag
   useEffect(() => {
       if (activeTab === 'camera') {
           startCamera();
@@ -124,6 +127,7 @@ export default function QrShield() {
     setScanning(true);
     setScanStepIndex(0);
     setErrorMsg(null);
+    setQrText(text);
 
     let finalInput: AnalyzeInput;
     const parsed = parseQrLocal(text);
@@ -193,25 +197,14 @@ export default function QrShield() {
     setReport(null);
     setScanStepIndex(-1);
     setScanning(false);
+    setQrText('');
     setErrorMsg(null);
-    setActiveTab('none');
   };
 
-  let mood: RobotMood = 'idle';
-  if (scanning) mood = 'thinking';
-  else if (report) {
-      if (report.level === 'HIGH' || report.level === 'HIGH_CAUTION') mood = 'alert';
-      else if (report.level === 'LOW') mood = 'safe';
-  }
-
   return (
-    <PageShell eyebrow="Protection" title="QR Shield" subtitle="Scan payment QR codes to analyze risk before you pay." icon={<ScanLine className="w-8 h-8 md:w-12 md:h-12" />}>
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="lg:w-1/3 flex flex-col gap-6">
-          <GuardianRobot mood={mood} className="h-64" />
-          <p className="text-sm text-gray-400 font-medium">Scanning never pays. PAYRAKSHA only reads demo QR data.</p>
-          <SimulationBadge />
-
+    <PageShell eyebrow="SHIELDS" title="QR SHIELD" subtitle="Optical payload scanner" width="wide">
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-5 flex flex-col gap-4">
           <div className="flex flex-col gap-3">
              <Button
                 variant="primary"
@@ -250,75 +243,98 @@ export default function QrShield() {
           </div>
 
           {activeTab === 'demo' && !scanning && !report && (
-              <div className="flex flex-col gap-2 mt-4 p-4 border border-gray-700 rounded-lg bg-gray-900/50">
-                  <h3 className="font-semibold text-white mb-2">Select a Demo QR</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {qrScenarios().map((s) => {
-                          const id = s.qrId || s.id;
-                          return (
-                              <Button
-                                  key={s.id}
-                                  variant="ghost"
-                                  size="sm"
-                                  aria-label={`${id} · ${s.shortLabel || s.title}`}
-                                  onClick={() => handleDemoClick(s)}
-                              >
-                                  {id} {s.shortLabel || s.title}
-                              </Button>
-                          );
-                      })}
-                  </div>
+            <HudPanel title="DEMO QR SAMPLES" className="animate-in fade-in slide-in-from-top-4">
+              <div className="flex flex-col gap-2">
+                {qrScenarios().map((s) => {
+                  const id = s.qrId || s.id;
+                  return (
+                    <Button
+                      key={s.id}
+                      variant="ghost"
+                      className="justify-start font-mono text-xs uppercase text-slate-300 hover:text-cyan-300"
+                      aria-label={`${id} · ${s.shortLabel || s.title}`}
+                      onClick={() => handleDemoClick(s)}
+                    >
+                      <span className="w-12 shrink-0 text-cyan-500">{id}</span>
+                      <span className="truncate">{s.shortLabel || s.title}</span>
+                    </Button>
+                  );
+                })}
               </div>
+            </HudPanel>
+          )}
+
+          {activeTab === 'camera' && !scanning && !report && (
+            <HudPanel title="OPTICAL SCANNER · DEMO">
+              <div className="hud-panel relative mx-auto aspect-square w-full max-w-sm overflow-hidden bg-black border border-cyan-400/20">
+                <video ref={videoRef} playsInline muted className="absolute inset-x-0 inset-y-0 h-full w-full object-cover opacity-80" />
+                <div className="pointer-events-none absolute inset-0">
+                   {!reduceMotion && (
+                     <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-cyan-400/50 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-scan" style={{ marginTop: '-1px' }} />
+                   )}
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-center">
+                    <Button variant="danger" icon={<X size={18} />} onClick={() => { stopCamera(); setActiveTab('none'); }}>
+                        STOP CAMERA
+                    </Button>
+                </div>
+              </div>
+              <p className="mt-4 text-center font-mono text-[10px] tracking-wide text-cyan-300/70 uppercase">
+                CAMERA / UPLOAD · DEMO — NEVER TRIGGERS A PAYMENT
+              </p>
+            </HudPanel>
+          )}
+
+          {!report && !scanning && activeTab === 'none' && !errorMsg && (
+            <HudPanel className="opacity-50">
+               <div className="flex h-32 items-center justify-center font-mono text-xs uppercase text-slate-500">
+                 Awaiting Input Method
+               </div>
+            </HudPanel>
           )}
         </div>
 
-        <div className="lg:w-2/3">
-           {errorMsg && <ErrorNotice message={errorMsg} onRetry={reset} className="mb-6" />}
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <ShieldStatus
+            state={shieldStateFor(report?.level ?? null, scanning)}
+            shield="QR SHIELD"
+            score={report?.score ?? null}
+            detail={report ? `Analysis complete` : (scanning ? 'Processing image payload...' : 'Ready state')}
+          />
 
-           {activeTab === 'camera' && !scanning && !report && (
-               <div className="relative rounded-xl overflow-hidden bg-black border border-gray-700 aspect-[4/3] flex flex-col items-center justify-center">
-                   <video ref={videoRef} playsInline muted className="absolute inset-0 w-full h-full object-cover" />
-                   <div className="absolute inset-0 border-2 border-brand-500/50 m-8 rounded-lg pointer-events-none">
-                       <div className="h-0.5 bg-brand-500 w-full animate-scan" style={{ top: '50%', position: 'absolute' }}></div>
-                   </div>
-                   <div className="absolute bottom-4 z-10">
-                       <Button variant="danger" icon={<X size={18} />} onClick={() => { stopCamera(); setActiveTab('none'); }}>
-                           STOP CAMERA
-                       </Button>
-                   </div>
-               </div>
-           )}
+          {errorMsg && <ErrorNotice message={errorMsg} onRetry={reset} />}
 
-           {scanning && (
-               <div className="p-6 border border-gray-700 rounded-xl bg-gray-900/50 h-full flex items-center justify-center">
-                   <div className="w-full max-w-md">
-                       <ScanSteps steps={SCAN_STEP_TEXTS} activeIndex={scanStepIndex} />
-                   </div>
-               </div>
-           )}
+          {scanning && (
+            <HudPanel title="ANALYSIS SEQUENCE">
+              <ScanSteps steps={SCAN_STEP_TEXTS} activeIndex={scanStepIndex} />
+            </HudPanel>
+          )}
 
-           {report && !scanning && (
-               <div className="flex flex-col gap-6">
-                   <RiskResultView
-                      report={report}
-                      source={source}
-                      latencyMs={latencyMs}
-                      ml={ml}
-                      showPayment={true}
-                   />
-                   <div className="flex justify-center mt-4">
-                       <Button onClick={reset} variant="outline" icon={<ScanLine size={18} />}>
-                           SCAN ANOTHER QR
-                       </Button>
-                   </div>
-               </div>
-           )}
+          {report && !scanning && (
+            <div className="flex flex-col gap-4">
+              <RiskResultView
+                 report={report}
+                 source={source}
+                 latencyMs={latencyMs}
+                 ml={ml}
+                 showPayment={true}
+              />
 
-           {!report && !scanning && activeTab === 'none' && !errorMsg && (
-               <div className="h-full min-h-[300px] border border-gray-800 rounded-xl flex items-center justify-center bg-gray-900/30 text-gray-500">
-                   Select a method to scan a QR code
-               </div>
-           )}
+              {qrText && (
+                <HudPanel title="DECODED PAYLOAD (DEMO)">
+                  <div className="rounded-[3px] bg-black/40 border border-cyan-400/20 p-3 font-mono text-emerald-300 text-xs break-all">
+                    {qrText}
+                  </div>
+                </HudPanel>
+              )}
+
+              <div className="flex justify-center mt-2">
+                 <Button onClick={reset} variant="outline" icon={<ScanLine size={18} />}>
+                     SCAN ANOTHER QR
+                 </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </PageShell>
