@@ -83,11 +83,11 @@ export default function ScamDna() {
               </motion.div>
 
               {/* Charts */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ ...transition, delay: 0.1 }} className="flex flex-col justify-center items-center h-64 border border-cyan-400/10 rounded-sm bg-black/20">
-                  <ScamDnaChart dna={report.dna} variant="radar" />
+              <div className="grid grid-cols-1 gap-4 mb-6">
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ ...transition, delay: 0.1 }} className="flex flex-col justify-center items-center rounded-xl border border-cyan-400/10 bg-gradient-to-br from-cyan-50 to-white">
+                  <ScamDnaChart dna={report.dna} variant="radar" legend={false} className="w-full" />
                 </motion.div>
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ ...transition, delay: 0.2 }} className="flex flex-col justify-center border border-cyan-400/10 rounded-sm bg-black/20 h-64 p-4">
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ ...transition, delay: 0.2 }} className="flex flex-col justify-center rounded-xl border border-cyan-400/10 bg-white p-4">
                   <ScamDnaChart dna={report.dna} variant="bars" />
                 </motion.div>
               </div>

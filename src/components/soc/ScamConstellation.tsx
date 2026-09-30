@@ -82,14 +82,14 @@ export interface ScamConstellationProps {
 }
 
 // Constants for SVG layout
-const SVG_W = 480;
-const SVG_H = 320;
+const SVG_W = 520;
+const SVG_H = 400;
 const CX = SVG_W / 2;
 const CY = SVG_H / 2;
-const INNER_RX = 80;
-const INNER_RY = 65;
-const OUTER_RX = 170;
-const OUTER_RY = 130;
+const INNER_RX = 92;
+const INNER_RY = 78;
+const OUTER_RX = 180;
+const OUTER_RY = 155;
 
 const SEVERITY_RADIUS: Record<Severity, number> = {
   none: 0,
@@ -110,8 +110,9 @@ function starPos(
   total: number,
   rx: number,
   ry: number,
+  offset = 0,
 ): { x: number; y: number } {
-  const angle = ((-90 + (360 * index) / total) * Math.PI) / 180;
+  const angle = ((-90 + (360 * (index + offset)) / total) * Math.PI) / 180;
   return {
     x: CX + rx * Math.cos(angle),
     y: CY + ry * Math.sin(angle),
@@ -148,8 +149,13 @@ function StarNode({
 }) {
   const r = SEVERITY_RADIUS[star.severity];
   const color = SEVERITY_COLOR[star.severity];
-  const labelX = pos.x;
-  const labelY = pos.y + r + 11;
+  // Place the label outward from the centre so neighbouring labels don't collide.
+  const dx = pos.x - CX, dy = pos.y - CY;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const labelX = pos.x + ux * (r + 6);
+  const labelY = pos.y + uy * (r + 8) + 3;
+  const anchor = ux > 0.35 ? 'start' : ux < -0.35 ? 'end' : 'middle';
 
   return (
     <g data-testid={`star-${star.id}`} data-severity={star.severity}>
@@ -168,14 +174,13 @@ function StarNode({
       <text
         x={labelX}
         y={labelY}
-        textAnchor="middle"
-        fontSize={9}
-        letterSpacing={1}
-        fill="#94a3b8"
-        className="font-mono"
-        fontFamily="monospace"
+        textAnchor={anchor}
+        fontSize={10}
+        fontWeight={600}
+        fill={star.kind === 'dna' ? '#334155' : '#64748b'}
+        fontFamily="Inter, sans-serif"
       >
-        {truncate(star.label)}
+        {truncate(star.label, 20)}
       </text>
     </g>
   );
@@ -220,7 +225,7 @@ export function ScamConstellation({ report, className = '' }: ScamConstellationP
 
         {/* Signal stars on outer ellipse */}
         {sigStars.map((star, i) => {
-          const pos = starPos(i, Math.max(sigStars.length, 1), OUTER_RX, OUTER_RY);
+          const pos = starPos(i, Math.max(sigStars.length, 1), OUTER_RX, OUTER_RY, 0.5);
           return <StarNode key={star.id} star={star} pos={pos} dashFlow={dashFlow} />;
         })}
 
@@ -241,10 +246,9 @@ export function ScamConstellation({ report, className = '' }: ScamConstellationP
           y={CY + 38}
           textAnchor="middle"
           fontSize={nameFontSize}
-          letterSpacing={1.5}
-          fill="#e2e8f0"
-          className="font-mono"
-          fontFamily="monospace"
+          fontWeight={700}
+          fill="#1e293b"
+          fontFamily="Inter, sans-serif"
         >
           {patternName}
         </text>

@@ -14,6 +14,8 @@ import type { Severity } from '../../types';
 export interface ScamDnaChartProps {
   dna: DnaStrand[];
   variant?: 'bars' | 'radar';
+  /** Show the labelled list under the chart (off when a bars chart sits next to the radar). */
+  legend?: boolean;
   className?: string;
 }
 
@@ -36,7 +38,7 @@ function segmentFill(pct: number, segIdx: number): string {
   return '#1e293b';
 }
 
-export function ScamDnaChart({ dna, variant = 'bars', className = '' }: ScamDnaChartProps) {
+export function ScamDnaChart({ dna, variant = 'bars', className = '', legend = true }: ScamDnaChartProps) {
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
@@ -85,11 +87,11 @@ export function ScamDnaChart({ dna, variant = 'bars', className = '' }: ScamDnaC
   return (
     <div data-testid="scam-dna" data-variant={variant} className={`flex flex-col items-center ${className}`}>
       {variant === 'radar' && dna.length > 0 && (
-        <div className="w-full h-64" aria-hidden="true">
+        <div className="w-full h-72" aria-hidden="true">
           <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={dna}>
-              <PolarGrid stroke="#123047" />
-              <PolarAngleAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace', letterSpacing: 1.5 }} />
+            <RadarChart cx="50%" cy="50%" outerRadius="62%" margin={{ top: 16, right: 40, bottom: 16, left: 40 }} data={dna}>
+              <PolarGrid stroke="#cbd5e1" />
+              <PolarAngleAxis dataKey="label" tick={{ fill: '#475569', fontSize: 10, fontFamily: 'Inter, sans-serif', fontWeight: 600 }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
               <Radar
                 name="Scam DNA"
@@ -104,7 +106,7 @@ export function ScamDnaChart({ dna, variant = 'bars', className = '' }: ScamDnaC
         </div>
       )}
 
-      {renderTextLegend()}
+      {legend && renderTextLegend()}
     </div>
   );
 }
