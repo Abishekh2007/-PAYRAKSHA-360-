@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageShell } from '../components/layout';
 import { Button, SimulationBadge } from '../components/ui';
 import { HudPanel } from '../components/soc';
-import { QrCode, Download, ExternalLink } from 'lucide-react';
+import { QrCode, Download, ExternalLink, Smartphone } from 'lucide-react';
 import {
   buildDemoQrPayload,
   generateQrSvg,
@@ -11,6 +11,7 @@ import {
   DemoQrFields,
 } from '../services/qr';
 import { scenarios, qrScenarios, parseQrLocal, analyzeLocal } from '../engine';
+import { setLinkTarget } from '../services/link';
 
 const SOURCE_OPTIONS = [
   'WhatsApp Demo',
@@ -31,6 +32,7 @@ export default function QrGenerator() {
   const [recipientVerified, setRecipientVerified] = useState(true);
 
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [targetStatus, setTargetStatus] = useState<string | null>(null);
 
   const [generatedSvg, setGeneratedSvg] = useState<string | null>(null);
   const [generatedPayload, setGeneratedPayload] = useState<string | null>(null);
@@ -67,6 +69,7 @@ export default function QrGenerator() {
   };
 
   const handleGenerate = async () => {
+    setTargetStatus(null);
     setErrorText(null);
     setGeneratedSvg(null);
     setGeneratedPayload(null);
@@ -110,6 +113,16 @@ export default function QrGenerator() {
     setGeneratedRisk(risk);
   };
 
+  const handleSendToTarget = async () => {
+    if (!generatedPayload) return;
+    const res = await setLinkTarget(generatedPayload, 'Custom demo QR');
+    if (res) {
+        setTargetStatus('Sent — on the phone, “Scan what the console shows” now opens this QR.');
+    } else {
+        setTargetStatus('Phone link offline — start PAYRAKSHA with the launcher so the phone can reach it.');
+    }
+  };
+
   const handleDownload = () => {
     if (!generatedSvg) return;
     const blob = new Blob([generatedSvg], { type: 'image/svg+xml' });
@@ -139,34 +152,34 @@ export default function QrGenerator() {
             <form className="p-4 flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); handleGenerate(); }}>
                <label className="flex flex-col gap-1">
                    <span className="hud-label">Recipient</span>
-                   <input type="text" value={recipient} onChange={e => setRecipient(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+                   <input type="text" value={recipient} onChange={e => setRecipient(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
                </label>
 
                <label className="flex flex-col gap-1">
                    <span className="hud-label">Amount (₹)</span>
-                   <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+                   <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
                </label>
 
                <label className="flex flex-col gap-1">
                    <span className="hud-label">Merchant</span>
-                   <input type="text" value={merchant} onChange={e => setMerchant(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+                   <input type="text" value={merchant} onChange={e => setMerchant(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
                </label>
 
                <label className="flex flex-col gap-1">
                    <span className="hud-label">Note</span>
-                   <input type="text" value={note} onChange={e => setNote(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+                   <input type="text" value={note} onChange={e => setNote(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
                </label>
 
                <label className="flex flex-col gap-1">
                    <span className="hud-label">Source</span>
-                   <select value={sourceOpt} onChange={e => setSourceOpt(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none">
+                   <select value={sourceOpt} onChange={e => setSourceOpt(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none">
                       {SOURCE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                    </select>
                </label>
 
                <label className="flex flex-col gap-1">
                    <span className="hud-label">Scenario ID (optional)</span>
-                   <select value={scenarioId} onChange={e => setScenarioId(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none">
+                   <select value={scenarioId} onChange={e => setScenarioId(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none">
                       <option value="">-- None --</option>
                       {scenarios.map(s => <option key={s.id} value={s.id}>{s.id}</option>)}
                    </select>
@@ -174,21 +187,21 @@ export default function QrGenerator() {
 
                <label className="flex items-center gap-3 mt-2 cursor-pointer group">
                    <input type="checkbox" checked={urgency} onChange={e => setUrgency(e.target.checked)} className="peer sr-only" />
-                   <div className="w-4 h-4 border border-cyan-400/30 rounded-sm peer-checked:bg-cyan-400/20 peer-focus:border-cyan-400 flex items-center justify-center">
-                     {urgency && <div className="w-2 h-2 bg-cyan-400 rounded-sm" />}
+                   <div className="w-4 h-4 border border-cyan-400/30 rounded-xl peer-checked:bg-cyan-400/20 peer-focus:border-cyan-400 flex items-center justify-center">
+                     {urgency && <div className="w-2 h-2 bg-cyan-400 rounded-xl" />}
                    </div>
                    <span className="hud-label group-hover:text-cyan-300 transition-colors">Urgency</span>
                </label>
 
                <label className="flex items-center gap-3 cursor-pointer group">
                    <input type="checkbox" checked={recipientVerified} onChange={e => setRecipientVerified(e.target.checked)} className="peer sr-only" />
-                   <div className="w-4 h-4 border border-cyan-400/30 rounded-sm peer-checked:bg-cyan-400/20 peer-focus:border-cyan-400 flex items-center justify-center">
-                     {recipientVerified && <div className="w-2 h-2 bg-cyan-400 rounded-sm" />}
+                   <div className="w-4 h-4 border border-cyan-400/30 rounded-xl peer-checked:bg-cyan-400/20 peer-focus:border-cyan-400 flex items-center justify-center">
+                     {recipientVerified && <div className="w-2 h-2 bg-cyan-400 rounded-xl" />}
                    </div>
                    <span className="hud-label group-hover:text-cyan-300 transition-colors">Recipient Verified</span>
                </label>
 
-               {errorText && <div role="alert" className="text-red-400 bg-red-950/30 border border-red-900/50 p-3 rounded-sm mt-2 font-mono text-sm flex items-start gap-2">
+               {errorText && <div role="alert" className="text-red-400 bg-red-950/30 border border-red-900/50 p-3 rounded-xl mt-2 font-mono text-sm flex items-start gap-2">
                  <span className="mt-0.5">⚠️</span> <span>{errorText}</span>
                </div>}
 
@@ -205,20 +218,18 @@ export default function QrGenerator() {
            {generatedSvg && generatedPayload && (
                <HudPanel eyebrow="OUTPUT" title="DEMO — NOT A REAL PAYMENT QR" className="sticky top-6">
                  <div className="flex flex-col items-center gap-6">
-                   <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-sm text-xs font-medium border border-slate-700 font-mono tracking-widest uppercase">
+                   {targetStatus && <div role="status" className="w-full text-center text-sm p-3 rounded-xl bg-slate-800 text-slate-300">{targetStatus}</div>}
+                   <span className="hud-label">
                        QR-only risk: {generatedRisk} / 100
                    </span>
 
-                   <div className="relative p-1 border border-cyan-400/20 bg-cyan-400/5 rounded-sm">
-                     <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-400/50" />
-                     <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-400/50" />
-                     <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-cyan-400/50" />
-                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-400/50" />
-                     <img src={svgToDataUrl(generatedSvg)} alt="Demo QR code" className="w-64 h-64 bg-white p-2 rounded-sm relative z-10" />
+                   <div className="relative p-1 border border-cyan-400/20 bg-cyan-400/5 rounded-xl">
+                     
+                     <img src={svgToDataUrl(generatedSvg)} alt="Demo QR code" className="w-64 h-64 bg-white p-2 rounded-xl relative z-10" />
                    </div>
 
                    <div className="w-full">
-                       <pre className="text-[10px] text-cyan-300/70 bg-black/40 p-4 rounded-sm overflow-auto border border-cyan-400/10 font-mono break-all whitespace-pre-wrap leading-relaxed max-h-48">
+                       <pre className="text-[10px] text-cyan-300/70 bg-black/40 p-4 rounded-xl overflow-auto border border-cyan-400/10 font-code break-all whitespace-pre-wrap leading-relaxed max-h-48">
                            {generatedPayload}
                        </pre>
                    </div>
@@ -232,8 +243,11 @@ export default function QrGenerator() {
                                Open QR Shield
                            </Button>
                        </Link>
+                       <Button variant="outline" onClick={handleSendToTarget} icon={<Smartphone size={16} />} fullWidth>
+                           SEND TO PHONE TARGET
+                       </Button>
                    </div>
-                   <p className="text-[10px] text-slate-500 text-center font-mono uppercase tracking-widest max-w-xs">
+                   <p className="text-[10px] text-slate-500 text-center uppercase max-w-xs">
                      Scan it with the camera or upload the downloaded image.
                    </p>
                  </div>
