@@ -16,15 +16,14 @@ export interface KpiTileProps {
 export function KpiTile({ label, value, tone = 'cyan', hint, icon, className = '', 'data-testid': testId }: KpiTileProps) {
   const t = SOC_TONES[tone];
   return (
-    <div data-testid={testId} className={`hud-panel px-4 py-3 ${className}`} style={{ '--hud-accent': t.hex } as CSSProperties}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="hud-label">{label}</p>
-        {icon && (
-          <span aria-hidden="true" className={t.text}>
-            {icon}
-          </span>
-        )}
-      </div>
+    <div data-testid={testId} className={`hud-panel relative px-4 py-3 ${className}`} style={{ '--hud-accent': t.hex } as CSSProperties}>
+      {icon && (
+        <span aria-hidden="true" className={`absolute right-3 top-3 ${t.text}`}>
+          {icon}
+        </span>
+      )}
+      {/* The value is the label's next element sibling (page tests read it that way). */}
+      <p className={`hud-label ${icon ? 'pr-6' : ''}`}>{label}</p>
       <p className={`hud-num hud-glow mt-2 text-3xl font-semibold ${t.text}`}>{value}</p>
       {hint && <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">{hint}</p>}
     </div>
