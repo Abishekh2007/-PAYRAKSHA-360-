@@ -47,7 +47,7 @@ export default function Technology() {
               {/* Flow diagram — flex row on md+, column on mobile */}
               <div className="flex flex-col md:flex-row md:items-center gap-3 flex-wrap">
                 {/* Node: Browser Engine */}
-                <div className="flex flex-col items-center gap-1 border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 rounded-sm min-w-[140px]">
+                <div className="flex flex-col items-center gap-1 border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 rounded-2xl min-w-[140px]">
                   <Globe className="h-5 w-5 text-cyan-300" aria-hidden="true" />
                   <span className="hud-title text-cyan-200 text-center">BROWSER ENGINE</span>
                   <span className="text-[10px] text-slate-400 font-mono text-center">In-browser fallback</span>
@@ -78,7 +78,7 @@ export default function Technology() {
                 </div>
 
                 {/* Node: FastAPI Engine */}
-                <div className="flex flex-col items-center gap-1 border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 rounded-sm min-w-[140px]">
+                <div className="flex flex-col items-center gap-1 border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 rounded-2xl min-w-[140px]">
                   <Server className="h-5 w-5 text-cyan-300" aria-hidden="true" />
                   <span className="hud-title text-cyan-200 text-center">FASTAPI ENGINE</span>
                   <span className="text-[10px] text-slate-400 font-mono text-center">Python primary</span>
@@ -107,7 +107,7 @@ export default function Technology() {
                 </div>
 
                 {/* Node: Risk Report */}
-                <div className="flex flex-col items-center gap-1 border border-amber-400/25 bg-amber-400/5 px-4 py-3 rounded-sm min-w-[120px]">
+                <div className="flex flex-col items-center gap-1 border border-amber-400/25 bg-amber-400/5 px-4 py-3 rounded-2xl min-w-[120px]">
                   <FileText className="h-5 w-5 text-amber-300" aria-hidden="true" />
                   <span className="hud-title text-amber-200 text-center">RISK REPORT</span>
                   <span className="text-[10px] text-slate-400 font-mono text-center">Scored + explained</span>
@@ -136,7 +136,7 @@ export default function Technology() {
                 </div>
 
                 {/* Node: Console UI */}
-                <div className="flex flex-col items-center gap-1 border border-violet-400/25 bg-violet-400/5 px-4 py-3 rounded-sm min-w-[120px]">
+                <div className="flex flex-col items-center gap-1 border border-violet-400/25 bg-violet-400/5 px-4 py-3 rounded-2xl min-w-[120px]">
                   <Monitor className="h-5 w-5 text-violet-300" aria-hidden="true" />
                   <span className="hud-title text-violet-200 text-center">CONSOLE UI</span>
                   <span className="text-[10px] text-slate-400 font-mono text-center">React 19 + SOC kit</span>
@@ -162,7 +162,7 @@ export default function Technology() {
               ].map((item) => (
                 <div
                   key={item.title}
-                  className="border border-cyan-400/15 bg-cyan-400/5 px-3 py-3 rounded-sm flex items-start gap-3"
+                  className="border border-white/10 bg-white/5 px-3 py-3 rounded-2xl flex items-start gap-3"
                 >
                   <span className="mt-0.5 shrink-0" aria-hidden="true">{item.icon}</span>
                   <div>
@@ -200,7 +200,7 @@ export default function Technology() {
           {/* Explainable Scoring Engine */}
           <HudPanel eyebrow="SCORING ENGINE" title="Explainable Scoring">
             <div className="p-4">
-              <p className="rounded-sm border border-cyan-400/15 bg-cyan-400/5 p-3 font-mono text-sm text-slate-300 text-center">
+              <p className="rounded-2xl border border-white/10 bg-white/5 p-3 font-mono text-sm text-slate-300 text-center">
                 score = baseline + Σ weight × signal value + combination bonuses, clamped to 0-100
               </p>
 

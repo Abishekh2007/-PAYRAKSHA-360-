@@ -128,7 +128,7 @@ export default function JudgeMode() {
                     <p className="mb-2"><strong className="text-cyan-400">URL:</strong> {act1Scenario.url}</p>
                     <div className="mb-4">
                       <strong className="text-cyan-400">QR Payload lines:</strong>
-                      <pre className="mt-2 whitespace-pre-wrap rounded border border-cyan-400/10 bg-cyan-400/5 p-3 text-[10px] text-cyan-100">{act1Scenario.qrText}</pre>
+                      <pre className="mt-2 whitespace-pre-wrap rounded border border-white/10 bg-white/5 p-3 font-code text-[10px] text-cyan-100">{act1Scenario.qrText}</pre>
                     </div>
                   </div>
                   {!running && !finished && (
@@ -138,7 +138,7 @@ export default function JudgeMode() {
               </div>
 
               {(running || finished) && (
-                <div className="border border-dashed border-cyan-400/15 p-4">
+                <div className="border border-white/10 p-4 rounded-xl">
                   <ScanSteps steps={stepsList} activeIndex={stepIndex} />
                 </div>
               )}
@@ -149,7 +149,7 @@ export default function JudgeMode() {
                   <HudPanel title="Attack Chain" tone="red">
                     <AttackChainView nodes={act1Report.attackChain} />
                   </HudPanel>
-                  <div className="flex gap-4 border-t border-dashed border-cyan-400/15 pt-4">
+                  <div className="flex gap-4 border-t border-white/10 pt-4">
                     <Link to="/counterfactual" className="flex-1"><Button variant="outline" fullWidth>Counterfactual</Button></Link>
                     <Link to="/what-if" className="flex-1"><Button variant="outline" fullWidth>What-If</Button></Link>
                   </div>
@@ -169,7 +169,7 @@ export default function JudgeMode() {
                     <p className="mb-2"><strong className="text-cyan-400">URL:</strong> {act2Scenario.url || 'None'}</p>
                     <div className="mb-4">
                       <strong className="text-cyan-400">QR Payload lines:</strong>
-                      <pre className="mt-2 whitespace-pre-wrap rounded border border-cyan-400/10 bg-cyan-400/5 p-3 text-[10px] text-cyan-100">{act2Scenario.qrText}</pre>
+                      <pre className="mt-2 whitespace-pre-wrap rounded border border-white/10 bg-white/5 p-3 font-code text-[10px] text-cyan-100">{act2Scenario.qrText}</pre>
                     </div>
                   </div>
                   {!running && !finished && (
@@ -179,7 +179,7 @@ export default function JudgeMode() {
               </div>
 
               {(running || finished) && (
-                <div className="border border-dashed border-cyan-400/15 p-4">
+                <div className="border border-white/10 p-4 rounded-xl">
                   <ScanSteps steps={stepsList} activeIndex={stepIndex} />
                 </div>
               )}
@@ -210,7 +210,7 @@ export default function JudgeMode() {
               {(running || finished) && (
                 <div className="space-y-4">
                   {act3Sequence.steps.slice(0, stepIndex + 1).map((s) => (
-                    <div key={s.id} className="animate-dash-flow border border-dashed border-cyan-400/30 bg-cyan-950/20 p-4">
+                    <div key={s.id} className="animate-dash-flow border border-white/10 bg-cyan-950/20 p-4 rounded-xl">
                       <p className="hud-label mb-3 text-cyan-200">{s.label}</p>
                       <RiskGauge score={s.report.score} level={s.report.level} />
                     </div>

@@ -27,7 +27,7 @@ function StageCard({ num, title, toggleData, children }: { num: number; title: s
     >
       {children && <div className={open ? "mb-4" : ""}>{children}</div>}
       {open && (
-        <pre className="max-h-96 overflow-auto rounded border border-cyan-400/10 bg-black/50 p-4 font-mono text-xs text-slate-300">
+        <pre className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-black/20 p-4 font-code text-xs text-slate-300">
           {JSON.stringify(toggleData, null, 2)}
         </pre>
       )}

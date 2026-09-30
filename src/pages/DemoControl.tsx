@@ -49,7 +49,7 @@ export default function DemoControl() {
     <PageShell title="LIVE DEMO CONTROL CENTER" eyebrow="SYSTEM" width="wide">
       <div className="flex flex-col gap-8">
         {statusText && (
-          <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 rounded-sm font-mono text-sm tracking-wide" role="status">
+          <div className="p-3 bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 rounded-xl font-mono text-sm tracking-wide" role="status">
             {statusText}
           </div>
         )}
@@ -63,7 +63,7 @@ export default function DemoControl() {
                const channel = channelFor(report);
 
                return (
-                 <div key={s.id} data-testid={s.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-cyan-400/15 bg-cyan-400/5 rounded-sm gap-4 transition-colors hover:bg-cyan-400/10">
+                 <div key={s.id} data-testid={s.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-white/10 bg-white/5 rounded-2xl gap-4 transition-colors hover:bg-white/10">
                    <div className="flex items-center gap-4">
                      <span className="text-2xl" aria-hidden="true">{s.icon}</span>
                      <div>
@@ -78,7 +78,7 @@ export default function DemoControl() {
                    </div>
                    <div className="flex items-center gap-2">
                      {s.qrId && (
-                       <Link to={`/qr?demo=${s.qrId}`} className="font-mono text-[10px] uppercase tracking-wider text-cyan-300 border border-cyan-400/30 px-3 py-1.5 rounded-sm hover:bg-cyan-400/10 transition-colors">
+                       <Link to={`/qr?demo=${s.qrId}`} className="font-mono text-[10px] uppercase tracking-wider text-cyan-300 border border-white/10 px-3 py-1.5 rounded-xl hover:bg-white/10 transition-colors">
                          OPEN IN QR SHIELD
                        </Link>
                      )}
@@ -93,7 +93,7 @@ export default function DemoControl() {
         <HudPanel eyebrow="SYSTEM" title="DEMO FLOWS">
           <div className="flex flex-wrap gap-3 mt-4">
              {['/judge', '/simulation', '/counterfactual', '/what-if', '/signals', '/trusted', '/elder', '/report', '/qr-generator', '/technical'].map(path => (
-               <Link key={path} to={path} className="font-mono text-[10px] uppercase tracking-wider text-cyan-300 border border-cyan-400/30 px-3 py-1.5 rounded-sm hover:bg-cyan-400/10 transition-colors">
+               <Link key={path} to={path} className="font-mono text-[10px] uppercase tracking-wider text-cyan-300 border border-white/10 px-3 py-1.5 rounded-xl hover:bg-white/10 transition-colors">
                  {path}
                </Link>
              ))}
