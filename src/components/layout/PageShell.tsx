@@ -40,7 +40,6 @@ export function PageShell({
             <div className="flex items-center gap-2">
               {icon && <span className="text-cyan-400">{icon}</span>}
               <div className="hud-eyebrow text-cyan-400 flex items-center gap-1">
-                <span aria-hidden="true">//</span>
                 <span>{eyebrow}</span>
               </div>
             </div>
@@ -48,7 +47,7 @@ export function PageShell({
           {!eyebrow && icon && (
             <span className="text-cyan-400">{icon}</span>
           )}
-          <h1 className="font-mono text-2xl font-semibold uppercase tracking-tight text-white md:text-3xl">
+          <h1 className="hud-title text-2xl md:text-3xl font-semibold text-white">
             {title}
           </h1>
           {subtitle && (

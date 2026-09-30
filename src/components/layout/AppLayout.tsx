@@ -1,9 +1,7 @@
-import { Suspense, useState, useEffect, useMemo, useCallback } from 'react';
-import { Outlet, useLocation, NavLink, Link } from 'react-router-dom';
-import { useReducedMotion } from 'framer-motion';
-import { ShieldCheck, Menu, X } from 'lucide-react';
-import { ROUTES, NAV_SECTIONS, routeByPath } from '../../routes';
-import { Toggle } from '../ui';
+import { Suspense, useState, useEffect, useMemo } from 'react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Menu, X, Search, Bell } from 'lucide-react';
 import { useDemoStore } from '../../store/demoStore';
 import {
   ThreatLevel,
@@ -14,11 +12,11 @@ import {
   tickerLine,
   istTime,
 } from '../soc';
-import { DISCLAIMER } from '../../engine';
 import { LinkToaster } from '../link/LinkToaster';
-import { CommandPalette } from '../command/CommandPalette';
-
-// ─── IST Clock ───────────────────────────────────────────────────────────────
+import { CommandPalette, openCommandPalette } from '../command/CommandPalette';
+import { DemoBanner } from './DemoBanner';
+import { Footer } from './Footer';
+import { Navbar } from './Navbar';
 
 function SocClock() {
   const [now, setNow] = useState(() => Date.now());
@@ -29,207 +27,12 @@ function SocClock() {
   return (
     <span
       data-testid="soc-clock"
-      className="font-mono text-[11px] tabular-nums text-slate-300 whitespace-nowrap"
+      className="font-mono text-[11px] tabular-nums text-slate-300 whitespace-nowrap hidden sm:inline-block"
     >
       {istTime(now)} IST
     </span>
   );
 }
-
-// ─── Sidebar nav ─────────────────────────────────────────────────────────────
-
-const visibleRoutes = ROUTES.filter((r) => r.section !== 'hidden');
-const liveRoutes = new Set(['/live', '/simulation']);
-
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
-  const location = useLocation();
-
-  return (
-    <nav aria-label="Main" className="flex-1 overflow-y-auto py-2">
-      {NAV_SECTIONS.map((section) => {
-        const sectionRoutes = visibleRoutes.filter((r) => r.section === section.id);
-        if (sectionRoutes.length === 0) return null;
-        return (
-          <div key={section.id} className="mb-3">
-            <div className="flex items-center gap-2 px-3 py-1.5">
-              <span className="hud-eyebrow text-slate-500">{section.label}</span>
-              <span className="flex-1 border-t border-dashed border-cyan-400/20" />
-            </div>
-            {sectionRoutes.map((route) => {
-              const Icon = route.icon;
-              const isLive = liveRoutes.has(route.path);
-              return (
-                <NavLink
-                  key={route.path}
-                  to={route.path}
-                  end={route.path === '/'}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-3 py-1.5 text-[13px] transition-colors ${
-                      isActive
-                        ? 'border-l-2 border-cyan-400 bg-cyan-400/10 text-cyan-200'
-                        : 'border-l-2 border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
-                    }`
-                  }
-                >
-                  <Icon size={13} className="shrink-0" />
-                  <span className="flex-1 font-mono">{route.label}</span>
-                  {isLive && <LiveDot tone="red" pulse />}
-                </NavLink>
-              );
-            })}
-          </div>
-        );
-      })}
-    </nav>
-  );
-}
-
-// ─── Sidebar ─────────────────────────────────────────────────────────────────
-
-function Sidebar({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
-  const reducedMotion = useReducedMotion();
-  const elderMode = useDemoStore((s) => s.elderMode);
-  const toggleElderMode = useDemoStore((s) => s.toggleElderMode);
-
-  const transitionClass = reducedMotion
-    ? open ? '' : 'hidden'
-    : open
-    ? 'translate-x-0'
-    : '-translate-x-full';
-
-  return (
-    <>
-      {/* Dim backdrop on mobile */}
-      {open && (
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 z-20 bg-black/60 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-60 flex-col border-r border-cyan-400/15 bg-soc-void
-          ${reducedMotion ? '' : 'transition-transform duration-200'}
-          ${transitionClass}
-          lg:translate-x-0 lg:static lg:flex`}
-      >
-        {/* Brand block */}
-        <div className="flex-shrink-0 border-b border-cyan-400/15 px-3 py-4">
-          <Link to="/" className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-sm">
-            <ShieldCheck size={18} className="text-cyan-400 shrink-0" />
-            <div>
-              <p className="font-mono text-[13px] font-bold uppercase tracking-[0.12em] text-white">
-                PAYRAKSHA 360
-              </p>
-              <p className="hud-eyebrow text-cyan-400/70">THREAT DEFENSE CONSOLE</p>
-            </div>
-          </Link>
-          <span className="mt-1.5 inline-block rounded-sm border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-amber-300">
-            SIMULATION
-          </span>
-        </div>
-
-        {/* Navigation */}
-        <SidebarNav onNavigate={onClose} />
-
-        {/* Bottom: Elder switch */}
-        <div className="flex-shrink-0 border-t border-cyan-400/15 px-3 py-3 space-y-2">
-          <Toggle
-            checked={elderMode}
-            onChange={() => toggleElderMode()}
-            label="Elder Safety Mode"
-          />
-          <p className="hud-label text-slate-600 px-1">SIMULATED HACKATHON DATA</p>
-        </div>
-      </aside>
-    </>
-  );
-}
-
-// ─── Top bar ──────────────────────────────────────────────────────────────────
-
-function TopBar({
-  menuOpen,
-  onMenuToggle,
-}: {
-  menuOpen: boolean;
-  onMenuToggle: () => void;
-}) {
-  const location = useLocation();
-  const current = useDemoStore((s) => s.current);
-
-  const route = routeByPath(location.pathname);
-  const sectionLabel =
-    route?.section === 'hidden'
-      ? null
-      : NAV_SECTIONS.find((s) => s.id === route?.section)?.label;
-
-  const breadcrumb = route
-    ? sectionLabel
-      ? `CONSOLE / ${sectionLabel} / ${route.label}`
-      : `CONSOLE / ${route.label}`
-    : 'CONSOLE';
-
-  return (
-    <header
-      data-testid="soc-topbar"
-      className="sticky top-0 z-30 flex items-center gap-3 border-b border-cyan-400/15 bg-soc-void/85 px-3 py-2 backdrop-blur hud-scanlines"
-    >
-      {/* Mobile menu button */}
-      <button
-        type="button"
-        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-        aria-expanded={menuOpen}
-        onClick={onMenuToggle}
-        className="flex-shrink-0 rounded-sm border border-cyan-400/20 p-1.5 text-slate-400 hover:border-cyan-400/40 hover:text-cyan-300 lg:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-      >
-        {menuOpen ? <X size={16} /> : <Menu size={16} />}
-      </button>
-
-      {/* Breadcrumb – only on lg+; min-w-0 + flex-1 so it can shrink */}
-      <span className="hidden lg:block min-w-0 flex-1 truncate font-mono text-[11px] uppercase tracking-[0.12em] text-slate-500">
-        {breadcrumb}
-      </span>
-      {/* Spacer below lg */}
-      <span className="flex-1 lg:hidden" />
-
-      {/* Right-hand cluster – flex-shrink-0 so it never collapses; wrap for safety on very narrow screens */}
-      <div className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-        <ThreatLevel
-          level={current?.report.level ?? null}
-          score={current?.report.score}
-          compact
-        />
-
-        <StatusPill tone="green" pulse className="hidden xl:inline-flex">
-          ENGINE ONLINE
-        </StatusPill>
-        <StatusPill tone="amber" className="hidden xl:inline-flex">
-          SIMULATION MODE
-        </StatusPill>
-
-        <SocClock />
-
-        <Link
-          to="/judge"
-          className="flex items-center gap-1 rounded-sm border border-cyan-400/25 px-2 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-slate-300 hover:border-cyan-400/50 hover:text-cyan-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 whitespace-nowrap"
-        >
-          🏆 JUDGE MODE
-        </Link>
-      </div>
-    </header>
-  );
-}
-
-// ─── Alert Ticker ─────────────────────────────────────────────────────────────
 
 function AlertTicker() {
   const items = useMemo(
@@ -239,24 +42,100 @@ function AlertTicker() {
   return (
     <Ticker
       items={items}
-      className="min-w-0 overflow-hidden border-b border-cyan-400/10 bg-soc-void/60 py-1.5"
+      className="border-b border-cyan-400/10 text-[10px]"
     />
   );
 }
 
-// ─── AppLayout ────────────────────────────────────────────────────────────────
+function TopBar({
+  menuOpen,
+  onMenuToggle,
+}: {
+  menuOpen: boolean;
+  onMenuToggle: () => void;
+}) {
+  const current = useDemoStore((s) => s.current);
+  
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  return (
+    <header
+      data-testid="soc-topbar"
+      role="banner"
+      className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-cyan-400/15 bg-navy-950/85 px-4 py-3 backdrop-blur"
+    >
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={onMenuToggle}
+          className="flex-shrink-0 rounded-sm border border-cyan-400/20 p-1.5 text-slate-400 hover:border-cyan-400/40 hover:text-cyan-300 lg:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        >
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        
+        <div className="hidden lg:flex flex-col">
+          <span className="text-sm font-medium text-slate-200">{greeting} · Demo user</span>
+        </div>
+      </div>
+
+      <div className="flex flex-1 items-center gap-2 max-w-md mx-4">
+        <button
+          type="button"
+          aria-label="Open command palette"
+          onClick={openCommandPalette}
+          className="flex flex-1 items-center justify-between gap-2 rounded-full border border-cyan-400/20 bg-black/20 px-3 py-1.5 text-sm text-slate-400 transition-colors hover:border-cyan-400/40 hover:text-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+        >
+          <div className="flex items-center gap-2">
+            <Search size={16} />
+            <span className="hidden sm:inline">Search or jump to…</span>
+          </div>
+          <kbd className="hidden sm:inline-block rounded border border-cyan-400/20 bg-black/30 px-1.5 py-0.5 font-mono text-[9px]">
+            Ctrl K
+          </kbd>
+        </button>
+      </div>
+
+      <div className="flex flex-shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
+        <Link
+          to="/link"
+          aria-label="Phone link alerts"
+          className="relative inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-full"
+        >
+          <Bell size={18} />
+        </Link>
+        <ThreatLevel
+          level={current?.report.level ?? null}
+          score={current?.report.score}
+          compact
+        />
+        <StatusPill tone="green" pulse className="hidden xl:inline-flex">
+          ENGINE ONLINE
+        </StatusPill>
+        <StatusPill tone="amber" className="hidden xl:inline-flex">
+          SIMULATION MODE
+        </StatusPill>
+        <SocClock />
+        <Link
+          to="/judge"
+          className="flex items-center rounded-xl border border-cyan-400/30 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-cyan-400/60 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 whitespace-nowrap"
+        >{'🏆 '}<span className="hidden sm:inline">JUDGE MODE</span></Link>
+        <div aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400/20 font-display text-xs font-bold text-cyan-300 border border-cyan-400/30 ml-1">
+          DU
+        </div>
+      </div>
+    </header>
+  );
+}
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const reducedMotion = useReducedMotion();
   const elderMode = useDemoStore((s) => s.elderMode);
 
-  // Close sidebar on route change
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
-
-  // Sync elder mode class
   useEffect(() => {
     document.documentElement.classList.toggle('elder', elderMode);
     return () => {
@@ -264,34 +143,25 @@ export function AppLayout() {
     };
   }, [elderMode]);
 
-  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
-  const toggleSidebar = useCallback(() => setSidebarOpen((v) => !v), []);
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+  const closeSidebar = () => setSidebarOpen(false);
+
+  useEffect(() => {
+    closeSidebar();
+  }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Skip link */}
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-[999] focus:bg-cyan-400 focus:px-4 focus:py-2 focus:font-mono focus:text-black focus:text-sm"
-      >
+    <div className="flex min-h-screen flex-col bg-navy-950 font-sans text-slate-300 selection:bg-cyan-500/30">
+      <a href="#main" className="sr-only focus:not-sr-only">
         Skip to main content
       </a>
-
-      {/* Demo banner */}
-      <div className="min-w-0 overflow-hidden w-full bg-amber-500/10 border-b border-amber-400/20 py-1 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-amber-300">
-        DEMO ENVIRONMENT — NO REAL PAYMENTS
-      </div>
-
-      {/* Body: sidebar + content column */}
-      <div className="flex flex-1">
-        <Sidebar open={sidebarOpen} onClose={closeSidebar} />
-
-        {/* Content column */}
-        <div className="flex flex-1 flex-col min-w-0">
+      <DemoBanner />
+      <div className="flex flex-1 overflow-hidden">
+        <Navbar open={sidebarOpen} onClose={closeSidebar} />
+        <div className="flex flex-1 flex-col min-w-0 max-w-full overflow-hidden">
           <TopBar menuOpen={sidebarOpen} onMenuToggle={toggleSidebar} />
           <AlertTicker />
-
-          <main id="main" tabIndex={-1} className="flex-1 min-w-0">
+          <main id="main" tabIndex={-1} className="flex-1 overflow-auto overflow-x-hidden p-4 md:p-6 lg:p-8">
             <Suspense
               fallback={
                 <div className="flex items-center gap-2 px-4 py-6 font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">
@@ -300,24 +170,20 @@ export function AppLayout() {
                 </div>
               }
             >
-              <Outlet />
+              <motion.div
+                key={location.pathname}
+                initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
+              >
+                <Outlet />
+              </motion.div>
             </Suspense>
           </main>
-
-          <footer
-            data-testid="soc-footer"
-            className="border-t border-cyan-400/15 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-slate-600"
-          >
-            <p className="mb-1">
-              SIMULATION · PAYRAKSHA 360 · HACKATHON PROTOTYPE
-            </p>
-            <p className="text-slate-700 normal-case text-[9px] tracking-normal">
-              {DISCLAIMER}
-            </p>
-          </footer>
+          <Footer />
         </div>
       </div>
-
       <LinkToaster />
       <CommandPalette />
     </div>

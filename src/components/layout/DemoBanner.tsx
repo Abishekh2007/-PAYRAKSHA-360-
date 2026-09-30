@@ -1,4 +1,3 @@
-/** Thin amber demo-environment strip. */
 export function DemoBanner() {
   return (
     <div
