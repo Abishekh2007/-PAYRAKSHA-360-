@@ -82,8 +82,7 @@ export default function DeviceLink() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-8">
           <div>
             <div className="hud-eyebrow text-slate-400 mb-1">PHONE LINK · SIMULATION</div>
-            <h1 className="text-3xl font-display text-white mb-2">Device Link</h1>
-            <p className="text-sm text-slate-300">Scan a demo QR with RakshaPay on your phone — the check appears here live.</p>
+                        <p className="text-sm text-slate-300">Scan a demo QR with RakshaPay on your phone — the check appears here live.</p>
             <p className="text-sm text-slate-400 mt-2">SIMULATION ONLY: nothing here moves money.</p>
           </div>
           <div className="flex items-center gap-3">
@@ -173,12 +172,12 @@ export default function DeviceLink() {
                 </div>
               </div>
               <ol className="text-sm text-slate-300 space-y-3 list-decimal list-inside pl-1">
-                <li>On this computer run <code className="font-code bg-black/20 px-1 rounded">tailscale serve --bg {payPort}</code></li>
+                <li>On this computer run <code className="font-code bg-black/20 px-1 rounded">tailscale funnel --bg {payPort}</code></li>
                 <li>Open the https://….ts.net address on your phone (or scan this QR)</li>
                 <li>Tap Scan what the console shows, or point the camera at the QR</li>
               </ol>
               <div className="mt-4 text-xs text-slate-400 space-y-2">
-                <p>Note: The camera needs HTTPS — tailscale serve provides it. Stop sharing: <code className="font-code">tailscale serve --https=443 off</code>.</p>
+                <p>Note: The camera needs HTTPS — tailscale funnel provides it. Stop sharing: <code className="font-code">tailscale funnel --bg off</code>.</p>
                 {info?.lan && <p>LAN mode: RakshaPay also answers on http://&lt;tailscale-ip&gt;:{payPort} (no camera).</p>}
               </div>
             </div>

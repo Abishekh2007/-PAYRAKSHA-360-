@@ -20,6 +20,16 @@ export function CodePad({ expected, title, subtitle, onSuccess, testId }: {
   const press = (d: string) => { setError(false); setCode((c) => (c.length < 4 ? c + d : c)); };
   const back = () => { setError(false); setCode((c) => c.slice(0, -1)); };
 
+  // Desktop: allow typing the demo code on the physical keyboard too.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (/^[0-9]$/.test(e.key)) press(e.key);
+      else if (e.key === 'Backspace') back();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   useEffect(() => {
     if (code.length < 4) return;
     if (code === expected) { const t = setTimeout(onSuccess, 150); return () => clearTimeout(t); }

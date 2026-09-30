@@ -350,6 +350,7 @@ function PayCheck() {
             setShowPin(true);
           }}
         />
+        <button className="pill-text mt-2 w-full py-3" onClick={() => setShowHoldSheet(false)}>Don't pay — go back</button>
       </BottomSheet>
 
       <BottomSheet

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Delete } from 'lucide-react';
 import { usePayStore } from '../../store/payStore';
@@ -37,6 +37,19 @@ export function AmountSheet({ isOpen, onClose, payeeName, vpa, avatarColor, init
   };
 
   const amount = parseFloat(amountStr);
+
+  // Desktop: digits, '.', Backspace, Enter and Escape work on the physical keyboard.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (/^[0-9.]$/.test(e.key)) handlePad(e.key);
+      else if (e.key === 'Backspace') handlePad('delete');
+      else if (e.key === 'Enter' && amount > 0) handlePay();
+      else if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   const handlePay = () => {
     usePayStore.getState().setDraft({
