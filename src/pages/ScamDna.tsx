@@ -29,18 +29,18 @@ export function ContextBar({ currentReportId, record, isDefault }: { currentRepo
   };
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center bg-cyan-400/10 p-4 rounded-[3px] mb-6 border border-cyan-400/20">
-      <div className="font-mono text-[11px] uppercase text-cyan-300 mb-4 sm:mb-0">
+    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-cyan-400/10 p-4 rounded-[3px] mb-6 border border-cyan-400/20 w-full">
+      <div className="font-mono text-[11px] uppercase text-cyan-300 min-w-0 break-words">
         {isDefault ? (
           <span>Showing the flagship demo: QR001 electricity-bill scam. Analyse something to see your own result.</span>
         ) : (
           <span>Showing: {record?.label}</span>
         )}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-3 sm:w-auto">
         <select
           aria-label="Load a demo scenario"
-          className="bg-black/50 text-cyan-300 hud-label rounded-sm px-3 py-1.5 border border-cyan-400/20 focus:outline-none focus:border-cyan-400"
+          className="bg-black/50 text-cyan-300 hud-label rounded-sm px-3 py-1.5 border border-cyan-400/20 focus:outline-none focus:border-cyan-400 w-full min-w-0 max-w-full sm:w-auto sm:max-w-xs"
           onChange={handleScenarioChange}
           defaultValue=""
         >

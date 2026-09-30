@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../test/utils';
 import UrlShield from './UrlShield';
-import { analyzeUrlLocal } from '../engine';
+import { analyzeUrlLocal, getScenario } from '../engine';
 
 describe('UrlShield', () => {
   it('renders demo URLs on first render without link elements', () => {
@@ -108,5 +108,29 @@ describe('UrlShield', () => {
       expect(link).not.toHaveTextContent('kyc-update-verify');
       expect(link.getAttribute('href') ?? '').not.toContain('kyc-update-verify');
     });
+  });
+
+  it('loads kyc_scam sample from SCENARIO SAMPLES panel and shows analysis result', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<UrlShield />);
+
+    const scenario = getScenario('kyc_scam');
+
+    const samplesHeading = screen.getByText('SCENARIO SAMPLES · DEMO');
+    // Walk up to find the hud-panel container (has class "hud-panel")
+    let samplesPanel: HTMLElement | null = samplesHeading.parentElement;
+    while (samplesPanel && !samplesPanel.classList.contains('hud-panel')) {
+      samplesPanel = samplesPanel.parentElement;
+    }
+    if (!samplesPanel) throw new Error('Could not find SCENARIO SAMPLES panel');
+
+    const sampleBtn = within(samplesPanel).getByRole('button', { name: scenario.shortLabel });
+    await user.click(sampleBtn);
+
+    const urlInput = screen.getByLabelText('URL to analyze') as HTMLInputElement;
+    expect(urlInput.value).toBe(scenario.url);
+
+    const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
+    expect(resultView).toBeInTheDocument();
   });
 });

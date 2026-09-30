@@ -76,7 +76,7 @@ export default function Landing() {
       <section className="py-12">
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Left: copy + CTAs */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
+          <div className="lg:col-span-7 flex flex-col gap-6 min-w-0">
             <motion.div {...fadeIn(0)}>
               <p className="hud-eyebrow mb-3">// PRE-PAYMENT THREAT DEFENSE · SIMULATION</p>
               <h1
@@ -129,7 +129,7 @@ export default function Landing() {
           </div>
 
           {/* Right: live threat console panel */}
-          <motion.div className="lg:col-span-5" {...fadeIn(0.2)}>
+          <motion.div className="lg:col-span-5 min-w-0" {...fadeIn(0.2)}>
             <HudPanel
               eyebrow="MONITOR · SIMULATION"
               title="LIVE THREAT CONSOLE"

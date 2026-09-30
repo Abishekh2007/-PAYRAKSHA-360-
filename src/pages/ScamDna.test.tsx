@@ -57,4 +57,10 @@ describe('ScamDna Page', () => {
     // Run scenario local to get the exact one.
     expect(screen.getByText(/Showing:/)).toBeInTheDocument();
   });
+
+  it('combobox has phone overflow fix class max-w-full', () => {
+    renderWithRouter(<ScamDna />);
+    const select = screen.getByRole('combobox', { name: 'Load a demo scenario' });
+    expect(select).toHaveClass('max-w-full');
+  });
 });

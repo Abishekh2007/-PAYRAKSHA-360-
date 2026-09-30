@@ -184,9 +184,11 @@ export default function UrlShield() {
                 >
                   <span>{s.label}</span>
                   {s.level && (
-                    <StatusPill tone={socToneForLevel(s.level)}>
-                      {s.level.replace('_', ' ')}
-                    </StatusPill>
+                    <span aria-hidden="true">
+                      <StatusPill tone={socToneForLevel(s.level)}>
+                        {s.level.replace('_', ' ')}
+                      </StatusPill>
+                    </span>
                   )}
                 </button>
               ))}

@@ -88,7 +88,7 @@ export default function SignalsConnected() {
       {/* Main grid */}
       <div className="grid gap-4 lg:grid-cols-12">
         {/* Left: Signal ladder — lg:col-span-5 */}
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 min-w-0">
           <HudPanel eyebrow="SIGNAL LADDER · SIMULATION" title="CUMULATIVE RISK SIGNALS" bodyClassName="p-3">
             <div className="flex flex-col gap-2">
               {seq.steps.map((step, i) => {
@@ -139,7 +139,7 @@ export default function SignalsConnected() {
         </div>
 
         {/* Right: Constellation + Next Move — lg:col-span-7 */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
+        <div className="lg:col-span-7 flex flex-col gap-4 min-w-0">
           <HudPanel
             eyebrow="SIGNAL CONSTELLATION"
             title="ACTIVE THREAT INTELLIGENCE"
