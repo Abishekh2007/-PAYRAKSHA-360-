@@ -4,7 +4,7 @@ import { screen, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LiveProtection from './LiveProtection';
 import { useDemoStore } from '../store/demoStore';
-import { analyzeLocal, scenarioToInput, runScenarioLocal } from '../engine';
+import { analyzeLocal, scenarioToInput, runScenarioLocal, getScenario } from '../engine';
 
 describe('LiveProtection', () => {
   afterEach(() => {
@@ -113,4 +113,24 @@ describe('LiveProtection', () => {
 
     expect(() => unmount()).not.toThrow();
   }, 20000);
+
+  it('radar contact list has 12 buttons', () => {
+    renderWithRouter(<LiveProtection />);
+    const list = screen.getByRole('list', { name: 'Radar contacts' });
+    const buttons = within(list).getAllByRole('button');
+    expect(buttons).toHaveLength(12);
+  });
+
+  it('clicking a contact button updates the dossier', async () => {
+    const user = userEvent.setup({ delay: null });
+    renderWithRouter(<LiveProtection />);
+
+    const customerCareTitle = getScenario('customer_care_scam').title;
+    const list = screen.getByRole('list', { name: 'Radar contacts' });
+    const contactBtn = within(list).getByRole('button', { name: new RegExp(customerCareTitle) });
+    await user.click(contactBtn);
+
+    const dossier = screen.getByTestId('contact-dossier');
+    expect(dossier).toHaveTextContent('care-support-desk@demo');
+  });
 });
