@@ -91,10 +91,10 @@ try {
   if (!body.includes('PAYRAKSHA')) throw new Error(`GET / body does not contain 'PAYRAKSHA'`);
   console.log(`ok  GET / → 200 text/html (${body.length} bytes)`);
 
-  // 3. GET /models/RobotExpressive.glb → 200
-  const glbRes = await fetch(`${BASE}/models/RobotExpressive.glb`);
-  if (glbRes.status !== 200) throw new Error(`GET /models/RobotExpressive.glb returned ${glbRes.status}`);
-  console.log(`ok  GET /models/RobotExpressive.glb → 200`);
+  // 3. GET /favicon.svg → 200 (static assets from the bundled dist are served)
+  const iconRes = await fetch(`${BASE}/favicon.svg`);
+  if (iconRes.status !== 200) throw new Error(`GET /favicon.svg returned ${iconRes.status}`);
+  console.log(`ok  GET /favicon.svg → 200`);
 
   // 4. POST /api/analyze with utility_scam → score 92, level HIGH
   const analyzeRes = await fetch(`${BASE}/api/analyze`, {

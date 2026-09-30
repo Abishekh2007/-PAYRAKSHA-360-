@@ -2,12 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PAYRAKSHA 360 design tokens: deep navy, glass cards, red / amber / green risk colours. */
+/* PAYRAKSHA 360 SOC console tokens: void background, cyan system colour,
+   red / amber / green risk colours, violet for predictions. */
 :root {
   color-scheme: dark;
-  --navy-950: #030817;
-  --navy-900: #071029;
-  --brand: #38bdf8;
+  --navy-950: #03060c;
+  --navy-900: #060b15;
+  --soc-void: #03060c;
+  --soc-panel: rgba(6, 11, 21, 0.86);
+  --soc-line: rgba(34, 211, 238, 0.14);
+  --soc-cyan: #22d3ee;
+  --soc-violet: #a78bfa;
+  --brand: #22d3ee;
   --risk-low: #22c55e;
   --risk-caution: #f59e0b;
   --risk-elevated: #f97316;
@@ -15,19 +21,22 @@
 }
 
 @layer base {
-  html { @apply bg-navy-950 text-slate-100 antialiased; font-family: theme('fontFamily.sans'); }
+  html { @apply bg-soc-void text-slate-100 antialiased; font-family: theme('fontFamily.sans'); }
   body {
     min-height: 100vh;
     background:
-      radial-gradient(1100px 600px at 8% -10%, rgba(56, 189, 248, 0.13), transparent 60%),
-      radial-gradient(900px 520px at 105% 5%, rgba(239, 68, 68, 0.09), transparent 60%),
-      linear-gradient(180deg, #030817 0%, #071029 55%, #030817 100%);
+      radial-gradient(1200px 640px at 50% -12%, rgba(34, 211, 238, 0.09), transparent 62%),
+      radial-gradient(900px 520px at 100% 100%, rgba(239, 68, 68, 0.05), transparent 60%),
+      linear-gradient(rgba(34, 211, 238, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, rgba(34, 211, 238, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+      var(--soc-void);
     background-attachment: fixed;
   }
-  h1, h2, h3, h4 { font-family: theme('fontFamily.display'); letter-spacing: -0.01em; }
-  ::selection { background: rgba(56, 189, 248, 0.35); }
-  /* Elder mode: <html class="elder"> scales every rem-based size up. */
+  h1, h2, h3, h4 { font-family: theme('fontFamily.display'); letter-spacing: 0.01em; }
+  ::selection { background: rgba(34, 211, 238, 0.3); }
+  /* Elder mode: <html class="elder"> scales every rem-based size up and drops the mono display face. */
   html.elder { font-size: 20px; }
+  html.elder h1, html.elder h2, html.elder h3, html.elder h4 { font-family: theme('fontFamily.sans'); letter-spacing: 0; }
   html.elder .elder-hide { display: none !important; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -35,22 +44,58 @@
 }
 
 @layer components {
-  .glass { @apply rounded-2xl border border-white/10 bg-white/[0.04] shadow-glass backdrop-blur-xl; }
-  .glass-strong { @apply rounded-2xl border border-white/15 bg-white/[0.08] shadow-glass backdrop-blur-2xl; }
-  .glass-light { @apply rounded-2xl border border-white/60 bg-white/95 text-navy-900 shadow-glass; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold tracking-wide transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:cursor-not-allowed disabled:opacity-50; }
-  .btn-primary { @apply btn bg-brand-400 text-navy-950 shadow-glow-brand hover:bg-brand-300; }
-  .btn-danger { @apply btn bg-risk-high text-white shadow-glow-high hover:bg-red-400; }
-  .btn-safe { @apply btn bg-risk-low text-navy-950 shadow-glow-low hover:bg-green-400; }
-  .btn-ghost { @apply btn border border-white/10 bg-white/5 text-slate-100 hover:bg-white/10; }
-  .btn-outline { @apply btn border border-brand-400/60 text-brand-300 hover:bg-brand-400/10; }
-  .chip { @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider; }
-  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.25em] text-brand-300; }
-  .text-gradient { @apply bg-gradient-to-r from-brand-200 via-white to-brand-400 bg-clip-text text-transparent; }
-  .input { @apply w-full rounded-xl border border-white/10 bg-navy-900/70 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30; }
+  /* HUD panel: hairline border, dark glass, four corner brackets drawn in --hud-accent. */
+  .hud-panel, .glass, .glass-strong {
+    --hud-accent: #22d3ee;
+    position: relative;
+    border: 1px solid var(--soc-line);
+    border-radius: 3px;
+    background:
+      linear-gradient(var(--hud-accent), var(--hud-accent)) top left / 12px 1.5px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) top left / 1.5px 12px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) top right / 12px 1.5px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) top right / 1.5px 12px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom left / 12px 1.5px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom left / 1.5px 12px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom right / 12px 1.5px no-repeat,
+      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom right / 1.5px 12px no-repeat,
+      var(--soc-panel);
+    background-origin: border-box;
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+  }
+  .glass-strong { --soc-panel: rgba(10, 18, 32, 0.92); border-color: rgba(34, 211, 238, 0.22); }
+  /* White card, kept for printable documents (incident report). */
+  .glass-light { @apply rounded-md border border-white/60 bg-white/95 text-navy-900 shadow-glass; }
+
+  .hud-eyebrow { @apply font-mono text-[10px] font-medium uppercase tracking-[0.32em] text-cyan-300/70; }
+  .hud-title { @apply font-mono text-[13px] font-semibold uppercase tracking-[0.2em] text-slate-100; }
+  .hud-label { @apply font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400; }
+  .hud-num { @apply font-mono tabular-nums; }
+  .hud-glow { text-shadow: 0 0 14px color-mix(in srgb, currentColor 55%, transparent); }
+  .hud-rule { @apply border-t border-dashed border-cyan-400/15; }
+  .hud-scanlines { position: relative; }
+  .hud-scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  }
+
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.16em] transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply btn border border-cyan-300/70 bg-cyan-400 text-soc-void shadow-glow-brand hover:bg-cyan-300; }
+  .btn-danger { @apply btn border border-red-400/70 bg-red-500 text-white shadow-glow-high hover:bg-red-400; }
+  .btn-safe { @apply btn border border-green-400/70 bg-green-500 text-soc-void shadow-glow-low hover:bg-green-400; }
+  .btn-ghost { @apply btn border border-cyan-400/15 bg-white/[0.03] text-slate-200 hover:border-cyan-400/40 hover:bg-cyan-400/5; }
+  .btn-outline { @apply btn border border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/10; }
+  .chip { @apply inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em]; }
+  .eyebrow { @apply font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-cyan-300/80; }
+  .text-gradient { @apply bg-gradient-to-r from-cyan-200 via-white to-cyan-400 bg-clip-text text-transparent; }
+  .input { @apply w-full rounded-[3px] border border-cyan-400/20 bg-soc-void/80 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/25; }
   .mono { font-family: theme('fontFamily.mono'); }
   .grid-overlay {
-    background-image: linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-image: linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
   }
 }

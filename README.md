@@ -40,7 +40,7 @@ PAYRAKSHA 360 is built as a Single Page Application using `HashRouter` (`#/route
 | `#/dashboard` | Safety Dashboard | High-level overview of payment safety metrics, protected transactions, and detected scam trends. |
 | `#/qr-generator` | QR Generator | Generates test UPI QR codes across various scam and legitimate scenarios for testing purposes. |
 | `#/demo-control` | Demo Control Center | Quick-switching demo presets and state overrides designed for evaluators and presenters. |
-| `#/technology` | About / Technology | Technical deep-dive into engine architecture, dual-runtime parity, and 3D visualization components. |
+| `#/technology` | About / Technology | Technical deep-dive into engine architecture and dual-runtime parity. |
 | `#/judge` | Judge Mode | Curated 3-minute evaluation walkthrough demonstrating core scam detection capabilities. |
 | `#/technical` | Technical View | Developer console displaying raw JSON payloads, benchmark execution times, and engine telemetry. |
 
@@ -74,7 +74,7 @@ The `/judge` route (accessible via `#/judge`) provides a structured 3-minute wal
 
 PAYRAKSHA 360 is engineered as a zero-dependency, ultra-resilient hybrid system featuring dual parity runtimes:
 
-* **Frontend:** React 19 SPA with TypeScript, Vite, Tailwind CSS, Framer Motion, Zustand state management, and Three.js / React Three Fiber for 3D visualizers.
+* **Frontend:** React 19 SPA with TypeScript, Vite, Tailwind CSS, Framer Motion, Zustand state management, and hand-drawn SVG visualisations (radar, payment twin, constellation) in a SOC console design.
 * **Primary Risk Engine:** FastAPI Python service executing contextual scoring, NLP cue extraction, and pattern matching.
 * **In-Browser Fallback Engine:** Built-in JavaScript reference engine (`shared/reference/engine.mjs`) loaded directly in the client, ensuring offline operation when the Python backend is unavailable.
 * **Shared Configuration:** Unified configuration schemas (`shared/engine-config.json`, `shared/lexicon.json`, `shared/patterns.json`, `shared/recipients.json`, `shared/url-rules.json`) shared across both runtimes.
@@ -214,22 +214,7 @@ $$\text{Score} = \min\left(100, \max\left(0, \text{Baseline} + \sum (\text{Weigh
 
 ---
 
-## 7. 3D Models & Credits
-
-Both 3D models are bundled directly under `public/models/` and served locally without external CDN requests:
-
-| File | Author | Licence | Used for |
-|---|---|---|---|
-| `RobotExpressive.glb` | Tomás Laulhé (Quaternius), modifications by Don McCurdy | CC0 1.0 | PAYRAKSHA guardian robot (animations: Idle, Wave, Yes, No, ThumbsUp, Dance, ...) |
-| `PrimaryIonDrive.glb` | Mike Murdock | CC BY 4.0 | Risk engine core on the technology and simulation pages |
-
-*Source:* Three.js official GitHub repository (`examples/models/gltf/`): https://github.com/mrdoob/three.js
-
-**Usage:** Both models are rendered via `@react-three/fiber` and `@react-three/drei`. Models are dynamically lazy-loaded and include an automatic graceful CSS/SVG fallback when WebGL is unsupported or disabled.
-
----
-
-## 8. Safety and Privacy Principles
+## 7. Safety and Privacy Principles
 
 1. **Zero Financial Operations:** PAYRAKSHA 360 never initiates, processes, forwards, or authorizes real UPI or banking transactions.
 2. **Zero Credential Requests:** The system never asks for or stores sensitive secrets, including UPI PINs, bank passwords, OTPs, CVVs, or full debit/credit card numbers.
@@ -241,7 +226,7 @@ Both 3D models are bundled directly under `public/models/` and served locally wi
 
 ---
 
-## 9. Project Structure
+## 8. Project Structure
 
 ```
 payraksha-360/
@@ -249,15 +234,14 @@ payraksha-360/
 │   ├── app/                  # Application endpoints, engine parity port, configuration loaders
 │   ├── tests/                # Pytest suites verifying golden JSON parity
 │   └── requirements.txt      # Python dependencies
-├── public/                   # Static assets & 3D GLTF models
-│   └── models/               # RobotExpressive.glb, PrimaryIonDrive.glb & ATTRIBUTION.md
+├── public/                   # Static assets (favicon)
 ├── scripts/                  # Automation scripts (dev:all, smoke, backend, pytest)
 ├── shared/                   # Authoritative configuration & reference implementations
 │   ├── reference/            # In-browser/Node.js reference risk engine
 │   ├── golden/               # Golden cross-runtime parity dataset
 │   └── *.json                # Shared weights, lexicons, URL heuristics, and scenarios
 ├── src/                      # React 19 SPA frontend
-│   ├── components/           # Reusable UI widgets, 3D canvases, risk meters, layouts
+│   ├── components/           # Reusable UI widgets, SOC console kit, risk meters, layouts
 │   ├── pages/                # Route page components (25 interactive views)
 │   ├── routes.ts             # Central route registry and navigation definitions
 │   └── main.tsx              # Application bootstrap
