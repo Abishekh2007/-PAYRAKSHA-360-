@@ -100,16 +100,16 @@ def banner_lines(console_url, pay_url, pay_port, phone_url, lan) -> list[str]:
     lines = [
         f"Console: {console_url}",
         f"RakshaPay: {pay_url}",
-        "Open RakshaPay on your phone (Tailscale):"
+        "Open RakshaPay on any phone (Tailscale Funnel, public link):"
     ]
 
     if lan:
         lines.append(f"LAN mode: RakshaPay also listens on all interfaces (http://<tailscale-ip>:{pay_port}; the camera needs HTTPS, use tailscale serve)")
     else:
         host_url = phone_url if phone_url else "https://<this-machine>.<tailnet>.ts.net"
-        lines.append(f"tailscale serve --bg {pay_port}")
+        lines.append(f"tailscale funnel --bg {pay_port}")
         lines.append(f"then open {host_url}")
-        lines.append("Stop sharing: tailscale serve --https=443 off")
+        lines.append("Stop sharing: tailscale funnel --bg off")
 
     lines.append("SIMULATION ONLY — no real payments")
     return lines

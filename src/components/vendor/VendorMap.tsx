@@ -1,6 +1,9 @@
-// Real street map (Leaflet + OpenStreetMap/CARTO tiles) with vendor logo pins. Needs internet for the tiles.
+// Vendor map: an offline 3D / 2D map of India by default, plus an optional online street map (OpenStreetMap tiles)
+// that falls back to the offline map automatically when tiles can't load.
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Box, Map as MapIcon, Globe2 } from 'lucide-react';
+import { IndiaMap3D } from './IndiaMap3D';
 import { renderToStaticMarkup } from 'react-dom/server';
 import L from 'leaflet';
 import { MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
@@ -63,16 +66,43 @@ function FitAndFollow({ points, v }: { points: [number, number][]; v?: [number, 
   return null;
 }
 
-export function VendorMap({ vendors, selectedId, pulseId, onSelect }: { vendors: BankVendor[]; selectedId: string | null; pulseId?: string | null; onSelect: (id: string) => void }) {
+type Props = { vendors: BankVendor[]; selectedId: string | null; pulseId?: string | null; onSelect: (id: string) => void };
+type Mode = '3d' | '2d' | 'street';
+
+export function VendorMap(props: Props) {
+  const [mode, setMode] = useState<Mode>('3d');
+  const [note, setNote] = useState<string | null>(null);
+  const opts: [Mode, string, typeof Box][] = [['3d', '3D India', Box], ['2d', '2D India', MapIcon], ['street', 'Street map (online)', Globe2]];
+  return (
+    <div className="relative z-0 h-[520px] overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-cyan-50 via-white to-cyan-100">
+      {mode === 'street'
+        ? <StreetMap {...props} onTilesFailed={() => { setMode('3d'); setNote('Street map unavailable offline — showing the offline map.'); }} />
+        : <IndiaMap3D {...props} tilt={mode === '3d'} />}
+      <div role="group" aria-label="Map view" className="absolute right-3 top-3 z-[1000] flex gap-1 rounded-full bg-white/90 p-1 shadow-md backdrop-blur">
+        {opts.map(([m, label, Icon]) => (
+          <button key={m} type="button" aria-pressed={mode === m} onClick={() => { setMode(m); setNote(null); }}
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${mode === m ? 'bg-cyan-600 text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}>
+            <Icon size={14} /><span className={m === 'street' ? 'hidden sm:inline' : ''}>{label}</span>
+          </button>
+        ))}
+      </div>
+      {note && <p className="absolute left-3 bottom-3 z-[1000] rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 shadow">{note}</p>}
+    </div>
+  );
+}
+
+function StreetMap({ vendors, selectedId, pulseId, onSelect, onTilesFailed }: Props & { onTilesFailed: () => void }) {
+  const fails = useRef(0);
   const sel = vendors.find((v) => v.id === selectedId);
   const pos = useMemo(() => spread(vendors), [vendors]);
   const selPos = sel ? pos.get(sel.id) : undefined;
   const icons = useMemo(() => new Map(vendors.map((v) => [v.id, pinIcon(v, v.id === selectedId, v.id === pulseId)])), [vendors, selectedId, pulseId]);
   return (
-    <div className="relative z-0 h-[460px] overflow-hidden rounded-2xl border border-slate-200">
+    <div className="h-full w-full">
       <MapContainer center={[22.8, 79.5]} zoom={5} minZoom={4} maxZoom={16} maxBounds={INDIA_BOUNDS} maxBoundsViscosity={0.8} scrollWheelZoom style={{ height: '100%', width: '100%' }} aria-label="Map of India with demo merchant locations">
-        <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" subdomains="abcd" maxZoom={19}
-          attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'} />
+        <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19}
+          eventHandlers={{ tileerror: () => { if (++fails.current === 3) onTilesFailed(); } }}
+          attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'} />
         <Marker position={HQ} icon={HQ_ICON}><Tooltip direction="top">Demo Bank HQ · Mumbai</Tooltip></Marker>
         {selPos && <Polyline positions={[HQ, selPos]} pathOptions={{ color: '#4f46e5', weight: 2.5, dashArray: '6 8', opacity: 0.8 }} />}
         {vendors.map((v) => (

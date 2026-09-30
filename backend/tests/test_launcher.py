@@ -73,15 +73,15 @@ def test_banner_lines():
     # Regular
     lines = launcher.banner_lines("http://cli", "http://pay", 8091, "https://ts.net", False)
     text = "\n".join(lines)
-    assert "tailscale serve --bg 8091" in text
-    assert "Stop sharing: tailscale serve --https=443 off" in text
+    assert "tailscale funnel --bg 8091" in text
+    assert "Stop sharing: tailscale funnel --bg off" in text
     assert "LAN mode:" not in text
 
     # LAN
     lines = launcher.banner_lines("http://cli", "http://pay", 8091, "https://ts.net", True)
     text = "\n".join(lines)
     assert "LAN mode:" in text
-    assert "tailscale serve --bg 8091" not in text
+    assert "tailscale funnel --bg 8091" not in text
     assert "Stop sharing" not in text
 
 
