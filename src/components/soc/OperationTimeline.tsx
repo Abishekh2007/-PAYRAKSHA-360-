@@ -1,6 +1,7 @@
-// STUB: contract only. Builder task `operation` implements this file.
-// The acceptance tests in test/acceptance/operation-timeline.test.tsx are written from the comments below.
+import { useReducedMotion } from 'framer-motion';
 import type { RiskLevelId } from '../../types';
+import { StatusPill, LiveDot } from './StatusPill';
+import { SOC_TONES, socToneForLevel } from './tones';
 
 export interface OperationBeat {
   id: string;
@@ -36,21 +37,136 @@ export interface OperationTimelineProps {
 
 /**
  * Attack operation as a SOC timeline, revealed beat by beat.
- * Renders:
- *   - a wrapper with data-testid="operation-timeline" and data-status={status}
- *   - a heading whose text is `OPERATION ${name.toUpperCase()}` (e.g. 'OPERATION BLACKOUT')
- *   - the text `${beats.length} BEATS`
- *   - a status chip with data-testid="operation-status" whose text is OPERATION_STATUS_LABEL[status]
- *   - <ol aria-label="Operation timeline"> containing ONLY the first clamp(revealed, 0, beats.length) beats, beat i (from 0) as
- *     <li data-testid={`beat-${String(i + 1).padStart(2, '0')}`}> (beat-01, beat-02, …) showing beat.time, beat.stage, beat.title,
- *     beat.detail when present, and `RISK ${beat.score}` when beat.score is a number; the last revealed <li> has aria-current="step"
- *   - a <button> with the accessible name 'Replay operation' only when status === 'complete' and onReplay is given; clicking calls onReplay()
- *   - the visible text 'SIMULATION'
  */
-export function OperationTimeline({ name, beats, revealed, className = '' }: OperationTimelineProps) {
+export function OperationTimeline({
+  name,
+  beats,
+  revealed,
+  status = 'idle',
+  onReplay,
+  className = '',
+}: OperationTimelineProps) {
+  const reduce = useReducedMotion();
+  const clampedRevealed = Math.max(0, Math.min(revealed, beats.length));
+  const revealedBeats = beats.slice(0, clampedRevealed);
+
+  const statusTone =
+    status === 'idle' ? 'slate' : status === 'running' ? 'red' : 'cyan';
+
   return (
-    <div data-testid="operation-timeline-stub" className={className}>
-      Operation {name} (not built yet): {Math.min(revealed, beats.length)} / {beats.length}
+    <div
+      data-testid="operation-timeline"
+      data-status={status}
+      className={`hud-panel ${className}`}
+    >
+      {/* Header */}
+      <header className="flex flex-wrap items-center gap-2 border-b border-dashed border-cyan-400/15 px-4 py-3">
+        <h3 className="hud-title text-red-400 hud-glow mr-auto">
+          OPERATION {name.toUpperCase()}
+        </h3>
+        <span className="inline-flex items-center rounded-sm border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+          {beats.length} BEATS
+        </span>
+        <span data-testid="operation-status">
+          <StatusPill
+            tone={statusTone}
+            pulse={status === 'running'}
+          >
+            {OPERATION_STATUS_LABEL[status]}
+          </StatusPill>
+        </span>
+        <span className="inline-flex items-center rounded-sm border border-slate-500/40 bg-slate-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+          SIMULATION
+        </span>
+      </header>
+
+      {/* Timeline body */}
+      <div className="p-4">
+        <ol aria-label="Operation timeline" className="relative ml-3 space-y-0">
+          {/* Vertical rail */}
+          <span
+            aria-hidden="true"
+            className="absolute left-0 top-0 bottom-0 w-px bg-cyan-400/20"
+          />
+
+          {revealedBeats.map((beat, i) => {
+            const isLast = i === clampedRevealed - 1;
+            const tone = socToneForLevel(beat.level ?? null);
+            const t = SOC_TONES[tone];
+            const hasScore = typeof beat.score === 'number';
+
+            return (
+              <li
+                key={beat.id}
+                data-testid={`beat-${String(i + 1).padStart(2, '0')}`}
+                aria-current={isLast ? 'step' : undefined}
+                className={`relative pl-5 pb-4 transition-colors ${isLast ? 'opacity-100' : 'opacity-70'}`}
+                style={
+                  reduce
+                    ? undefined
+                    : { animation: undefined }
+                }
+              >
+                {/* Rail dot */}
+                <span
+                  aria-hidden="true"
+                  className={`absolute left-[-4px] top-1 flex h-2 w-2 items-center justify-center rounded-full ${t.dot} ${isLast ? 'ring-2 ring-offset-1 ring-offset-slate-950' : ''}`}
+                  style={isLast ? { boxShadow: `0 0 6px ${t.hex}` } : undefined}
+                >
+                  {isLast && !reduce && (
+                    <LiveDot tone={tone} pulse className="absolute -inset-1" />
+                  )}
+                </span>
+
+                <div className="flex flex-wrap items-start gap-x-2 gap-y-0.5">
+                  {/* Time */}
+                  <span className="hud-num text-[10px] text-slate-500 shrink-0">
+                    {beat.time}
+                  </span>
+                  {/* Stage chip */}
+                  <span
+                    className={`inline-flex rounded-sm border px-1.5 py-0 font-mono text-[9px] font-bold uppercase tracking-[0.15em] ${t.text} ${t.border} ${t.bg}`}
+                  >
+                    {beat.stage}
+                  </span>
+                  {/* Score right-aligned */}
+                  {hasScore && (
+                    <span className={`ml-auto hud-num text-[10px] font-bold shrink-0 ${t.text}`}>
+                      RISK {beat.score}
+                    </span>
+                  )}
+                </div>
+
+                {/* Title */}
+                <p className={`mt-0.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] ${isLast ? t.text : 'text-slate-300'}`}>
+                  {beat.title}
+                </p>
+
+                {/* Detail */}
+                {beat.detail && (
+                  <p className="mt-0.5 font-sans text-[11px] text-slate-400">
+                    {beat.detail}
+                  </p>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* Replay button */}
+        {status === 'complete' && onReplay && (
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              aria-label="Replay operation"
+              onClick={onReplay}
+              className="rounded-sm border border-cyan-400/40 bg-cyan-400/10 px-4 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400/20"
+            >
+              Replay operation
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -55,4 +55,51 @@ describe('LiveSimulation', () => {
         const state = useDemoStore.getState();
         expect(state.current?.label).toBe('Live scam simulation');
     });
+
+    it('shows operation-timeline with idle status before start', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        renderWithRouter(<LiveSimulation />);
+
+        const timeline = screen.getByTestId('operation-timeline');
+        expect(timeline).toHaveAttribute('data-status', 'idle');
+    });
+
+    it('shows complete operation-timeline with all beats after run', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        renderWithRouter(<LiveSimulation />);
+
+        await act(async () => {
+            const runBtn = screen.getByRole('button', { name: /RUN LIVE SCAM SIMULATION/i });
+            fireEvent.click(runBtn);
+        });
+
+        await act(async () => {
+            vi.advanceTimersByTime(10000);
+        });
+
+        const timeline = screen.getByTestId('operation-timeline');
+        expect(timeline).toHaveAttribute('data-status', 'complete');
+
+        for (let i = 1; i <= 9; i++) {
+            expect(screen.getByTestId(`beat-${String(i).padStart(2, '0')}`)).toBeInTheDocument();
+        }
+    });
+
+    it('shows complete operation-timeline after skip to end', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        renderWithRouter(<LiveSimulation />);
+
+        await act(async () => {
+            const runBtn = screen.getByRole('button', { name: /RUN LIVE SCAM SIMULATION/i });
+            fireEvent.click(runBtn);
+        });
+
+        await act(async () => {
+            const skipBtn = screen.getByRole('button', { name: /SKIP TO END/i });
+            fireEvent.click(skipBtn);
+        });
+
+        const timeline = screen.getByTestId('operation-timeline');
+        expect(timeline).toHaveAttribute('data-status', 'complete');
+    });
 });
