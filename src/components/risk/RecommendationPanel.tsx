@@ -1,5 +1,5 @@
 import type { ActionId, Recommendation, RiskLevelId } from '../../types';
-import { GlassCard } from '../ui/GlassCard';
+import { HudPanel, socToneForLevel } from '../soc';
 import { Button, type ButtonVariant } from '../ui/Button';
 
 export interface RecommendationPanelProps {
@@ -11,12 +11,12 @@ export interface RecommendationPanelProps {
 
 export function RecommendationPanel({ recommendation, level, onAction, className = '' }: RecommendationPanelProps) {
   const isHigh = level === 'HIGH';
-  const prefix = (isHigh && !recommendation.title.startsWith('🛑')) ? '🛑 ' : '';
+  const tone = socToneForLevel(level);
 
   const getVariantForAction = (id: ActionId): ButtonVariant => {
     switch (id) {
       case 'verify': return 'primary';
-      case 'cancel': return 'outline';
+      case 'cancel': return 'danger';
       case 'trusted': return 'safe';
       case 'analysis': return 'ghost';
       case 'continue': return 'safe';
@@ -25,11 +25,24 @@ export function RecommendationPanel({ recommendation, level, onAction, className
   };
 
   return (
-    <GlassCard data-level={level} className={className}>
-      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">RECOMMENDED ACTION</p>
-      <h3 className="text-xl font-display font-bold mb-2 text-slate-200">
-        {prefix}{recommendation.title}
-      </h3>
+    <HudPanel
+      as="div"
+      data-level={level}
+      tone={tone}
+      eyebrow="RECOMMENDED ACTION"
+      title={recommendation.title}
+      className={className}
+      bodyClassName="p-4"
+    >
+      {isHigh && (
+        <div
+          data-testid="dont-pay-heading"
+          className="mb-4 text-center font-mono font-bold text-2xl uppercase tracking-widest text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+        >
+          DON&apos;T PAY YET
+        </div>
+      )}
+
       <p className="text-slate-300 mb-6 leading-relaxed text-sm">
         {recommendation.message}
       </p>
@@ -47,6 +60,6 @@ export function RecommendationPanel({ recommendation, level, onAction, className
           </Button>
         ))}
       </div>
-    </GlassCard>
+    </HudPanel>
   );
 }

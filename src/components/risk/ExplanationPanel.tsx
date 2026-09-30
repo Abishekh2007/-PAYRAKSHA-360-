@@ -1,5 +1,5 @@
 import type { RiskReport } from '../../types';
-import { GlassCard } from '../ui/GlassCard';
+import { HudPanel, socToneForLevel } from '../soc';
 import { levelTheme } from '../../lib/risk';
 import { motion, useReducedMotion } from 'framer-motion';
 
@@ -9,6 +9,7 @@ export function ExplanationPanel({ report, title, className = '' }: ExplanationP
   const heading = title ?? (report.level === 'LOW' ? 'WHY THIS LOOKS SAFER' : 'WHY ARE WE WARNING YOU?');
   const ex = report.explanation;
   const theme = levelTheme(report.level);
+  const tone = socToneForLevel(report.level);
   const shouldReduceMotion = useReducedMotion();
 
   const container = {
@@ -25,10 +26,16 @@ export function ExplanationPanel({ report, title, className = '' }: ExplanationP
   };
 
   return (
-    <GlassCard className={className}>
-      <h3 className="text-lg font-display font-semibold mb-4 text-slate-200">{heading}</h3>
+    <HudPanel
+      as="div"
+      tone={tone}
+      eyebrow="EXPLANATION · SIMULATION"
+      title={heading}
+      className={className}
+      bodyClassName="p-4"
+    >
       <div className="mb-4">
-        <h4 className="font-semibold mb-1 text-slate-200">{ex.headline}</h4>
+        <p className="hud-label text-slate-200 mb-1">{ex.headline}</p>
         <p className="text-slate-300 text-sm leading-relaxed">{ex.summary}</p>
       </div>
 
@@ -37,7 +44,7 @@ export function ExplanationPanel({ report, title, className = '' }: ExplanationP
           <ul className="space-y-2">
             {ex.reasons.map((r, i) => (
               <motion.li key={i} variants={item} className="flex gap-2 text-sm text-slate-300">
-                <span className={`shrink-0 flex-none ${theme.text}`}>⚠️</span>
+                <span className={`shrink-0 flex-none ${theme.text}`}>▸</span>
                 <span>{r}</span>
               </motion.li>
             ))}
@@ -57,10 +64,10 @@ export function ExplanationPanel({ report, title, className = '' }: ExplanationP
       </motion.div>
 
       {ex.disclaimer && (
-        <div className="mt-6 pt-4 border-t border-white/10">
+        <div className="mt-6 pt-4 border-t border-cyan-400/10">
           <p className="text-xs text-slate-500">{ex.disclaimer}</p>
         </div>
       )}
-    </GlassCard>
+    </HudPanel>
   );
 }

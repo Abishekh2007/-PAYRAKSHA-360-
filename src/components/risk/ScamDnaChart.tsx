@@ -9,11 +9,31 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import type { DnaStrand } from '../../types';
+import type { Severity } from '../../types';
 
 export interface ScamDnaChartProps {
   dna: DnaStrand[];
   variant?: 'bars' | 'radar';
   className?: string;
+}
+
+function severityBarColor(severity: Severity | string | undefined): string {
+  switch (severity) {
+    case 'high': return '#ef4444';
+    case 'medium': return '#f59e0b';
+    case 'low': return '#22d3ee';
+    default: return '#475569';
+  }
+}
+
+function segmentFill(pct: number, segIdx: number): string {
+  const threshold = (pct / 100) * 10;
+  if (segIdx < threshold) {
+    if (pct >= 70) return '#ef4444';
+    if (pct >= 40) return '#f59e0b';
+    if (pct > 0) return '#22d3ee';
+  }
+  return '#1e293b';
 }
 
 export function ScamDnaChart({ dna, variant = 'bars', className = '' }: ScamDnaChartProps) {
@@ -25,31 +45,35 @@ export function ScamDnaChart({ dna, variant = 'bars', className = '' }: ScamDnaC
   }, [dna]);
 
   const renderTextLegend = () => (
-    <ul className="space-y-3 mt-4 w-full">
+    <ul className="space-y-2 mt-4 w-full font-mono">
       {dna.map((d, index) => {
         const isDominant = d.percent === maxPercent && maxPercent > 0;
-        const colorClass = d.percent >= 70 ? 'bg-risk-high' : d.percent >= 40 ? 'bg-risk-caution' : 'bg-brand-500';
+        const barColor = severityBarColor((d as any).severity);
         return (
           <li key={d.key} className="flex flex-col gap-1">
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-2 text-slate-200">
-                <span className="font-medium">{d.label}</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="hud-label text-[10px]">{d.label}</span>
                 {isDominant && (
-                  <span className="px-1.5 py-0.5 text-[10px] uppercase font-bold bg-risk-high/20 text-risk-high border border-risk-high/40 rounded">
+                  <span className="px-1 py-0.5 text-[8px] uppercase font-bold bg-red-500/20 text-red-400 border border-red-500/40 rounded-sm">
                     Dominant
                   </span>
                 )}
               </div>
-              <span className="font-mono text-slate-300">{d.percent}%</span>
+              <span className="hud-num text-[11px] text-slate-300">{d.percent}%</span>
             </div>
             {variant === 'bars' && (
-              <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                <motion.div
-                  initial={shouldAnimate ? { width: 0 } : { width: `${d.percent}%` }}
-                  animate={{ width: `${d.percent}%` }}
-                  transition={{ duration: 0.6, delay: index * 0.04, ease: 'easeOut' }}
-                  className={`h-full rounded-full ${colorClass}`}
-                />
+              <div className="flex gap-px" aria-hidden="true">
+                {Array.from({ length: 10 }, (_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={shouldAnimate ? { opacity: 0 } : {}}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: index * 0.04 + i * 0.02 }}
+                    className="flex-1 h-2 rounded-sm"
+                    style={{ backgroundColor: segmentFill(d.percent, i) }}
+                  />
+                ))}
               </div>
             )}
           </li>
@@ -64,15 +88,15 @@ export function ScamDnaChart({ dna, variant = 'bars', className = '' }: ScamDnaC
         <div className="w-full h-64" aria-hidden="true">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={dna}>
-              <PolarGrid stroke="#334155" />
-              <PolarAngleAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+              <PolarGrid stroke="#123047" />
+              <PolarAngleAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'monospace', letterSpacing: 1.5 }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
               <Radar
                 name="Scam DNA"
                 dataKey="percent"
                 stroke="#ef4444"
                 fill="#ef4444"
-                fillOpacity={0.4}
+                fillOpacity={0.3}
                 isAnimationActive={shouldAnimate}
               />
             </RadarChart>

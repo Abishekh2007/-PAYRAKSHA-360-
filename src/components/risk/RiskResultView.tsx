@@ -82,9 +82,10 @@ export function RiskResultView({
       data-testid="risk-result"
       data-score={report.score}
       data-level={report.level}
-      className={`flex flex-col lg:flex-row gap-6 ${className}`}
+      className={`grid gap-4 lg:grid-cols-12 ${className}`}
     >
-      <div className="flex flex-col gap-6 lg:w-1/2">
+      {/* Left column: score + recommendation */}
+      <div className="flex flex-col gap-4 lg:col-span-5">
         {showPayment && (
           <motion.div variants={item}>
             <PaymentPreview payment={report.payment} />
@@ -103,16 +104,17 @@ export function RiskResultView({
         </motion.div>
       </div>
 
-      <div className="flex flex-col gap-6 lg:w-1/2">
+      {/* Right column: explanation + recommendation */}
+      <div className="flex flex-col gap-4 lg:col-span-7">
         <motion.div variants={item}>
           <ExplanationPanel report={report} />
         </motion.div>
         <motion.div variants={item}>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             <RecommendationPanel recommendation={report.recommendation} level={report.level} onAction={handleAction} />
 
             {inlineNote && (
-              <div role="status" className="p-4 bg-slate-800 rounded-lg text-sm text-slate-300 border border-slate-700">
+              <div role="status" className="p-3 hud-panel text-sm text-slate-300 border border-cyan-400/15">
                 {inlineNote}
               </div>
             )}
@@ -121,7 +123,7 @@ export function RiskResultView({
 
         {report.notice && (
           <motion.div variants={item}>
-            <div className="text-xs text-slate-500 text-center lg:text-left">
+            <div className="hud-eyebrow text-center lg:text-left">
               {report.notice}
             </div>
           </motion.div>
