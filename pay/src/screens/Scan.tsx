@@ -9,6 +9,8 @@ import { SampleSheet } from '../components/scan/SampleSheet';
 export default function Scan() {
   const navigate = useNavigate();
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraLive, setCameraLive] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [showSamples, setShowSamples] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -23,6 +25,10 @@ export default function Scan() {
     if (!videoRef.current) return;
 
     let stopFn: (() => void) | undefined;
+    let cancelled = false;
+    setCameraLive(false);
+    // Permission prompt ignored or no camera: don't leave the user on a black screen.
+    const slow = setTimeout(() => { if (!cancelled) setCameraError('timeout'); }, 8000);
     startCameraScan(videoRef.current, (text) => {
       if (typeof navigator.vibrate === 'function') {
         try {
@@ -33,16 +39,23 @@ export default function Scan() {
       navigate('/pay');
     })
       .then((res) => {
+        clearTimeout(slow);
+        if (cancelled) { res.stop(); return; }
         stopFn = res.stop;
+        setCameraLive(true);
+        setCameraError(null);
       })
-      .catch((err: Error) => {
-        setCameraError(err.message);
+      .catch(() => {
+        clearTimeout(slow);
+        if (!cancelled) setCameraError('denied');
       });
 
     return () => {
+      cancelled = true;
+      clearTimeout(slow);
       if (stopFn) stopFn();
     };
-  }, [navigate]);
+  }, [navigate, attempt]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -81,15 +94,32 @@ export default function Scan() {
               <>
                 <p className="font-medium mb-2">Camera needs a secure (HTTPS) page on phones.</p>
                 <p className="text-white/80">
-                  On the computer run <code className="bg-black/50 px-1 py-0.5 rounded text-[12px]">tailscale serve --bg &lt;RakshaPay port&gt;</code> and open the https://….ts.net address, or use Upload from gallery, Scan what the console shows, or the demo samples below.
+                  On the computer run <code className="bg-black/50 px-1 py-0.5 rounded text-[12px]">tailscale funnel --bg 7481</code> and open the https://….ts.net address, or use Upload from gallery, Scan what the console shows, or the demo samples below.
                 </p>
               </>
             ) : (
-              <p>{cameraError}</p>
+              <>
+                <p className="font-medium mb-2">{cameraError === 'timeout' ? 'Camera is not responding' : 'Camera not available'}</p>
+                <p className="text-white/80 mb-3">
+                  {cameraError === 'timeout'
+                    ? 'Allow camera access in the browser prompt, or this device may not have a camera.'
+                    : 'Camera access was blocked or no camera was found.'}{' '}
+                  You can still use Upload from gallery or the demo QR samples below.
+                </p>
+                <button type="button" onClick={() => { setCameraError(null); setAttempt((a) => a + 1); }}
+                  className="rounded-full bg-white px-4 py-2 text-[13px] font-medium text-gp-ink">Try again</button>
+              </>
             )}
           </div>
         ) : (
-          <Viewfinder videoRef={videoRef} />
+          <>
+            <Viewfinder videoRef={videoRef} />
+            {!cameraLive && (
+              <p data-testid="camera-starting" className="absolute bottom-6 inset-x-0 text-center text-[13px] text-white/80 z-10">
+                Starting camera… allow access if your browser asks
+              </p>
+            )}
+          </>
         )}
       </div>
 
