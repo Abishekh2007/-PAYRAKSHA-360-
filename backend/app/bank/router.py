@@ -31,8 +31,10 @@ def _aware(d: datetime) -> datetime:
     return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
 
 
-def qr_payload(v: dict, amount: float) -> str:
-    return (f"PAYRAKSHA://demo-payment\nrecipient={v['vpa']}\namount={int(amount)}\nmerchant={v['name']}\n"
+def qr_payload(v: dict, amount: float = 0) -> str:
+    """Merchant QR. amount=0 gives a static merchant QR: the customer enters the amount on RakshaPay."""
+    amt = f"amount={int(amount)}\n" if amount else ''
+    return (f"PAYRAKSHA://demo-payment\nrecipient={v['vpa']}\n{amt}merchant={v['name']}\n"
             f"vendorId={v['id']}\nsource=Vendor QR Demo\nrecipientVerified={'true' if v['verified'] else 'false'}\n"
             f"scenario=vendor_payment")
 
@@ -184,7 +186,7 @@ def list_vendors():
 
 
 @router.get('/vendors/{vid}')
-def vendor(vid: str, amount: float = 4999):
+def vendor(vid: str, amount: float = 0):
     with db.get_engine().begin() as c:
         v = c.execute(select(db.vendors).where(db.vendors.c.id == vid)).mappings().first()
         if not v:

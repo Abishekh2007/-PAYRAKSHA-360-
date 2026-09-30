@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDownRight, ArrowUpRight, Bot, Building2, Database, FileSearch, Lock, Minus, ScrollText, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
 import { bank, inr, scoreColor, VERDICT_TONE, type FullAudit } from '../../src/services/bank';
+import { VendorLogo } from '../../src/components/vendor/VendorLogo';
 
 function fmt(v: unknown): string {
   if (v === null || v === undefined) return '—';
@@ -182,7 +183,7 @@ export default function App() {
               {audits.map((a) => (
                 <li key={a.id}>
                   <button onClick={() => setSel(a.id)} className={`flex w-full items-center gap-3 rounded-2xl p-2.5 text-left transition ${current?.id === a.id ? 'bg-white/10 ring-1 ring-indigo-400/40' : 'hover:bg-white/5'}`}>
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-bold text-white" style={{ background: a.vendor?.brandColor }}>{a.vendor?.name[0]}</span>
+                    {a.vendor && <VendorLogo v={a.vendor} size={36} />}
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium text-white">{a.vendor?.name}</span>
                       <span className="block text-[11px] text-slate-400">{inr(a.amount)} · {new Date(a.createdAt).toLocaleTimeString()}</span>

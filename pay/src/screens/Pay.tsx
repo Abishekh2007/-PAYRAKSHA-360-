@@ -13,10 +13,25 @@ import { ContextChips, ContextState } from '../components/check/ContextChips';
 import { BottomSheet } from '../components/check/BottomSheet';
 import { HoldButton } from '../components/check/HoldButton';
 import { BankAuditCard } from '../components/check/BankAuditCard';
+import { VendorAmount, withAmount } from '../components/check/VendorAmount';
+import { vendorIdFromQr } from '../../../src/services/bank';
 
 const MIN_CHECK_MS = import.meta.env.MODE === 'test' ? 0 : 900;
 
+/** Merchant QRs without an amount ask for it first (GPay-style), then run the check. */
 export default function Pay() {
+  const navigate = useNavigate();
+  const { draft, setDraft } = usePayStore();
+  const qrText = draft?.input.qrText ?? '';
+  const vid = vendorIdFromQr(qrText);
+  if (draft && vid && !/(^|\n)amount=/.test(qrText)) {
+    return <VendorAmount vendorId={vid} onBack={() => navigate('/')}
+      onDone={(amount) => setDraft({ ...draft, input: { ...draft.input, qrText: withAmount(qrText, amount) } })} />;
+  }
+  return <PayCheck key={qrText} />;
+}
+
+function PayCheck() {
   const navigate = useNavigate();
   const { draft, deviceName, addRecord, updateRecord, records } = usePayStore();
 
