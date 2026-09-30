@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "vite",
     "dev:pay": "vite --config pay/vite.config.ts",
+    "dev:auditor": "vite --config auditor/vite.config.ts",
     "dev:all": "node scripts/dev.mjs",
     "backend": "node scripts/backend.mjs",
-    "build": "vite build && vite build --config pay/vite.config.ts",
+    "build": "vite build && vite build --config pay/vite.config.ts && vite build --config auditor/vite.config.ts",
     "build:pay": "vite build --config pay/vite.config.ts",
+    "build:auditor": "vite build --config auditor/vite.config.ts",
     "preview": "vite preview",
     "preview:pay": "vite preview --config pay/vite.config.ts",
     "typecheck": "tsc --noEmit -p .",

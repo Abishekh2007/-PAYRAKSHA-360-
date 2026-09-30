@@ -1,0 +1,20 @@
+# PAYRAKSHA demo bank database (SIMULATION data only). Start: docker compose up -d db
+# The backend uses it automatically when reachable; otherwise it falls back to SQLite (~/.payraksha/bank.db).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: payraksha-bank-db
+    environment:
+      POSTGRES_USER: payraksha
+      POSTGRES_PASSWORD: payraksha
+      POSTGRES_DB: payraksha_bank
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - payraksha-bank:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payraksha -d payraksha_bank"]
+      interval: 5s
+      retries: 10
+volumes:
+  payraksha-bank:

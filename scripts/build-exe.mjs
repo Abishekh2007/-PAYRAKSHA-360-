@@ -56,6 +56,7 @@ const sep = path.delimiter; // ';' on Windows
 const addDataArgs = [
   `${path.join(ROOT, 'dist')}${sep}dist`,
   `${path.join(ROOT, 'dist-pay')}${sep}dist-pay`,
+  `${path.join(ROOT, 'dist-auditor')}${sep}dist-auditor`,
   ...sharedJsons.map(f => `${path.join(ROOT, 'shared', f)}${sep}shared`),
 ].flatMap(d => ['--add-data', d]);
 
@@ -74,6 +75,10 @@ const pyiArgs = [
   '--collect-submodules', 'uvicorn',
   '--collect-submodules', 'app',
   '--hidden-import', 'app.main',
+  '--collect-submodules', 'sqlalchemy',
+  '--hidden-import', 'sqlalchemy.dialects.sqlite',
+  '--hidden-import', 'sqlalchemy.dialects.postgresql.psycopg',
+  '--collect-submodules', 'psycopg',
   '--hidden-import', 'app.config',
   '--hidden-import', 'app.engine',
   '--hidden-import', 'app.ml',

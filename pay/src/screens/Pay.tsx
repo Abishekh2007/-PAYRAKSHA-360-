@@ -12,6 +12,7 @@ import { ThreatCard } from '../components/check/ThreatCard';
 import { ContextChips, ContextState } from '../components/check/ContextChips';
 import { BottomSheet } from '../components/check/BottomSheet';
 import { HoldButton } from '../components/check/HoldButton';
+import { BankAuditCard } from '../components/check/BankAuditCard';
 
 const MIN_CHECK_MS = import.meta.env.MODE === 'test' ? 0 : 900;
 
@@ -232,6 +233,9 @@ export default function Pay() {
             This QR is not a payment
           </div>
         )}
+
+        {/* Bank AI audit (vendor QRs on the bank network) */}
+        <BankAuditCard qrText={draft.input.qrText} amount={view.amount} device={deviceName} transactionRef={recordId} />
 
         {/* Threat Card */}
         <ThreatCard

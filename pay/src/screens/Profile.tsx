@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check } from 'lucide-react';
 import { usePayStore } from '../store/payStore';
+import { BankAuditToggle } from '../components/check/BankAuditCard';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -112,6 +113,7 @@ export default function Profile() {
             It never moves money, never connects to a bank and never asks for your UPI PIN, OTP, passwords or card numbers.
           </p>
         </div>
+        <BankAuditToggle />
       </main>
     </div>
   );

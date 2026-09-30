@@ -160,6 +160,7 @@ def main() -> None:
 
     dist = base / "dist"
     pay_dist = base / "dist-pay"
+    audit_dist = base / "dist-auditor"
 
     # ── Validate frontend build ─────────────────────────────────────────────
     if not (dist / "index.html").is_file():
@@ -179,6 +180,7 @@ def main() -> None:
     parser.add_argument("--no-browser", action="store_true", help="Don't open the browser")
     parser.add_argument("--pay-port", type=int, default=None, help="Port for RakshaPay")
     parser.add_argument("--lan", action="store_true", help="LAN mode for RakshaPay")
+    parser.add_argument("--audit-port", type=int, default=None, help="Port for the AI Auditor portal")
     parser.add_argument("--no-pay", action="store_true", help="Don't serve RakshaPay")
     args = parser.parse_args()
 
@@ -220,6 +222,14 @@ def main() -> None:
             print(line)
         sys.stdout.flush()
 
+    audit_port = None
+    if (audit_dist / "index.html").is_file():
+        os.environ["PAYRAKSHA_AUDIT_DIST_DIR"] = str(audit_dist)
+        taken = {port} | ({pay_port} if pay_port else set())
+        audit_port = args.audit_port or next(q for q in range(max(taken) + 1, max(taken) + 40) if q not in taken and _port_is_free(q))
+        print(f"AI Auditor portal (bank internal): http://127.0.0.1:{audit_port}")
+        sys.stdout.flush()
+
     # ── Import app ──────────────────────────────────────────────────────────
     print("Starting the protection engine... (the first launch can take 10-30 seconds)")
     sys.stdout.flush()
@@ -241,6 +251,10 @@ def main() -> None:
         servers = [uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning", access_log=False))]
         if has_pay:
             servers.append(uvicorn.Server(uvicorn.Config(pay_app, host=bind_host(args.lan), port=pay_port, log_level="warning", access_log=False)))
+
+        if audit_port:
+            from app.main import audit_app  # noqa: PLC0415
+            servers.append(uvicorn.Server(uvicorn.Config(audit_app, host="127.0.0.1", port=audit_port, log_level="warning", access_log=False)))
 
         asyncio.run(_serve_all(servers))
     except KeyboardInterrupt:

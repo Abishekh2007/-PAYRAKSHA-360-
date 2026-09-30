@@ -1,6 +1,6 @@
 """PAYRAKSHA 360 API: one router served by two apps (the console `app` and RakshaPay `pay_app`).
 
-SIMULATION ONLY: this service never initiates, authorizes or forwards a payment and makes no outbound network calls.
+SIMULATION ONLY: this service never initiates, authorizes or forwards a payment and makes no outbound network calls, except the vendor AI audit to the operator's own model server (OMNIROUTE_BASE_URL).
 """
 import os
 from pathlib import Path
@@ -14,13 +14,14 @@ from app.config import load_config, load_scenarios
 from app.engine import ENGINE_VERSION, analyze, analyze_url, parse_qr
 from app.ml import ml_status, ml_insight
 from app.link import router as link_router
+from app.bank.router import router as bank_router
 
 api = APIRouter()
 
 CORS_ORIGINS = [
     f'http://{host}:{port}'
     for host in ('localhost', '127.0.0.1')
-    for port in (5173, 4173, 5174, 4174)
+    for port in (5173, 4173, 5174, 4174, 5175, 4175)
 ]
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -139,6 +140,7 @@ def scenarios_endpoint():
 
 
 api.include_router(link_router)
+api.include_router(bank_router)
 
 # Static app routing
 repodir = Path(__file__).resolve().parent.parent.parent
@@ -166,8 +168,12 @@ def create_app(dist_dir: Path, title: str = 'PAYRAKSHA 360 API (simulation)') ->
 
 
 distdir = Path(os.environ['PAYRAKSHA_DIST_DIR']) if os.environ.get('PAYRAKSHA_DIST_DIR') else repodir / 'dist'
+auditdistdir = Path(os.environ['PAYRAKSHA_AUDIT_DIST_DIR']) if os.environ.get('PAYRAKSHA_AUDIT_DIST_DIR') else repodir / 'dist-auditor'
 paydistdir = Path(os.environ['PAYRAKSHA_PAY_DIST_DIR']) if os.environ.get('PAYRAKSHA_PAY_DIST_DIR') else repodir / 'dist-pay'
 
 # The console (dashboard) and RakshaPay (phone app) share one process, one API and one link store.
 app = create_app(distdir)
 pay_app = create_app(paydistdir, 'RakshaPay DEMO API (simulation)')
+
+# The AI Auditor portal (bank-internal, server side) is a third app on its own port, same API and database.
+audit_app = create_app(auditdistdir, 'PAYRAKSHA AI Auditor (simulation)')

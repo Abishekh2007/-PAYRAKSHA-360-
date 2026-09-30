@@ -3,7 +3,7 @@ import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import {
   Brain, Cpu, Dna, FileText, FlaskConical, Gamepad2, GitCompare, Globe, HeartHandshake, House, IndianRupee,
   LayoutDashboard, Link2, Lock, MessageSquareWarning, Network, QrCode, Radar, ScanLine, Siren, SlidersHorizontal, Smartphone,
-  Terminal, Trophy, Users, Workflow, type LucideIcon,
+  Store, Terminal, Trophy, Users, Workflow, type LucideIcon,
 } from 'lucide-react';
 
 /** primary = top navigation (spec order), more = "More" menu, hidden = reachable by link/button only. */
@@ -34,6 +34,7 @@ export const NAV_SECTIONS: { id: Exclude<NavSection, 'hidden'>; label: string }[
 export const ROUTES: AppRoute[] = [
   { path: '/', label: 'Home', group: 'primary', section: 'monitor', icon: House, component: lazy(() => import('./pages/Landing')) },
   { path: '/dashboard', label: 'Command Center', group: 'more', section: 'monitor', icon: LayoutDashboard, component: lazy(() => import('./pages/Dashboard')) },
+  { path: '/vendors', label: 'Vendor Payments', group: 'primary', section: 'monitor', icon: Store, component: lazy(() => import('./pages/VendorPayments')) },
   { path: '/link', label: 'Device Link', group: 'more', section: 'monitor', icon: Smartphone, component: lazy(() => import('./pages/DeviceLink')) },
   { path: '/live', label: 'Live Protection', group: 'primary', section: 'monitor', icon: Radar, component: lazy(() => import('./pages/LiveProtection')) },
   { path: '/qr', label: 'Scan QR', group: 'primary', section: 'shields', icon: ScanLine, component: lazy(() => import('./pages/QrShield')) },

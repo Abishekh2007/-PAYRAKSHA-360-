@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-pay/
+dist-auditor/
 coverage/
 backend/.venv/
 __pycache__/
