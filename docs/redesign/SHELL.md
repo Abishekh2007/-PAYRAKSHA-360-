@@ -38,7 +38,7 @@ Routes come from `ROUTES` and `NAV_SECTIONS` in `src/routes.ts` (each route has 
    `/technology`.
 5. The link of the current route has `aria-current="page"`, and no other link in `Main` does (at `/dashboard`, only `Command Center`;
    at `/`, only `Home`, so `Home` must match its path exactly).
-6. A top bar (`<header>`, role `banner`; it is the ONLY `banner` landmark — any other `<header>` must sit inside a `<section>`, `<aside>`,
+6. A top bar (`<header data-testid="soc-topbar">`, role `banner`; it is the ONLY `banner` landmark — any other `<header>` must sit inside a `<section>`, `<aside>`,
    `<nav>` or `<article>`, which makes it a plain header) contains the threat readout `data-testid="threat-level"` (the `ThreatLevel` component from
    `src/components/soc`) showing the store's current analysis: with no analysis it has `data-level="NONE"` and the text `MONITORING`;
    after `act(() => useDemoStore.getState().recordAnalysis({ label: 'x', input: r.input, report: r, source: 'browser' }))` with
@@ -57,7 +57,7 @@ Routes come from `ROUTES` and `NAV_SECTIONS` in `src/routes.ts` (each route has 
 12. A button labelled `Open menu` with `aria-expanded="false"` (shown on small screens). Clicking it sets `aria-expanded="true"` and
     its label becomes `Close menu`. The mobile drawer reuses the same `Main` navigation (do not render a second `navigation` named `Main`).
 13. A skip link `Skip to main content` with href `#main`, and a `<main id="main">` that contains the routed page (`data-testid="child"`).
-14. A footer (`<footer>`, role `contentinfo`, the only one) containing the text `SIMULATION` and the disclaimer text `DISCLAIMER`
+14. A footer (`<footer data-testid="soc-footer">`, role `contentinfo`, the only one) containing the text `SIMULATION` and the disclaimer text `DISCLAIMER`
     (from `src/engine`).
 
 ## Visual design (MIRRØR-style console; see docs/redesign/STYLE.md)
