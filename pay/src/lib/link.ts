@@ -1,5 +1,5 @@
 // RakshaPay side of the phone ↔ console link. SIMULATION ONLY: these calls report demo risk checks, never payments.
-// STUB: the pay-check task implements scanCheck and sendDecision, the pay-home task heartbeat's caller (contract final).
+// Phone side of the live link: scanCheck (server check with local-engine fallback), sendDecision and heartbeat.
 import type { AnalyzeInput, MlInsight, RiskReport } from '../../../src/types';
 import type { LinkDecision, LinkEvent, LinkSource, LinkTarget } from '../../../src/types/link';
 import { analyzeLocal } from '../../../src/engine';

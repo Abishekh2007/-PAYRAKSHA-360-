@@ -1,4 +1,4 @@
-// Console side of the phone link. STUB: the console-link task implements it (contract below is final).
+// Console side of the phone link: polls /api/link/events, sets the QR target and resets the link.
 import { useState, useEffect, useRef } from 'react';
 import type { LinkDevice, LinkEvent, LinkEventsResponse, LinkInfo, LinkTarget } from '../types/link';
 

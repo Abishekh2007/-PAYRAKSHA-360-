@@ -1,6 +1,5 @@
 // Turns a RiskReport into what the RakshaPay pay screen shows. SIMULATION ONLY: nothing here pays anything.
-// STUB: paymentView and withContext are implemented by the pay-check task (the contract below is final).
-// formatInr, isDemoVpa and maskVpa are final.
+// Turns a RiskReport into what the Pay screen shows (payee, gauge, reasons, primary action); withContext adds context chips.
 import type { AnalyzeInput, RiskLevelId, RiskReport } from '../../../src/types';
 import { fmtINR } from '../../../src/engine';
 

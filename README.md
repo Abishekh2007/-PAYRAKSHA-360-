@@ -25,6 +25,7 @@ Team **PHOENIX** · ABISHEKH PRADHOSH M P A · SUHASHA V · YESWANT V
 11. [Scoring model](#11-scoring-model)
 12. [Safety principles](#12-safety-principles)
 13. [Project structure](#13-project-structure)
+14. [Documentation](#14-documentation)
 
 ---
 
@@ -353,7 +354,7 @@ npm run dev:all
 | `npm run smoke` | Starts the app and checks it responds |
 | `npm run test:exe` | Starts the built exe and checks all ports and the phone→console link |
 
-Optional environment variables:
+Optional environment variables (copy `.env.example`):
 
 | Variable | Purpose |
 |---|---|
@@ -423,6 +424,21 @@ payraksha-360/
 ├── test/acceptance/     # Contract tests written before the implementation
 └── docs/                # Specs, RakshaPay notes, screenshots
 ```
+
+---
+
+## 14. Documentation
+
+| Document | Contents |
+|---|---|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Components, data flow of one phone check, design decisions and their reasons |
+| [docs/RISK_ENGINE.md](docs/RISK_ENGINE.md) | Signals, weights, combination bonuses, levels, and a worked example with real engine output |
+| [docs/API.md](docs/API.md) | Every HTTP endpoint with its request and response shapes |
+| [docs/TESTING.md](docs/TESTING.md) | 305 Vitest + 140 pytest tests, golden parity, acceptance tests, the manual user test |
+| [docs/RAKSHAPAY.md](docs/RAKSHAPAY.md) | Running the phone app on a real phone |
+| [SECURITY.md](SECURITY.md) | Safety and privacy guarantees and how the code enforces them |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to change the code safely |
+| [docs/SPEC.md](docs/SPEC.md) | The original product specification |
 
 ---
 
