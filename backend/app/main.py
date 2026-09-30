@@ -38,6 +38,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Simulation"] = "true"
+        # Pages must always be re-fetched so a rebuilt exe never shows a stale app; hashed /assets can be cached.
+        if not request.url.path.startswith("/assets/"):
+            response.headers["Cache-Control"] = "no-cache"
         return response
 
 
