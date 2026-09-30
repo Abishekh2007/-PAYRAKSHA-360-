@@ -6,6 +6,19 @@ Team **PHOENIX** · ABISHEKH PRADHOSH M P A · SUHASHA V · YESWANT V
 
 > ⚠️ **DEMO ENVIRONMENT — NO REAL PAYMENTS.** This is a hackathon demonstration prototype. It never initiates, authorises or simulates a real UPI/bank transaction, never asks for a UPI PIN, OTP, password, CVV or card number, and never connects to a real bank. Every recipient, amount, QR code, alert and statistic is **SIMULATED HACKATHON DATA**. The login code `3023` and payment code `2026` are fixed **demo codes**, checked locally and never stored or sent.
 
+**VECTOR HACKS '26 submission.** Judges: see **[EVALUATION.md](EVALUATION.md)**, which maps every rubric criterion (problem, innovation, technical, working prototype, feasibility, impact, presentation, Q&A) to code, tests and demo evidence.
+
+| Rubric | Marks | Evidence |
+|---|---|---|
+| Problem Understanding & Relevance | 10 | [§1](#1-the-problem-and-our-reasoning), [EVALUATION §1](EVALUATION.md#1-problem-understanding--relevance-10) |
+| Innovation & Originality | 20 | [EVALUATION §2](EVALUATION.md#2-innovation--originality-20), [ORIGINALITY](docs/ORIGINALITY.md) |
+| Technical Implementation | 20 | [ARCHITECTURE](ARCHITECTURE.md), [RISK_ENGINE](docs/RISK_ENGINE.md), [API](docs/API.md) |
+| Working Prototype & Functionality | 20 | [§5–7 walkthroughs](#5-walkthrough-the-phone-app-rakshapay), [TESTING](docs/TESTING.md) (305 + 140 tests) |
+| Feasibility & Scalability | 10 | [FEASIBILITY](docs/FEASIBILITY.md) (includes limitations) |
+| Real-World Impact | 10 | [EVALUATION §6](EVALUATION.md#6-real-world-impact-10) |
+| Presentation & Demonstration | 5 | [§9 demo script](#9-a-3-minute-demo-script) |
+| Q&A & Technical Understanding | 5 | [JUDGE_QA](docs/JUDGE_QA.md) |
+
 ![Console home](docs/screenshots/01-console-home.png)
 
 ---
@@ -431,6 +444,10 @@ payraksha-360/
 
 | Document | Contents |
 |---|---|
+| [EVALUATION.md](EVALUATION.md) | VECTOR HACKS '26 rubric → evidence map |
+| [docs/ORIGINALITY.md](docs/ORIGINALITY.md) | Our work vs third-party libraries, AI-assisted development, simulated data |
+| [docs/FEASIBILITY.md](docs/FEASIBILITY.md) | Cost, deployment path, scaling, maintainability, limitations |
+| [docs/JUDGE_QA.md](docs/JUDGE_QA.md) | Prepared answers to technical questions |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Components, data flow of one phone check, design decisions and their reasons |
 | [docs/RISK_ENGINE.md](docs/RISK_ENGINE.md) | Signals, weights, combination bonuses, levels, and a worked example with real engine output |
 | [docs/API.md](docs/API.md) | Every HTTP endpoint with its request and response shapes |
