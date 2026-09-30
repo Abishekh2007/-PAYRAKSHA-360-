@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { PageShell } from '../components/layout';
-import { SectionHeader, SimulationBadge, GlassCard, RiskGauge, Button } from '../components/ui';
+import { SimulationBadge, RiskGauge, Button } from '../components/ui';
+import { HudPanel, SOC_TONES, socToneForLevel } from '../components/soc';
 import { runCounterfactual } from '../engine';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -22,38 +23,60 @@ export default function Counterfactual() {
   const timelineText = revealedSteps.map(r => r.score).join(' → ');
 
   return (
-    <PageShell title="Counterfactual Demo" actions={<SimulationBadge />}>
-      <SectionHeader title="COUNTERFACTUAL SIMULATION" />
+    <PageShell title="Counterfactual Demo" eyebrow="LAB" width="wide" actions={<SimulationBadge />}>
+      <h2 className="hud-title text-cyan-300 mb-6">COUNTERFACTUAL SIMULATION</h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-        <div className="flex flex-col gap-6">
-          <div className="flex justify-between items-center">
-            <span className="text-xl font-bold">Steps</span>
-            <Button onClick={handleReset} variant="ghost" size="sm">RESET</Button>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-7 flex flex-col gap-6">
+          <HudPanel eyebrow="ATTACK vs DEFENCE" title="SIMULATION STEPS">
+            <div className="flex justify-end mb-4">
+              <Button onClick={handleReset} variant="ghost" size="sm">RESET</Button>
+            </div>
 
-          {cf.steps.map((step, i) => {
-            const isNext = i === activeStep + 1;
-            const isDone = i <= activeStep;
+            <div className="flex flex-col gap-3">
+              {cf.steps.map((step, i) => {
+                const isNext = i === activeStep + 1;
+                const isDone = i <= activeStep;
+                const prevScore = i === 0 ? cf.base.score : cf.steps[i - 1].report.score;
+                const curScore = step.report.score;
+                const curLevel = step.report.level;
+                const diff = curScore - prevScore;
+                
+                const tone = socToneForLevel(curLevel);
+                const t = SOC_TONES[tone];
 
-            return (
-              <GlassCard key={step.id} className="flex flex-col gap-4">
-                <div className="font-bold text-lg">{step.prompt}</div>
-                <Button
-                  disabled={!isNext}
-                  variant={isDone ? 'ghost' : 'outline'}
-                  onClick={() => setActiveStep(i)}
-                >
-                  {step.button}
-                </Button>
-              </GlassCard>
-            );
-          })}
+                return (
+                  <div key={step.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border border-cyan-400/15 bg-cyan-400/5 rounded-sm gap-4">
+                    <div className="font-mono text-xs text-slate-300 max-w-sm leading-relaxed">
+                      {step.prompt}
+                    </div>
+                    
+                    <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex flex-col items-end gap-1">
+                        <div className={`hud-num font-bold ${t.text}`}>RISK {curScore}</div>
+                        <div className="font-mono text-[10px] text-slate-500">
+                           {diff < 0 ? '↓' : diff > 0 ? '↑' : ''} {Math.abs(diff)} PTS
+                        </div>
+                      </div>
+                      
+                      <Button
+                        disabled={!isNext}
+                        variant={isDone ? 'ghost' : 'outline'}
+                        onClick={() => setActiveStep(i)}
+                      >
+                        {step.button}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </HudPanel>
         </div>
 
-        <div className="flex flex-col gap-6">
-          <GlassCard className="flex flex-col items-center gap-6">
-            <div className="text-sm text-slate-400 font-bold uppercase tracking-wider">Main Score</div>
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          <HudPanel eyebrow="TELEMETRY" title="CURRENT STATE" className="flex flex-col items-center gap-6">
+            <div className="hud-eyebrow text-slate-500 mt-2">MAIN SCORE</div>
 
             <RiskGauge
               score={currentReport.score}
@@ -61,20 +84,21 @@ export default function Counterfactual() {
               size={200}
             />
 
-            <div className="text-center font-bold">
+            <div className="text-center hud-title text-cyan-300">
               {currentReport.levelLabel}
             </div>
 
             {activeStep === cf.steps.length - 1 && (
-              <div className="mt-4 p-4 border border-green-500/20 rounded bg-green-500/10 text-green-200">
+              <div className="mt-2 p-4 border border-green-500/20 rounded-sm bg-green-500/10 text-green-400 font-mono text-[11px] uppercase tracking-wide w-full text-center">
                 {cf.finalText}
               </div>
             )}
-          </GlassCard>
+          </HudPanel>
 
-          <GlassCard>
-            <div className="font-bold mb-4">Score Timeline</div>
-            <div className="text-brand-300 font-mono mb-4 text-center text-lg">{timelineText}</div>
+          <HudPanel eyebrow="HISTORY" title="SCORE TIMELINE">
+            <div className="text-cyan-300 font-mono mb-6 text-center tracking-widest bg-cyan-900/20 border border-cyan-800/30 py-2 rounded-sm text-sm">
+              {timelineText}
+            </div>
 
             <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -85,14 +109,14 @@ export default function Counterfactual() {
                   <Line
                     type="monotone"
                     dataKey="score"
-                    stroke="#38bdf8"
-                    strokeWidth={3}
-                    dot={{ fill: '#38bdf8', strokeWidth: 0, r: 5 }}
+                    stroke="#22d3ee"
+                    strokeWidth={2}
+                    dot={{ fill: '#22d3ee', strokeWidth: 0, r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </GlassCard>
+          </HudPanel>
         </div>
       </div>
     </PageShell>

@@ -32,5 +32,8 @@ describe('WhatIf', () => {
 
     // 'Risk context changed…' string
     expect(screen.getAllByText('Risk context changed because suspicious signals were removed.')[0]).toBeInTheDocument();
+    
+    // New SOC element test
+    expect(screen.getByTestId('delta-chip')).toBeInTheDocument();
   });
 });

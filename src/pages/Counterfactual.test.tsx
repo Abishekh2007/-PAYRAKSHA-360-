@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Counterfactual from './Counterfactual';
@@ -12,6 +12,10 @@ describe('Counterfactual', () => {
   it('handles steps and shows final text', async () => {
     const user = userEvent.setup();
     renderWithRouter(<Counterfactual />);
+
+
+    // New SOC element
+    expect(screen.getByText('ATTACK vs DEFENCE')).toBeInTheDocument();
 
     // Base gauge: 92
     const meter = screen.getByRole('meter');

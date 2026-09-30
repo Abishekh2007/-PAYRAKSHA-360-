@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageShell } from '../components/layout';
 import { Button, SimulationBadge } from '../components/ui';
+import { HudPanel } from '../components/soc';
 import { QrCode, Download, ExternalLink } from 'lucide-react';
 import {
   buildDemoQrPayload,
@@ -121,13 +122,10 @@ export default function QrGenerator() {
   };
 
   return (
-    <PageShell eyebrow="Demo Settings" title="QR Generator" subtitle="Build demo QR codes for testing PAYRAKSHA." icon={<QrCode className="w-8 h-8 md:w-12 md:h-12" />}>
-      <SimulationBadge />
-
-      <div className="flex flex-col lg:flex-row gap-8 mt-6">
-        <div className="lg:w-1/2 flex flex-col gap-6">
-          <div className="border border-gray-700 bg-gray-900/50 p-6 rounded-xl flex flex-col gap-4">
-            <h3 className="font-semibold text-lg">Presets</h3>
+    <PageShell eyebrow="LAB" title="QR Generator" subtitle="Build demo QR codes for testing PAYRAKSHA." width="wide" icon={<QrCode className="w-8 h-8 md:w-12 md:h-12" />} actions={<SimulationBadge />}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+        <div className="lg:col-span-6 flex flex-col gap-6">
+          <HudPanel eyebrow="PRESETS" title="QUICK LOAD">
             <div className="flex flex-wrap gap-2">
                {qrScenarios().map((s) => (
                    <Button key={s.id} variant="outline" size="sm" onClick={() => handlePresetClick(s)}>
@@ -135,93 +133,111 @@ export default function QrGenerator() {
                    </Button>
                ))}
             </div>
-          </div>
+          </HudPanel>
 
-          <form className="border border-gray-700 bg-gray-900/50 p-6 rounded-xl flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); handleGenerate(); }}>
-             <h3 className="font-semibold text-lg">QR Configuration</h3>
+          <HudPanel eyebrow="DEMO QR FORGE" title="QR CONFIGURATION" bodyClassName="p-0">
+            <form className="p-4 flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); handleGenerate(); }}>
+               <label className="flex flex-col gap-1">
+                   <span className="hud-label">Recipient</span>
+                   <input type="text" value={recipient} onChange={e => setRecipient(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+               </label>
 
-             <label className="flex flex-col gap-1">
-                 <span className="text-sm font-medium">Recipient</span>
-                 <input type="text" value={recipient} onChange={e => setRecipient(e.target.value)} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white" />
-             </label>
+               <label className="flex flex-col gap-1">
+                   <span className="hud-label">Amount (₹)</span>
+                   <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+               </label>
 
-             <label className="flex flex-col gap-1">
-                 <span className="text-sm font-medium">Amount (₹)</span>
-                 <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white" />
-             </label>
+               <label className="flex flex-col gap-1">
+                   <span className="hud-label">Merchant</span>
+                   <input type="text" value={merchant} onChange={e => setMerchant(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+               </label>
 
-             <label className="flex flex-col gap-1">
-                 <span className="text-sm font-medium">Merchant</span>
-                 <input type="text" value={merchant} onChange={e => setMerchant(e.target.value)} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white" />
-             </label>
+               <label className="flex flex-col gap-1">
+                   <span className="hud-label">Note</span>
+                   <input type="text" value={note} onChange={e => setNote(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none" />
+               </label>
 
-             <label className="flex flex-col gap-1">
-                 <span className="text-sm font-medium">Note</span>
-                 <input type="text" value={note} onChange={e => setNote(e.target.value)} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white" />
-             </label>
+               <label className="flex flex-col gap-1">
+                   <span className="hud-label">Source</span>
+                   <select value={sourceOpt} onChange={e => setSourceOpt(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none">
+                      {SOURCE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                   </select>
+               </label>
 
-             <label className="flex flex-col gap-1">
-                 <span className="text-sm font-medium">Source</span>
-                 <select value={sourceOpt} onChange={e => setSourceOpt(e.target.value)} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white">
-                    {SOURCE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                 </select>
-             </label>
+               <label className="flex flex-col gap-1">
+                   <span className="hud-label">Scenario ID (optional)</span>
+                   <select value={scenarioId} onChange={e => setScenarioId(e.target.value)} className="bg-cyan-950/20 border border-cyan-800/30 rounded-sm px-3 py-2 text-cyan-50 font-mono text-sm focus:border-cyan-400/50 focus:outline-none">
+                      <option value="">-- None --</option>
+                      {scenarios.map(s => <option key={s.id} value={s.id}>{s.id}</option>)}
+                   </select>
+               </label>
 
-             <label className="flex flex-col gap-1">
-                 <span className="text-sm font-medium">Scenario ID (optional)</span>
-                 <select value={scenarioId} onChange={e => setScenarioId(e.target.value)} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white">
-                    <option value="">-- None --</option>
-                    {scenarios.map(s => <option key={s.id} value={s.id}>{s.id}</option>)}
-                 </select>
-             </label>
+               <label className="flex items-center gap-3 mt-2 cursor-pointer group">
+                   <input type="checkbox" checked={urgency} onChange={e => setUrgency(e.target.checked)} className="peer sr-only" />
+                   <div className="w-4 h-4 border border-cyan-400/30 rounded-sm peer-checked:bg-cyan-400/20 peer-focus:border-cyan-400 flex items-center justify-center">
+                     {urgency && <div className="w-2 h-2 bg-cyan-400 rounded-sm" />}
+                   </div>
+                   <span className="hud-label group-hover:text-cyan-300 transition-colors">Urgency</span>
+               </label>
 
-             <label className="flex items-center gap-2 mt-2">
-                 <input type="checkbox" checked={urgency} onChange={e => setUrgency(e.target.checked)} className="w-4 h-4" />
-                 <span className="text-sm font-medium">Urgency</span>
-             </label>
+               <label className="flex items-center gap-3 cursor-pointer group">
+                   <input type="checkbox" checked={recipientVerified} onChange={e => setRecipientVerified(e.target.checked)} className="peer sr-only" />
+                   <div className="w-4 h-4 border border-cyan-400/30 rounded-sm peer-checked:bg-cyan-400/20 peer-focus:border-cyan-400 flex items-center justify-center">
+                     {recipientVerified && <div className="w-2 h-2 bg-cyan-400 rounded-sm" />}
+                   </div>
+                   <span className="hud-label group-hover:text-cyan-300 transition-colors">Recipient Verified</span>
+               </label>
 
-             <label className="flex items-center gap-2">
-                 <input type="checkbox" checked={recipientVerified} onChange={e => setRecipientVerified(e.target.checked)} className="w-4 h-4" />
-                 <span className="text-sm font-medium">Recipient Verified</span>
-             </label>
+               {errorText && <div role="alert" className="text-red-400 bg-red-950/30 border border-red-900/50 p-3 rounded-sm mt-2 font-mono text-sm flex items-start gap-2">
+                 <span className="mt-0.5">⚠️</span> <span>{errorText}</span>
+               </div>}
 
-             {errorText && <div role="alert" className="text-red-400 bg-red-950/30 border border-red-900 p-3 rounded mt-2">{errorText}</div>}
-
-             <Button type="submit" variant="primary" className="mt-4">
-                 GENERATE DEMO QR
-             </Button>
-          </form>
+               <div className="pt-2">
+                 <Button type="submit" variant="primary" fullWidth>
+                     GENERATE DEMO QR
+                 </Button>
+               </div>
+            </form>
+          </HudPanel>
         </div>
 
-        <div className="lg:w-1/2">
+        <div className="lg:col-span-6">
            {generatedSvg && generatedPayload && (
-               <div className="border border-brand-700 bg-brand-950/20 p-6 rounded-xl flex flex-col items-center gap-6">
-                   <span className="bg-gray-800 text-gray-200 px-3 py-1 rounded-full text-xs font-medium border border-gray-700 font-mono">
+               <HudPanel eyebrow="OUTPUT" title="DEMO — NOT A REAL PAYMENT QR" className="sticky top-6">
+                 <div className="flex flex-col items-center gap-6">
+                   <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-sm text-xs font-medium border border-slate-700 font-mono tracking-widest uppercase">
                        QR-only risk: {generatedRisk} / 100
                    </span>
 
-                   <p className="font-bold text-red-500 uppercase tracking-widest text-sm">DEMO QR — NOT A PAYMENT QR</p>
-
-                   <img src={svgToDataUrl(generatedSvg)} alt="Demo QR code" className="w-64 h-64 bg-white p-2 rounded-lg" />
+                   <div className="relative p-1 border border-cyan-400/20 bg-cyan-400/5 rounded-sm">
+                     <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-400/50" />
+                     <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-400/50" />
+                     <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-cyan-400/50" />
+                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-400/50" />
+                     <img src={svgToDataUrl(generatedSvg)} alt="Demo QR code" className="w-64 h-64 bg-white p-2 rounded-sm relative z-10" />
+                   </div>
 
                    <div className="w-full">
-                       <pre className="text-xs text-gray-400 bg-gray-900 p-4 rounded overflow-auto border border-gray-700 font-mono">
+                       <pre className="text-[10px] text-cyan-300/70 bg-black/40 p-4 rounded-sm overflow-auto border border-cyan-400/10 font-mono break-all whitespace-pre-wrap leading-relaxed max-h-48">
                            {generatedPayload}
                        </pre>
                    </div>
 
-                   <div className="flex flex-col sm:flex-row gap-4 w-full">
-                       <Button variant="outline" onClick={handleDownload} icon={<Download size={18} />} fullWidth>
+                   <div className="flex flex-col sm:flex-row gap-4 w-full pt-2">
+                       <Button variant="outline" onClick={handleDownload} icon={<Download size={16} />} fullWidth>
                            Download SVG
                        </Button>
                        <Link to="/qr" className="flex-1">
-                           <Button variant="primary" icon={<ExternalLink size={18} />} fullWidth>
+                           <Button variant="primary" icon={<ExternalLink size={16} />} fullWidth>
                                Open QR Shield
                            </Button>
                        </Link>
                    </div>
-                   <p className="text-xs text-gray-400 text-center">Scan it with the camera or upload the downloaded image.</p>
-               </div>
+                   <p className="text-[10px] text-slate-500 text-center font-mono uppercase tracking-widest max-w-xs">
+                     Scan it with the camera or upload the downloaded image.
+                   </p>
+                 </div>
+               </HudPanel>
            )}
         </div>
       </div>

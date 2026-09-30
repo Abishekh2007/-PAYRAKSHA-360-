@@ -17,6 +17,9 @@ describe('QrGenerator', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderWithRouter(<QrGenerator />, { route: '/qr-generator' });
 
+    // Expecting DEMO QR FORGE HUD Panel to be present
+    expect(screen.getByText('DEMO QR FORGE')).toBeInTheDocument();
+
     await user.click(await screen.findByRole('button', { name: 'QR001' }));
     
     // Recipient field must be populated

@@ -10,6 +10,9 @@ describe('DemoControl', () => {
     const user = userEvent.setup();
     act(() => { useDemoStore.getState().resetDemo(); });
     renderWithRouter(<DemoControl />);
+    
+    // New SOC element assert
+    expect(screen.getByText('MISSION CONTROL')).toBeInTheDocument();
 
     const row = screen.getByTestId('customer_care_scam');
     const loadBtn = within(row).getByRole('button', { name: 'LOAD AS CURRENT' });
@@ -23,7 +26,6 @@ describe('DemoControl', () => {
     expect(screen.getByText('Demo state cleared.')).toBeInTheDocument();
     expect(useDemoStore.getState().history.length).toBe(0);
     
-    // utility_scam is QR001
     const qrRow = screen.getByTestId('utility_scam');
     const link = within(qrRow).getByRole('link', { name: 'OPEN IN QR SHIELD' });
     expect(link).toHaveAttribute('href', '/qr?demo=QR001');
