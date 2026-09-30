@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { PageShell } from '../components/layout';
 import { Button, ErrorNotice, SimulationBadge, RiskGauge, EngineBadge } from '../components/ui';
-import { HudPanel, ShieldStatus, shieldStateFor } from '../components/soc';
+import { HudPanel, ShieldStatus, shieldStateFor, StatusPill, socToneForLevel } from '../components/soc';
 import { analyzeUrlRisk } from '../services/api';
-import { analyzeUrlLocal } from '../engine';
+import { analyzeUrlLocal, getScenario, runScenarioLocal } from '../engine';
 import type { UrlResponse } from '../types';
 import { levelTheme } from '../lib/risk';
 
@@ -13,6 +13,32 @@ const URL_VERDICT: Record<string, string> = {
   HIGH_CAUTION: 'Potentially risky link. Multiple warning signals detected.',
   HIGH: 'Suspicious link. Multiple strong warning signals detected.',
 };
+
+const SAMPLE_IDS = ['utility_scam', 'kyc_scam', 'shopping_scam', 'legit_utility'] as const;
+
+interface SampleEntry {
+  id: string;
+  label: string;
+  url: string | null;
+  level: string | null;
+}
+
+const SAMPLES: SampleEntry[] = SAMPLE_IDS.map((id) => {
+  const scenario = getScenario(id);
+  let level: string | null = null;
+  try {
+    const report = runScenarioLocal(id);
+    level = report.level;
+  } catch {
+    level = null;
+  }
+  return {
+    id,
+    label: scenario.shortLabel,
+    url: scenario.url || null,
+    level,
+  };
+});
 
 export default function UrlShield() {
   const [urlInput, setUrlInput] = useState('');
@@ -142,6 +168,30 @@ export default function UrlShield() {
               Demo environment: All links are analyzed safely. No external requests are made.
             </p>
           </HudPanel>
+
+          <HudPanel eyebrow="SCENARIO SAMPLES · DEMO">
+            <div className="flex flex-col gap-1">
+              {SAMPLES.filter((s) => s.url !== null).map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className="w-full text-left font-mono text-xs border border-cyan-400/15 rounded-sm px-3 py-2 hover:bg-cyan-400/10 transition-colors flex items-center justify-between gap-2 text-slate-200"
+                  onClick={() => {
+                    const url = s.url!;
+                    setUrlInput(url);
+                    handleAnalyze(url);
+                  }}
+                >
+                  <span>{s.label}</span>
+                  {s.level && (
+                    <StatusPill tone={socToneForLevel(s.level)}>
+                      {s.level.replace('_', ' ')}
+                    </StatusPill>
+                  )}
+                </button>
+              ))}
+            </div>
+          </HudPanel>
         </div>
 
         <div className="lg:col-span-7 flex flex-col gap-4">
@@ -207,7 +257,7 @@ export default function UrlShield() {
                     <h4 className="hud-title text-slate-300 mb-4 border-b border-cyan-400/15 pb-2">
                       {urlResult.analysis.score < 30 ? 'WHY THIS LINK LOOKS SAFER' : 'WHY THIS LINK WAS FLAGGED'}
                     </h4>
-                    
+
 
                     {(() => {
                       const analysis = urlResult.analysis;
