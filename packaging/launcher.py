@@ -115,7 +115,7 @@ def banner_lines(console_url, pay_url, pay_port, phone_url, lan) -> list[str]:
     return lines
 
 
-ROLE_PORTS = {"console": 9180, "pay": 9181, "audit": 9182}
+ROLE_PORTS = {"console": 7480, "pay": 7481, "audit": 7482}
 
 
 def role_from_exe(name: str) -> str | None:

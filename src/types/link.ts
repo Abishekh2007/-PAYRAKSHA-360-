@@ -62,7 +62,7 @@ export interface LinkDecisionRequest { id: string; decision: Exclude<LinkDecisio
 /** GET /api/link/info */
 export interface LinkInfo {
   consoleUrl: string | null;
-  /** RakshaPay's local URL, e.g. 'http://127.0.0.1:9181'. */
+  /** RakshaPay's local URL, e.g. 'http://127.0.0.1:7481'. */
   payUrl: string | null;
   /** 'https://<machine>.<tailnet>.ts.net' when the launcher detected Tailscale, else null. */
   phoneUrl: string | null;

@@ -16,9 +16,9 @@ Written 2026-09-30 11:12 IST · deadline ≈ 12:52 IST · budget: ~70 % of remai
 5. **Opt-out:** turning the service off shows a **bank warning**: the bank will not take accountability or the risk;
    the user is responsible. The user must acknowledge it, and the acknowledgement is stored.
 6. **Three separate ports:**
-   - **①** Banking app (console + vendors + map), port 9180;
-   - **②** RakshaPay (GPay-style phone app), port 9181;
-   - **③** **AI Auditor portal** (server-side reasoning console), port 9182.
+   - **①** Banking app (console + vendors + map), port 7480;
+   - **②** RakshaPay (GPay-style phone app), port 7481;
+   - **③** **AI Auditor portal** (server-side reasoning console), port 7482.
 
 ## Who does what
 | Who | Does |
@@ -103,7 +103,7 @@ existing engine and RakshaPay keep working. RakshaPay calls `/api/bank/audit` wh
   - after scanning a vendor QR: a **"Bank AI audit"** card showing the fee, then either the full score and verdict
     (large) or the summary with "details kept private" (small);
   - Profile gets an AI-audit toggle with the same bank warning sheet.
-- **③ AI Auditor portal (9182):**
+- **③ AI Auditor portal (7482):**
   - a left rail with the audit queue;
   - the main area shows, for each report:
     - a score gauge and verdict banner;
@@ -114,7 +114,7 @@ existing engine and RakshaPay keep working. RakshaPay calls `/api/bank/audit` wh
 ## Build order (cut from the bottom if time runs out)
 1. DB layer + schema + seed + SQLite fallback + docker-compose. *(core)*
 2. AI client + audit service (large / small / fee / opt-out) + API + pytest for the core path. *(core)*
-3. Auditor portal on port 9182 (the reasoning UI). *(core)*
+3. Auditor portal on port 7482 (the reasoning UI). *(core)*
 4. Banking app `/vendors` map + vendor panel + QR + settings / opt-out. *(core)*
 5. RakshaPay audit card + profile toggle. *(core)*
 6. Launcher: a third port, `--audit-port`, in the banner; rebuild the exe. *(core for the demo)*
