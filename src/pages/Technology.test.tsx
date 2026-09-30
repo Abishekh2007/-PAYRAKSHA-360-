@@ -24,7 +24,10 @@ describe('Technology', () => {
       expect(screen.getByText(lvl.label)).toBeInTheDocument();
     }
 
-    // Check RobotExpressive text from credits
-    expect(screen.getByText(/RobotExpressive/i)).toBeInTheDocument();
+    // Check SYSTEM ARCHITECTURE section
+    expect(screen.getByText('SYSTEM ARCHITECTURE')).toBeInTheDocument();
+
+    // No 3D references
+    expect(document.body.textContent).not.toMatch(/\b3D\b|three\.js|\.glb|WebGL/i);
   });
 });
