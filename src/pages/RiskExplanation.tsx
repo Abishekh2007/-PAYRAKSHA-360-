@@ -47,7 +47,7 @@ export default function RiskExplanation() {
                   <div className="text-cyan-400/70 mb-2 pb-2 border-b border-cyan-400/15 font-mono text-xs">
                     Risk score = baseline + Σ (weight × signal value) + combination bonuses, clamped to 0-100
                   </div>
-                  <div className="text-cyan-300 font-mono text-[11px] uppercase tracking-wider">
+                  <div className="font-mono text-cyan-300 text-xs">
                     {report.contributions.map(c => c.points).join(' + ')}
                     {' = '}{totalPoints}
                     {totalPoints !== report.score && ` → clamped to ${report.score}`}
@@ -65,14 +65,14 @@ export default function RiskExplanation() {
             <HudPanel eyebrow="SIGNALS" title="DETECTED THREAT VECTORS">
               <div className="space-y-6">
                 {report.analyses.text && !report.analyses.text.empty && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.3 }} className="bg-cyan-400/5 p-4 rounded-[3px] border border-cyan-400/15">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.3 }} className="bg-cyan-400/5 p-4 rounded-sm border border-cyan-400/15">
                     <h3 className="hud-label text-cyan-500 mb-4">Text Signals Detected</h3>
                     <SignalList signals={report.analyses.text.signals} />
                   </motion.div>
                 )}
 
                 {report.analyses.url && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.4 }} className="bg-cyan-400/5 p-4 rounded-[3px] border border-cyan-400/15">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.4 }} className="bg-cyan-400/5 p-4 rounded-sm border border-cyan-400/15">
                     <h3 className="hud-label text-cyan-500 mb-4">URL Analysis</h3>
                     <UrlChecksList analysis={report.analyses.url} />
                   </motion.div>
@@ -91,7 +91,7 @@ export default function RiskExplanation() {
             {technicalView && (
               <div className="overflow-x-auto pt-4">
                 <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="bg-cyan-400/10 text-cyan-500 font-mono text-[10px] uppercase tracking-widest border-b border-cyan-400/20">
+                  <thead className="bg-cyan-400/10 hud-label text-cyan-500 border-b border-cyan-400/20">
                     <tr>
                       <th className="px-4 py-3 font-normal">Feature / Key</th>
                       <th className="px-4 py-3 font-normal w-24 text-right">Value</th>
@@ -109,7 +109,7 @@ export default function RiskExplanation() {
                   </tbody>
                 </table>
                 <div className="mt-4 text-right">
-                  <Link to="/technical" className="text-cyan-400 hover:text-cyan-300 font-mono text-[10px] uppercase tracking-widest underline underline-offset-4">
+                  <Link to="/technical" className="text-cyan-400 hover:text-cyan-300 hud-label underline underline-offset-4">
                     VIEW FULL TECHNICAL PAYLOAD
                   </Link>
                 </div>
@@ -119,7 +119,7 @@ export default function RiskExplanation() {
         </HudPanel>
 
         {/* Navigation */}
-        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-dashed border-cyan-400/20">
+        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-cyan-400/20">
           <Link to="/dna" className="hud-label px-4 py-2 rounded-sm text-cyan-400 border border-cyan-800 hover:bg-cyan-900/30 transition-colors">
             VIEW SCAM DNA
           </Link>

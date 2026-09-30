@@ -66,11 +66,11 @@ export default function AttackChain() {
         {/* Callout */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.4 }} className="bg-red-500/10 border border-red-500/30 p-5 rounded-sm">
           <h3 className="hud-label text-red-400 mb-2">PAYRAKSHA INTERVENES BEFORE THE PAYMENT STEP:</h3>
-          <p className="text-red-300 text-lg uppercase tracking-wider font-mono">{report.recommendation.title}</p>
+          <p className="hud-title text-red-300 uppercase">{report.recommendation.title}</p>
         </motion.div>
 
         {/* Navigation */}
-        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-dashed border-cyan-400/20">
+        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-cyan-400/20">
           <Link to="/dna" className="hud-label px-4 py-2 rounded-sm text-cyan-400 border border-cyan-800 hover:bg-cyan-900/30 transition-colors">
             VIEW SCAM DNA
           </Link>

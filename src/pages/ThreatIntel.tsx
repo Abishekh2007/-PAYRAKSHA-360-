@@ -77,7 +77,7 @@ export default function ThreatIntel() {
                 };
                 return (
                   <div key={c.name} className={`border p-4 flex flex-col justify-center items-center rounded-sm ${tones[c.name] || 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}`}>
-                    <div className="text-[10px] font-mono tracking-widest uppercase mb-1 opacity-80">{c.name}</div>
+                    <div className="hud-label mb-1 opacity-80">{c.name}</div>
                     <div className="text-2xl font-mono font-semibold">{c.value}</div>
                   </div>
                 );
@@ -96,7 +96,7 @@ export default function ThreatIntel() {
         {/* Top Impersonated Organisations Table */}
         <HudPanel eyebrow="SIMULATED HACKATHON DATA" title="Top Impersonated Organisations">
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-[11px] uppercase tracking-wider text-slate-300">
+            <table className="w-full text-left text-sm text-slate-300">
               <thead className="bg-cyan-400/5 text-cyan-500">
                 <tr>
                   <th className="px-4 py-3 font-normal border-b border-cyan-400/20">Organisation Type</th>
@@ -118,7 +118,7 @@ export default function ThreatIntel() {
         {/* Top Signals Table */}
         <HudPanel eyebrow="SIMULATED HACKATHON DATA" title="Top Signals">
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-[11px] uppercase tracking-wider text-slate-300">
+            <table className="w-full text-left text-sm text-slate-300">
               <thead className="bg-cyan-400/5 text-cyan-500">
                 <tr>
                   <th className="px-4 py-3 font-normal border-b border-cyan-400/20">Signal</th>
@@ -141,7 +141,7 @@ export default function ThreatIntel() {
         <HudPanel eyebrow="SIMULATED HACKATHON DATA" title="Engine view of the demo scenarios">
           <p className="hud-label px-4 pt-3 pb-1 text-cyan-500">Computed live by the PAYRAKSHA engine on demo data</p>
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-[11px] uppercase tracking-wider text-slate-300">
+            <table className="w-full text-left text-sm text-slate-300">
               <thead className="bg-cyan-400/5 text-cyan-500">
                 <tr>
                   <th className="px-4 py-3 font-normal border-b border-cyan-400/20">Scenario</th>
@@ -170,10 +170,10 @@ export default function ThreatIntel() {
         {/* Emerging Pattern Alerts */}
         <div className="grid gap-6 md:grid-cols-3">
           <HudPanel eyebrow="Emerging pattern alerts (simulated)" title="QR 'receive money' tricks" tone="red">
-            <p className="mt-2 text-[11px] font-mono uppercase tracking-wide text-slate-300 border-l-2 border-red-500/50 pl-3 py-1">
+            <p className="mt-2 text-sm text-slate-300 border-l-2 border-red-500/50 pl-3 py-1">
               Sample: Scan to receive your cashback of ₹1,000
             </p>
-            <div className="mt-4 border-t border-dashed border-red-500/20 pt-4">
+            <div className="mt-4 border-t border-red-500/20 pt-4">
               <Link to="/lab" className="hud-label text-red-400 hover:text-red-300 hover:underline">
                 OPEN SCAM LAB &rarr;
               </Link>
@@ -181,10 +181,10 @@ export default function ThreatIntel() {
           </HudPanel>
 
           <HudPanel eyebrow="Emerging pattern alerts (simulated)" title="Fake customer care numbers" tone="red">
-            <p className="mt-2 text-[11px] font-mono uppercase tracking-wide text-slate-300 border-l-2 border-red-500/50 pl-3 py-1">
+            <p className="mt-2 text-sm text-slate-300 border-l-2 border-red-500/50 pl-3 py-1">
               Sample: Dial 9876543210 for immediate airline refund
             </p>
-            <div className="mt-4 border-t border-dashed border-red-500/20 pt-4">
+            <div className="mt-4 border-t border-red-500/20 pt-4">
               <Link to="/lab" className="hud-label text-red-400 hover:text-red-300 hover:underline">
                 OPEN SCAM LAB &rarr;
               </Link>
@@ -192,10 +192,10 @@ export default function ThreatIntel() {
           </HudPanel>
 
           <HudPanel eyebrow="Emerging pattern alerts (simulated)" title="KYC expiry threats" tone="red">
-            <p className="mt-2 text-[11px] font-mono uppercase tracking-wide text-slate-300 border-l-2 border-red-500/50 pl-3 py-1">
+            <p className="mt-2 text-sm text-slate-300 border-l-2 border-red-500/50 pl-3 py-1">
               Sample: Dear customer, your bank account will be blocked in 24 hrs. Update KYC.
             </p>
-            <div className="mt-4 border-t border-dashed border-red-500/20 pt-4">
+            <div className="mt-4 border-t border-red-500/20 pt-4">
               <Link to="/lab" className="hud-label text-red-400 hover:text-red-300 hover:underline">
                 OPEN SCAM LAB &rarr;
               </Link>

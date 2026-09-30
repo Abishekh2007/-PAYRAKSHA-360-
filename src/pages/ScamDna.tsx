@@ -29,8 +29,8 @@ export function ContextBar({ currentReportId, record, isDefault }: { currentRepo
   };
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-cyan-400/10 p-4 rounded-[3px] mb-6 border border-cyan-400/20 w-full">
-      <div className="font-mono text-[11px] uppercase text-cyan-300 min-w-0 break-words">
+    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-cyan-400/10 p-4 rounded-sm mb-6 border border-cyan-400/20 w-full">
+      <div className="hud-label text-cyan-400 min-w-0 break-words">
         {isDefault ? (
           <span>Showing the flagship demo: QR001 electricity-bill scam. Analyse something to see your own result.</span>
         ) : (
@@ -138,11 +138,11 @@ export default function ScamDna() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ ...transition, delay: 0.4 + (i * 0.1) }}
-                className="bg-cyan-400/5 p-4 rounded-[3px] border border-cyan-400/15"
+                className="bg-cyan-400/5 p-4 rounded-sm border border-cyan-400/15"
               >
                 <div className="flex justify-between items-start mb-2 border-b border-cyan-400/15 pb-2">
                   <h4 className="hud-title text-cyan-300">{strand.label}</h4>
-                  <span className="hud-label tracking-widest bg-cyan-400/10 px-1.5 py-0.5 rounded-[3px]">{Math.round(strand.percent)}%</span>
+                  <span className="hud-label tracking-widest bg-cyan-400/10 px-1.5 py-0.5 rounded-sm">{Math.round(strand.percent)}%</span>
                 </div>
                 <p className="text-sm text-slate-300 mt-2">
                   {report.featureDetails[strand.key]}
@@ -153,7 +153,7 @@ export default function ScamDna() {
         </HudPanel>
 
         {/* Navigation */}
-        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-dashed border-cyan-400/20">
+        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-cyan-400/20">
           <Link to="/attack-chain" className="hud-label px-4 py-2 rounded-sm text-cyan-400 border border-cyan-800 hover:bg-cyan-900/30 transition-colors">
             VIEW ATTACK CHAIN
           </Link>

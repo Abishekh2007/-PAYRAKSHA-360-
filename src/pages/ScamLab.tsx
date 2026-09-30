@@ -133,7 +133,7 @@ export default function ScamLab() {
               <p className="text-sm text-slate-300 mb-4 flex-1">{s.summary}</p>
 
               {s.message && (
-                <div className="bg-slate-900/50 p-3 rounded-[3px] text-xs mb-4 text-slate-400 italic font-medium leading-relaxed border border-cyan-400/10">
+                <div className="bg-slate-900/50 p-3 rounded-sm text-xs mb-4 text-slate-400 italic font-medium leading-relaxed border border-cyan-400/10">
                   "{s.message.substring(0, 80)}..."
                 </div>
               )}
@@ -159,7 +159,7 @@ export default function ScamLab() {
           ))}
         </div>
         <div className="mt-8 flex justify-center">
-            <Link to="/payment" className="font-mono text-xs text-cyan-400 hover:text-cyan-300 uppercase tracking-widest border border-cyan-400/20 px-4 py-2 rounded-sm bg-cyan-400/5">
+            <Link to="/payment" className="hud-label text-cyan-400 hover:text-cyan-300 border border-cyan-400/20 px-4 py-2 rounded-sm bg-cyan-400/5">
                  Build your own scenario
             </Link>
         </div>

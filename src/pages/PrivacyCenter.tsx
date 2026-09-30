@@ -25,28 +25,28 @@ export default function PrivacyCenter() {
     >
       <div className="grid gap-4 lg:grid-cols-12">
         <HudPanel tone="red" title="NEVER REQUESTS" className="lg:col-span-4" data-testid="never-requests-panel">
-          <ul className="space-y-3 font-mono text-xs tracking-wide text-white">
+          <ul className="space-y-3 text-sm text-white">
             <li>❌ UPI PIN</li>
             <li>❌ OTP</li>
             <li>❌ Password</li>
             <li>❌ CVV</li>
             <li>❌ Full card number</li>
           </ul>
-          <p className="mt-6 text-[10px] font-mono tracking-widest text-[#ef4444] uppercase">No financial credentials are shared.</p>
+          <p className="mt-6 hud-label text-red-500">No financial credentials are shared.</p>
         </HudPanel>
 
         <HudPanel tone="cyan" title="DATA HANDLING MATRIX" className="lg:col-span-8">
           <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-xs uppercase tracking-wide">
+            <table className="w-full text-left text-sm text-slate-300">
               <thead>
-                <tr className="border-b border-dashed border-cyan-400/15 text-cyan-300">
+                <tr className="border-b border-cyan-400/15 text-cyan-300">
                   <th className="py-3 pr-4 font-normal">Data Item</th>
                   <th className="py-3 px-2 text-center font-normal">In Browser</th>
                   <th className="py-3 px-2 text-center font-normal">Local Demo API</th>
                   <th className="py-3 pl-2 text-center font-normal">Never Stored</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-dashed divide-cyan-400/10 text-slate-300">
+              <tbody className="divide-y divide-cyan-400/10 text-slate-300">
                 <tr>
                   <td className="py-3 pr-4">Message text you paste</td>
                   <td className="py-3 px-2 text-center text-green-400">✓</td>
@@ -87,7 +87,7 @@ export default function PrivacyCenter() {
         <Button onClick={handleClear} variant="danger">
           CLEAR SESSION DATA
         </Button>
-        {cleared && <p role="status" className="font-mono text-[10px] text-green-400 tracking-[0.18em] uppercase">Session data cleared.</p>}
+        {cleared && <p role="status" className="hud-label text-green-400">Session data cleared.</p>}
       </div>
     </PageShell>
   );
