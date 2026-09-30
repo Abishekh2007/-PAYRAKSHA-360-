@@ -1,15 +1,23 @@
 import type { EngineSource } from '../../types';
+import { LiveDot } from '../soc';
 
 export interface EngineBadgeProps { source: EngineSource; latencyMs?: number | null; className?: string }
 
 export function EngineBadge({ source, latencyMs = null, className = '' }: EngineBadgeProps) {
   const text = source === 'python-api' ? 'Python risk engine (FastAPI)' : 'In-browser engine (offline)';
-  const toneClass = source === 'python-api' ? 'bg-risk-low/20 text-risk-low border-risk-low/30' : 'bg-risk-caution/20 text-risk-caution border-risk-caution/30';
-  const dotClass = source === 'python-api' ? 'bg-risk-low' : 'bg-risk-caution';
+  // python-api = cyan, browser = green, anything else = amber
+  const tone = source === 'python-api' ? 'cyan' : 'green';
+
+  const borderClass = tone === 'cyan'
+    ? 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10'
+    : 'border-emerald-400/40 text-emerald-300 bg-emerald-400/10';
 
   return (
-    <span data-source={source} className={`chip border ${toneClass} ${className}`.trim()}>
-      <span className={`w-2 h-2 rounded-full ${dotClass} shadow-[0_0_8px_currentColor]`} />
+    <span
+      data-source={source}
+      className={`inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] ${borderClass} ${className}`.trim()}
+    >
+      <LiveDot tone={tone === 'cyan' ? 'cyan' : 'green'} pulse={false} />
       {text}
       {latencyMs != null && ` · ${Math.round(latencyMs)} ms`}
     </span>

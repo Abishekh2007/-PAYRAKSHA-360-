@@ -1,10 +1,12 @@
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useReducedMotion } from 'framer-motion';
 
 export interface ScanStepsProps { steps: string[]; activeIndex: number; className?: string }
 
 export function ScanSteps({ steps, activeIndex, className = '' }: ScanStepsProps) {
+  const reduce = useReducedMotion();
+
   return (
-    <ol className={`flex flex-col gap-3 ${className}`.trim()}>
+    <ol className={`font-mono text-xs bg-black/30 border border-cyan-400/15 rounded-sm p-3 flex flex-col gap-1.5 ${className}`.trim()}>
       {steps.map((s, i) => {
         let state = 'pending';
         if (activeIndex === -1) {
@@ -18,11 +20,21 @@ export function ScanSteps({ steps, activeIndex, className = '' }: ScanStepsProps
         }
 
         return (
-          <li key={s} data-state={state} className="flex items-center gap-3 text-sm">
-            {state === 'done' && <CheckCircle2 className="w-5 h-5 text-risk-low shrink-0" />}
-            {state === 'active' && <Loader2 className="w-5 h-5 text-brand-400 animate-spin shrink-0" />}
-            {state === 'pending' && <div className="w-5 h-5 rounded-full border-2 border-slate-700 shrink-0" />}
-            <span className={`${state === 'active' ? 'text-brand-300 animate-pulse' : state === 'done' ? 'text-slate-300' : 'text-slate-500'}`}>
+          <li key={s} data-state={state} className="flex items-center gap-2">
+            {state === 'done' && (
+              <span aria-hidden="true" className="text-emerald-400 w-7 shrink-0">[ OK ]</span>
+            )}
+            {state === 'active' && (
+              <span aria-hidden="true" className={`text-cyan-300 w-7 shrink-0 ${!reduce ? 'animate-blink' : ''}`}>[ .. ]</span>
+            )}
+            {state === 'pending' && (
+              <span aria-hidden="true" className="text-slate-600 w-7 shrink-0">[    ]</span>
+            )}
+            <span className={
+              state === 'done' ? 'text-slate-300' :
+              state === 'active' ? 'text-cyan-300' :
+              'text-slate-500'
+            }>
               {s}
             </span>
           </li>

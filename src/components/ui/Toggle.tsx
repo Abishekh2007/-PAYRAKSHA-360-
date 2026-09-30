@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
 
-export interface ToggleProps { checked: boolean; onChange: (next: boolean) => void; label: string; description?: string; disabled?: boolean; className?: string }
+export interface ToggleProps {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  label: string;
+  description?: string;
+  disabled?: boolean;
+  className?: string;
+}
 
 export function Toggle({ checked, onChange, label, description, disabled = false, className = '' }: ToggleProps) {
   return (
@@ -11,17 +18,23 @@ export function Toggle({ checked, onChange, label, description, disabled = false
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`flex items-center justify-between gap-4 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded-lg p-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-white/5'} ${className}`.trim()}
+      className={`flex items-center justify-between gap-4 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 rounded-sm p-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-white/5'} ${className}`.trim()}
     >
       <div className="flex flex-col gap-1">
-        <span className="font-semibold text-slate-200">{label}</span>
-        {description && <span className="text-sm text-slate-400">{description}</span>}
+        <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-200">{label}</span>
+        {description && <span className="text-xs text-slate-400">{description}</span>}
       </div>
-      <div className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${checked ? 'bg-brand-500' : 'bg-slate-600'}`}>
+      <div
+        className={`relative inline-flex h-5 w-10 shrink-0 rounded-sm border transition-colors duration-200 ${
+          checked
+            ? 'border-cyan-400/70 bg-cyan-400/25 shadow-[0_0_12px_rgba(34,211,238,0.35)]'
+            : 'border-slate-600 bg-slate-800/80'
+        }`}
+      >
         <motion.span
-          className="inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0"
+          className={`absolute top-[3px] inline-block h-3.5 w-3.5 rounded-[2px] ${checked ? 'bg-cyan-300' : 'bg-slate-400'}`}
           initial={false}
-          animate={{ x: checked ? 20 : 0 }}
+          animate={{ x: checked ? 20 : 3 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
         />
       </div>

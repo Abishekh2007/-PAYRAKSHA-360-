@@ -63,6 +63,15 @@ describe('UI components', () => {
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
+  it('Toggle: aria-checked reflects checked prop', async () => {
+    const onChange = vi.fn();
+    const { rerender } = render(<Toggle label="My Toggle" checked={false} onChange={onChange} />);
+    const toggle = screen.getByRole('switch');
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    rerender(<Toggle label="My Toggle" checked={true} onChange={onChange} />);
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+  });
+
   it('Button loading: disabled with aria-busy', () => {
     render(<Button loading>Click Me</Button>);
     const btn = screen.getByRole('button');

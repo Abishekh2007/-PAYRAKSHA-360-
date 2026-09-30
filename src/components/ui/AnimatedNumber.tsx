@@ -54,7 +54,7 @@ export function AnimatedNumber({ value, duration = 900, format = defaultFormat, 
   }, [value, duration, prefersReducedMotion]);
 
   return (
-    <span aria-label={format(value)} data-value={value} className={className}>
+    <span aria-label={format(value)} data-value={value} className={`hud-num${className ? ` ${className}` : ''}`}>
       {format(displayValue)}
     </span>
   );
