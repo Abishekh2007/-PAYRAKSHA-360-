@@ -65,4 +65,15 @@ describe('Landing', () => {
     const threatLevel = screen.getByTestId('threat-level');
     expect(threatLevel).toHaveAttribute('data-level', 'HIGH');
   });
+
+  it('renders device link section elements', () => {
+    renderWithRouter(<Landing />);
+
+    expect(screen.getByRole('heading', { name: "LIVE DEVICE LINK", level: 2 })).toBeInTheDocument();
+
+    // Test the "LINK YOUR PHONE" link -> /link
+    const linkYourPhone = screen.getByRole('link', { name: /LINK YOUR PHONE/i });
+    expect(linkYourPhone).toBeInTheDocument();
+    expect(linkYourPhone.getAttribute('href')).toMatch(/\/link$/);
+  });
 });
