@@ -2,18 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PAYRAKSHA 360 SOC console tokens: void background, cyan system colour,
-   red / amber / green risk colours, violet for predictions. */
+/* PAYRAKSHA 360 · futuristic digital bank tokens: midnight surface with soft aurora glows, frosted glass cards,
+   indigo → blue → aqua accent gradient, red / amber / green risk colours, violet for predictions. */
 :root {
   color-scheme: dark;
-  --navy-950: #03060c;
-  --navy-900: #060b15;
-  --soc-void: #03060c;
-  --soc-panel: rgba(6, 11, 21, 0.86);
-  --soc-line: rgba(34, 211, 238, 0.14);
-  --soc-cyan: #22d3ee;
+  --navy-950: #050816;
+  --navy-900: #070b1d;
+  --bank-bg: #050816;
+  --bank-line: rgba(255, 255, 255, 0.09);
+  --brand-indigo: #6366f1;
+  --brand-blue: #3b82f6;
+  --brand-aqua: #22d3ee;
+  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 55%, #22d3ee 100%);
+  /* Old SOC names, kept as aliases so existing inline styles keep working. */
+  --soc-void: #050816;
+  --soc-panel: rgba(255, 255, 255, 0.045);
+  --soc-line: rgba(255, 255, 255, 0.09);
+  --soc-cyan: #6b9bff;
   --soc-violet: #a78bfa;
-  --brand: #22d3ee;
+  --brand: #4f7fff;
   --risk-low: #22c55e;
   --risk-caution: #f59e0b;
   --risk-elevated: #f97316;
@@ -25,16 +32,15 @@
   body {
     min-height: 100vh;
     background:
-      radial-gradient(1200px 640px at 50% -12%, rgba(34, 211, 238, 0.09), transparent 62%),
-      radial-gradient(900px 520px at 100% 100%, rgba(239, 68, 68, 0.05), transparent 60%),
-      linear-gradient(rgba(34, 211, 238, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
-      linear-gradient(90deg, rgba(34, 211, 238, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
-      var(--soc-void);
+      radial-gradient(900px 620px at 8% -10%, rgba(99, 102, 241, 0.24), transparent 60%),
+      radial-gradient(820px 560px at 96% 4%, rgba(34, 211, 238, 0.12), transparent 62%),
+      radial-gradient(1100px 760px at 50% 115%, rgba(139, 92, 246, 0.16), transparent 62%),
+      var(--bank-bg);
     background-attachment: fixed;
   }
-  h1, h2, h3, h4 { font-family: theme('fontFamily.display'); letter-spacing: 0.01em; }
-  ::selection { background: rgba(34, 211, 238, 0.3); }
-  /* Elder mode: <html class="elder"> scales every rem-based size up and drops the mono display face. */
+  h1, h2, h3, h4 { font-family: theme('fontFamily.display'); letter-spacing: -0.015em; }
+  ::selection { background: rgba(99, 102, 241, 0.35); }
+  /* Elder mode: <html class="elder"> scales every rem-based size up and uses the plain sans face for headings. */
   html.elder { font-size: 20px; }
   html.elder h1, html.elder h2, html.elder h3, html.elder h4 { font-family: theme('fontFamily.sans'); letter-spacing: 0; }
   html.elder .elder-hide { display: none !important; }
@@ -44,58 +50,48 @@
 }
 
 @layer components {
-  /* HUD panel: hairline border, dark glass, four corner brackets drawn in --hud-accent. */
+  /* Frosted glass card. `hud-panel`, `glass` and `glass-strong` all render it (the kit and every page use them). */
   .hud-panel, .glass, .glass-strong {
-    --hud-accent: #22d3ee;
+    --hud-accent: #6b9bff;
     position: relative;
-    border: 1px solid var(--soc-line);
-    border-radius: 3px;
-    background:
-      linear-gradient(var(--hud-accent), var(--hud-accent)) top left / 12px 1.5px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) top left / 1.5px 12px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) top right / 12px 1.5px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) top right / 1.5px 12px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom left / 12px 1.5px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom left / 1.5px 12px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom right / 12px 1.5px no-repeat,
-      linear-gradient(var(--hud-accent), var(--hud-accent)) bottom right / 1.5px 12px no-repeat,
-      var(--soc-panel);
-    background-origin: border-box;
-    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(6px);
+    border: 1px solid var(--bank-line);
+    border-radius: 1.25rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.022));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -28px rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(18px) saturate(140%);
   }
-  .glass-strong { --soc-panel: rgba(10, 18, 32, 0.92); border-color: rgba(34, 211, 238, 0.22); }
+  .glass-strong { background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)); border-color: rgba(255, 255, 255, 0.13); }
   /* White card, kept for printable documents (incident report). */
-  .glass-light { @apply rounded-md border border-white/60 bg-white/95 text-navy-900 shadow-glass; }
+  .glass-light { @apply rounded-2xl border border-white/60 bg-white/95 text-navy-900 shadow-glass; }
 
-  .hud-eyebrow { @apply font-mono text-[10px] font-medium uppercase tracking-[0.32em] text-cyan-300/70; }
-  .hud-title { @apply font-mono text-[13px] font-semibold uppercase tracking-[0.2em] text-slate-100; }
-  .hud-label { @apply font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400; }
+  .hud-eyebrow { @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400; }
+  .hud-title { @apply font-display text-[15px] font-semibold tracking-tight text-white; }
+  .hud-label { @apply font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-slate-400; }
   .hud-num { @apply font-mono tabular-nums; }
-  .hud-glow { text-shadow: 0 0 14px color-mix(in srgb, currentColor 55%, transparent); }
-  .hud-rule { @apply border-t border-dashed border-cyan-400/15; }
+  .hud-glow { text-shadow: 0 0 28px color-mix(in srgb, currentColor 35%, transparent); }
+  .hud-rule { @apply border-t border-white/10; }
+  /* Retired in the banking theme (no scanlines); kept so old markup still compiles. */
   .hud-scanlines { position: relative; }
-  .hud-scanlines::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
-  }
 
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.16em] transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:cursor-not-allowed disabled:opacity-50; }
-  .btn-primary { @apply btn border border-cyan-300/70 bg-cyan-400 text-soc-void shadow-glow-brand hover:bg-cyan-300; }
-  .btn-danger { @apply btn border border-red-400/70 bg-red-500 text-white shadow-glow-high hover:bg-red-400; }
-  .btn-safe { @apply btn border border-green-400/70 bg-green-500 text-soc-void shadow-glow-low hover:bg-green-400; }
-  .btn-ghost { @apply btn border border-cyan-400/15 bg-white/[0.03] text-slate-200 hover:border-cyan-400/40 hover:bg-cyan-400/5; }
-  .btn-outline { @apply btn border border-cyan-400/50 text-cyan-300 hover:bg-cyan-400/10; }
-  .chip { @apply inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em]; }
-  .eyebrow { @apply font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-cyan-300/80; }
-  .text-gradient { @apply bg-gradient-to-r from-cyan-200 via-white to-cyan-400 bg-clip-text text-transparent; }
-  .input { @apply w-full rounded-[3px] border border-cyan-400/20 bg-soc-void/80 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/25; }
-  .mono { font-family: theme('fontFamily.mono'); }
-  .grid-overlay {
-    background-image: linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-display text-sm font-semibold tracking-tight transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-navy-950 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply btn text-white shadow-glow-brand hover:brightness-110; background-image: var(--brand-gradient); }
+  .btn-danger { @apply btn bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-glow-high hover:brightness-110; }
+  .btn-safe { @apply btn bg-gradient-to-br from-emerald-400 to-green-600 text-white shadow-glow-low hover:brightness-110; }
+  .btn-ghost { @apply btn border border-white/10 bg-white/5 text-slate-100 hover:border-white/20 hover:bg-white/10; }
+  .btn-outline { @apply btn border border-cyan-300/40 text-cyan-200 hover:bg-cyan-400/10; }
+  .btn-sm { @apply rounded-lg px-3 py-1.5 text-xs; }
+  .btn-lg { @apply px-6 py-3 text-base; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-medium tracking-wide; }
+  .eyebrow { @apply font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300; }
+  .text-gradient { @apply bg-clip-text text-transparent; background-image: linear-gradient(120deg, #c7d2fe 0%, #93c5fd 45%, #67e8f9 100%); }
+  .brand-gradient { background-image: var(--brand-gradient); }
+  .input { @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/25; }
+  .mono { font-family: theme('fontFamily.mono'); font-variant-numeric: tabular-nums; }
+  /* Retired: the banking theme has no grid. */
+  .grid-overlay { background-image: none; }
+}
+
+@layer utilities {
+  /* Figures in the display face line up in tables and counters. */
+  .font-mono { font-variant-numeric: tabular-nums; }
 }

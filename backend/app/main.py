@@ -1,10 +1,10 @@
-"""PAYRAKSHA 360 API. STUB: the backend-api task implements the endpoints.
+"""PAYRAKSHA 360 API: one router served by two apps (the console `app` and RakshaPay `pay_app`).
 
 SIMULATION ONLY: this service never initiates, authorizes or forwards a payment and makes no outbound network calls.
 """
 import os
 from pathlib import Path
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import APIRouter, FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -13,21 +13,15 @@ from fastapi.staticfiles import StaticFiles
 from app.config import load_config, load_scenarios
 from app.engine import ENGINE_VERSION, analyze, analyze_url, parse_qr
 from app.ml import ml_status, ml_insight
+from app.link import router as link_router
 
-app = FastAPI(title='PAYRAKSHA 360 API (simulation)', version='1.0.0')
+api = APIRouter()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:4173",
-        "http://127.0.0.1:4173",
-    ],
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-    allow_credentials=False,
-)
+CORS_ORIGINS = [
+    f'http://{host}:{port}'
+    for host in ('localhost', '127.0.0.1')
+    for port in (5173, 4173, 5174, 4174)
+]
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -45,9 +39,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Simulation"] = "true"
         return response
 
-app.add_middleware(SecurityHeadersMiddleware)
 
-@app.get('/api/health')
+
+@api.get('/api/health')
 def health():
     cfg = load_config()
     return {
@@ -62,7 +56,7 @@ def health():
     }
 
 
-@app.post('/api/analyze')
+@api.post('/api/analyze')
 async def analyze_endpoint(request: Request):
     try:
         body = await request.json()
@@ -99,7 +93,7 @@ async def analyze_endpoint(request: Request):
     return res
 
 
-@app.post('/api/analyze/url')
+@api.post('/api/analyze/url')
 async def analyze_url_endpoint(request: Request):
     try:
         body = await request.json()
@@ -119,7 +113,7 @@ async def analyze_url_endpoint(request: Request):
         raise HTTPException(status_code=500, detail="Analysis failed.")
 
 
-@app.post('/api/qr/parse')
+@api.post('/api/qr/parse')
 async def parse_qr_endpoint(request: Request):
     try:
         body = await request.json()
@@ -139,18 +133,41 @@ async def parse_qr_endpoint(request: Request):
         raise HTTPException(status_code=500, detail="Analysis failed.")
 
 
-@app.get('/api/scenarios')
+@api.get('/api/scenarios')
 def scenarios_endpoint():
     return load_scenarios()
 
 
+api.include_router(link_router)
+
 # Static app routing
 repodir = Path(__file__).resolve().parent.parent.parent
-distdir = Path(os.environ['PAYRAKSHA_DIST_DIR']) if os.environ.get('PAYRAKSHA_DIST_DIR') else repodir / 'dist'
 
-if (distdir / 'index.html').is_file():
-    app.mount("/", StaticFiles(directory=str(distdir), html=True), name="static")
-else:
-    @app.get('/')
-    def root():
-        return {'app': 'PAYRAKSHA 360 API (simulation)', 'docs': '/docs'}
+
+def create_app(dist_dir: Path, title: str = 'PAYRAKSHA 360 API (simulation)') -> FastAPI:
+    """Build one app: the shared API router, then the SPA in dist_dir (when built) at /."""
+    application = FastAPI(title=title, version='1.0.0')
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ORIGINS,
+        allow_methods=['GET', 'POST'],
+        allow_headers=['*'],
+        allow_credentials=False,
+    )
+    application.add_middleware(SecurityHeadersMiddleware)
+    application.include_router(api)
+    if (dist_dir / 'index.html').is_file():
+        application.mount('/', StaticFiles(directory=str(dist_dir), html=True), name='static')
+    else:
+        @application.get('/')
+        def root():
+            return {'app': title, 'docs': '/docs'}
+    return application
+
+
+distdir = Path(os.environ['PAYRAKSHA_DIST_DIR']) if os.environ.get('PAYRAKSHA_DIST_DIR') else repodir / 'dist'
+paydistdir = Path(os.environ['PAYRAKSHA_PAY_DIST_DIR']) if os.environ.get('PAYRAKSHA_PAY_DIST_DIR') else repodir / 'dist-pay'
+
+# The console (dashboard) and RakshaPay (phone app) share one process, one API and one link store.
+app = create_app(distdir)
+pay_app = create_app(paydistdir, 'RakshaPay DEMO API (simulation)')

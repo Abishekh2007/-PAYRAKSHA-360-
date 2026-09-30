@@ -8,15 +8,15 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: api,
-    watch: { ignored: ['**/.orchestra/**', '**/.wt/**', '**/backend/**'] },
+    watch: { ignored: ['**/.orchestra/**', '**/.wt/**', '**/backend/**', '**/pay/**'] },
   },
   preview: { port: 4173, proxy: api },
   build: { chunkSizeWarningLimit: 2500 },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx,js,mjs}'],
-    exclude: ['**/node_modules/**', '**/.orchestra/**', '**/.wt/**', '**/dist/**'],
+    include: ['src/**/*.test.{ts,tsx}', 'pay/src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx,js,mjs}'],
+    exclude: ['**/node_modules/**', '**/.orchestra/**', '**/.wt/**', '**/dist/**', '**/dist-pay/**'],
     css: false,
     passWithNoTests: true,
     testTimeout: 20000,

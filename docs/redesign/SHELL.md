@@ -33,7 +33,7 @@ Routes come from `ROUTES` and `NAV_SECTIONS` in `src/routes.ts` (each route has 
    `Privacy` → `/privacy`, `Home` → `/`).
 4. Routes whose section is `hidden` (`Judge Mode` `/judge`, `Technical View` `/technical`) are NOT links inside the `Main` navigation
    (no link in `Main` has href `/judge` or `/technical`). In test order, the hrefs of all links in `Main` are exactly:
-   `/`, `/dashboard`, `/live`, `/simulation`, `/qr`, `/message`, `/url`, `/payment`, `/threat-intel`, `/dna`, `/attack-chain`, `/explain`,
+   `/`, `/dashboard`, `/link`, `/live`, `/simulation`, `/qr`, `/message`, `/url`, `/payment`, `/threat-intel`, `/dna`, `/attack-chain`, `/explain`,
    `/signals`, `/lab`, `/what-if`, `/counterfactual`, `/qr-generator`, `/trusted`, `/elder`, `/report`, `/privacy`, `/demo-control`,
    `/technology`.
 5. The link of the current route has `aria-current="page"`, and no other link in `Main` does (at `/dashboard`, only `Command Center`;

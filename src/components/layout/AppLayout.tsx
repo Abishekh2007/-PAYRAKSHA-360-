@@ -15,6 +15,8 @@ import {
   istTime,
 } from '../soc';
 import { DISCLAIMER } from '../../engine';
+import { LinkToaster } from '../link/LinkToaster';
+import { CommandPalette } from '../command/CommandPalette';
 
 // ─── IST Clock ───────────────────────────────────────────────────────────────
 
@@ -315,6 +317,9 @@ export function AppLayout() {
           </footer>
         </div>
       </div>
+
+      <LinkToaster />
+      <CommandPalette />
     </div>
   );
 }

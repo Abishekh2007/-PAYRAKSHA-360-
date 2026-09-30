@@ -4,8 +4,18 @@ import { Link, type LinkProps } from 'react-router-dom';
 
 export type ButtonVariant = 'primary' | 'danger' | 'safe' | 'ghost' | 'outline';
 
-function buttonClasses(variant: ButtonVariant, fullWidth: boolean, className: string) {
-  return `btn-${variant} ${fullWidth ? 'w-full' : ''} ${className}`.trim();
+// Literal class names: Tailwind only keeps classes it finds verbatim in the source, so never build `btn-${variant}`.
+const VARIANT_CLASS: Record<ButtonVariant, string> = {
+  primary: 'btn-primary',
+  danger: 'btn-danger',
+  safe: 'btn-safe',
+  ghost: 'btn-ghost',
+  outline: 'btn-outline',
+};
+const SIZE_CLASS: Record<'sm' | 'md' | 'lg', string> = { sm: 'btn-sm', md: '', lg: 'btn-lg' };
+
+function buttonClasses(variant: ButtonVariant, size: 'sm' | 'md' | 'lg', fullWidth: boolean, className: string) {
+  return [VARIANT_CLASS[variant], SIZE_CLASS[size], fullWidth ? 'w-full' : '', className].filter(Boolean).join(' ');
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -38,7 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>((
       ref={ref}
       type={type}
       data-size={size}
-      className={buttonClasses(variant, fullWidth, className)}
+      className={buttonClasses(variant, size, fullWidth, className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
@@ -73,7 +83,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>((
     <Link
       ref={ref}
       data-size={size}
-      className={buttonClasses(variant, fullWidth, className)}
+      className={buttonClasses(variant, size, fullWidth, className)}
       {...rest}
     >
       {icon}

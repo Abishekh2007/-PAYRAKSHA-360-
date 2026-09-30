@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RakshaPay DEMO: light GPay-style surfaces, Google-blue actions, pill buttons, 24px cards. */
+:root { color-scheme: light; }
+
+@layer base {
+  html, body, #root { height: 100%; }
+  html { font-family: theme('fontFamily.sans'); -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-gp-surface text-gp-ink antialiased; margin: 0; overscroll-behavior-y: none; }
+  @media (min-width: 640px) {
+    body {
+      background:
+        radial-gradient(900px 600px at 20% 0%, #dbe7fb, transparent 60%),
+        radial-gradient(800px 600px at 90% 100%, #e3f1e7, transparent 60%),
+        #eef2f8;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  /* 56px rounded-2xl action tile (the home grid). */
+  .tile { @apply flex h-14 w-14 items-center justify-center rounded-2xl bg-gp-blue-soft text-gp-blue-ink; }
+  /* Pill buttons with 48px touch targets. */
+  .pill { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-medium transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50; }
+  .pill-primary { @apply pill bg-gp-blue text-white shadow-sm hover:brightness-110; }
+  .pill-tonal { @apply pill bg-gp-blue-soft text-gp-blue-ink hover:brightness-95; }
+  .pill-outline { @apply pill border border-gp-line bg-white text-gp-blue hover:bg-gp-surface; }
+  .pill-danger { @apply pill bg-risk-high text-white shadow-sm hover:brightness-110; }
+  .pill-text { @apply pill px-3 text-gp-blue hover:bg-gp-blue-soft/60; }
+  .card { @apply rounded-3xl bg-white p-4 shadow-card; }
+  .section-title { @apply text-[15px] font-medium text-gp-ink; }
+  .avatar { @apply flex shrink-0 items-center justify-center rounded-full font-medium text-white; }
+}

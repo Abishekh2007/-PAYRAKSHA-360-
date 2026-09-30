@@ -57,7 +57,7 @@ describe('SOC Shell Acceptance Tests', () => {
     const links = within(nav).getAllByRole('link');
     const hrefs = links.map((a) => a.getAttribute('href'));
     const expectedHrefs = [
-      '/', '/dashboard', '/live', '/simulation', '/qr', '/message', '/url', '/payment',
+      '/', '/dashboard', '/link', '/live', '/simulation', '/qr', '/message', '/url', '/payment',
       '/threat-intel', '/dna', '/attack-chain', '/explain', '/signals', '/lab',
       '/what-if', '/counterfactual', '/qr-generator', '/trusted', '/elder',
       '/report', '/privacy', '/demo-control', '/technology'
