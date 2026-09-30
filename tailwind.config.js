@@ -7,13 +7,10 @@ export default {
         // Futuristic digital bank: midnight surfaces (kept under the old `navy` name so every page re-skins at once).
         navy: { 950: '#f4f6fb', 900: '#ffffff', 850: '#f8fafc', 800: '#eef2f7', 700: '#e2e8f0', 600: '#cbd5e1', 500: '#94a3b8' },
         // `cyan-*` is remapped to the brand blue scale: pages use cyan-* utilities as the system colour.
-        cyan: {
-          50: '#eef4ff', 100: '#dce8ff', 200: '#bcd3ff', 300: '#93b7ff', 400: '#6b9bff',
-          500: '#4f7fff', 600: '#3b63f0', 700: '#2f4fd0', 800: '#2a43a8', 900: '#283d85', 950: '#1b2552',
-        },
+        cyan: Object.fromEntries([50,100,200,300,400,500,600,700,800,900,950].map((k) => [k, `rgb(var(--c-${k}) / <alpha-value>)`])),
         // True aqua (the end of the brand gradient) for the few places that need it.
         aqua: { 200: '#a5f3fc', 300: '#67e8f9', 400: '#22d3ee', 500: '#06b6d4' },
-        brand: { 200: '#bcd3ff', 300: '#93b7ff', 400: '#6b9bff', 500: '#4f7fff', 600: '#3b63f0', indigo: '#6366f1', blue: '#3b82f6', aqua: '#22d3ee' },
+        brand: { 200: 'rgb(var(--c-200) / <alpha-value>)', 300: 'rgb(var(--c-300) / <alpha-value>)', 400: 'rgb(var(--c-400) / <alpha-value>)', 500: 'rgb(var(--c-500) / <alpha-value>)', 600: 'rgb(var(--c-600) / <alpha-value>)', indigo: 'var(--g-0)', blue: 'var(--g-1)', aqua: 'var(--g-2)' },
         risk: { low: '#22c55e', caution: '#f59e0b', elevated: '#f97316', high: '#ef4444' },
         soc: {
           void: '#f4f6fb',

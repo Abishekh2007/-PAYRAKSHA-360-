@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Palette variables (defaults = Indigo); src/theme/palettes.ts switches them at runtime. */
+:root {
+  --c-50: 238 244 255; --c-100: 220 232 255; --c-200: 188 211 255; --c-300: 147 183 255; --c-400: 107 155 255;
+  --c-500: 79 127 255; --c-600: 59 99 240; --c-700: 47 79 208; --c-800: 42 67 168; --c-900: 40 61 133; --c-950: 27 37 82;
+  --g-0: #6366f1; --g-1: #3b82f6; --g-2: #22d3ee;
+  --brand-gradient: linear-gradient(135deg, var(--g-0) 0%, var(--g-1) 55%, var(--g-2) 100%);
+}
+
+
 /* RakshaPay DEMO: light GPay-style surfaces, Google-blue actions, pill buttons, 24px cards. */
 :root { color-scheme: light; }
 

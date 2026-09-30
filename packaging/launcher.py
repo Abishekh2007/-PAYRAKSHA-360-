@@ -115,9 +115,32 @@ def banner_lines(console_url, pay_url, pay_port, phone_url, lan) -> list[str]:
     return lines
 
 
-def _health_poller(port: int, no_browser: bool) -> None:
+ROLE_PORTS = {"console": 8090, "pay": 8091, "audit": 8092}
+
+
+def role_from_exe(name: str) -> str | None:
+    """Which page a renamed copy of the exe opens: '...RakshaPay...' -> pay, '...Auditor...' -> audit, '...Console...' -> console."""
+    n = Path(name).stem.lower()
+    if "rakshapay" in n or n.endswith("pay"):
+        return "pay"
+    if "audit" in n:
+        return "audit"
+    if "console" in n or "bank" in n:
+        return "console"
+    return None
+
+
+def _running_server(port: int) -> bool:
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/health", timeout=2) as r:
+            return r.status == 200
+    except Exception:
+        return False
+
+
+def _health_poller(port: int, no_browser: bool, open_url: str | None = None) -> None:
     """Poll /api/health until 200, then show the ready message."""
-    url = f"http://127.0.0.1:{port}/"
+    url = open_url or f"http://127.0.0.1:{port}/"
     health_url = f"http://127.0.0.1:{port}/api/health"
     for _ in range(240):  # 240 * 0.5s = 120s
         try:
@@ -182,7 +205,24 @@ def main() -> None:
     parser.add_argument("--lan", action="store_true", help="LAN mode for RakshaPay")
     parser.add_argument("--audit-port", type=int, default=None, help="Port for the AI Auditor portal")
     parser.add_argument("--no-pay", action="store_true", help="Don't serve RakshaPay")
+    parser.add_argument("--open", choices=["console", "pay", "audit"], default=None, help="Which page to open")
     args = parser.parse_args()
+
+    # Renamed copies (Bank Console / RakshaPay / AI Auditor) share one server on fixed ports: the first one started
+    # runs it, the next ones only open their page.
+    role = args.open or role_from_exe(sys.argv[0])
+    if role and args.port is None:
+        args.port, args.pay_port, args.audit_port = ROLE_PORTS["console"], ROLE_PORTS["pay"], ROLE_PORTS["audit"]
+    open_port = {"console": args.port, "pay": args.pay_port, "audit": args.audit_port}.get(role or "") or args.port
+    open_url = f"http://127.0.0.1:{open_port}/" if role else None
+    if role and _running_server(args.port):
+        print(f"PAYRAKSHA 360 is already running. Opening {open_url}")
+        sys.stdout.flush()
+        if not args.no_browser:
+            webbrowser.open(open_url)
+        import time
+        time.sleep(2)
+        sys.exit(0)
 
     if args.port is not None:
         if not _port_is_free(args.port):
@@ -241,7 +281,7 @@ def main() -> None:
 
     # ── Start health-polling thread ─────────────────────────────────────────
     t = threading.Thread(
-        target=_health_poller, args=(port, args.no_browser), daemon=True
+        target=_health_poller, args=(port, args.no_browser, open_url), daemon=True
     )
     t.start()
 

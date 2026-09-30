@@ -9,6 +9,8 @@ import Outcome from './screens/Outcome';
 import Activity from './screens/Activity';
 import Shield from './screens/Shield';
 import Profile from './screens/Profile';
+import Login, { isLoggedIn } from './screens/Login';
+import { useState } from 'react';
 
 export function PayRoutes() {
   return (
@@ -27,9 +29,10 @@ export function PayRoutes() {
 
 function Shell() {
   useLinkHeartbeat();
+  const [authed, setAuthed] = useState(isLoggedIn);
   return (
     <PhoneFrame>
-      <PayRoutes />
+      {authed ? <PayRoutes /> : <Login onLogin={() => setAuthed(true)} />}
     </PhoneFrame>
   );
 }

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Palette variables (defaults = Indigo); src/theme/palettes.ts switches them at runtime. */
+:root {
+  --c-50: 238 244 255; --c-100: 220 232 255; --c-200: 188 211 255; --c-300: 147 183 255; --c-400: 107 155 255;
+  --c-500: 79 127 255; --c-600: 59 99 240; --c-700: 47 79 208; --c-800: 42 67 168; --c-900: 40 61 133; --c-950: 27 37 82;
+  --g-0: #6366f1; --g-1: #3b82f6; --g-2: #22d3ee;
+}
+
+
 /* PAYRAKSHA 360 · futuristic digital bank tokens: midnight surface with soft aurora glows, frosted glass cards,
    indigo → blue → aqua accent gradient, red / amber / green risk colours, violet for predictions. */
 :root {
@@ -13,7 +21,7 @@
   --brand-indigo: #6366f1;
   --brand-blue: #3b82f6;
   --brand-aqua: #22d3ee;
-  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 55%, #22d3ee 100%);
+  --brand-gradient: linear-gradient(135deg, var(--g-0) 0%, var(--g-1) 55%, var(--g-2) 100%);
   /* Old SOC names, kept as aliases so existing inline styles keep working. */
   --soc-void: #f4f6fb;
   --soc-panel: #ffffff;

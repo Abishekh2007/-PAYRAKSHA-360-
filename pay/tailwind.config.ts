@@ -5,14 +5,14 @@ import { fileURLToPath } from 'node:url';
 const here = fileURLToPath(new URL('.', import.meta.url)).replace(/\\/g, '/');
 
 export default {
-  content: [`${here}index.html`, `${here}src/**/*.{ts,tsx}`],
+  content: [`${here}index.html`, `${here}src/**/*.{ts,tsx}`, `${here}../src/theme/**/*.tsx`, `${here}../src/components/vendor/**/*.tsx`],
   theme: {
     extend: {
       colors: {
         gp: {
-          blue: '#0b57d0',
-          'blue-soft': '#d3e3fd',
-          'blue-ink': '#041e49',
+          blue: 'rgb(var(--c-700) / <alpha-value>)',
+          'blue-soft': 'rgb(var(--c-100) / <alpha-value>)',
+          'blue-ink': 'rgb(var(--c-950) / <alpha-value>)',
           bg: '#ffffff',
           surface: '#f0f4f9',
           'surface-2': '#e9eef6',

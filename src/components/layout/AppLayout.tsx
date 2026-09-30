@@ -2,6 +2,7 @@ import { Suspense, useState, useEffect, useMemo } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Menu, X, Search, Bell } from 'lucide-react';
+import { PalettePicker } from '../../theme/PalettePicker';
 import { useDemoStore } from '../../store/demoStore';
 import {
   ThreatLevel,
@@ -99,6 +100,7 @@ function TopBar({
       </div>
 
       <div className="flex flex-shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
+        <PalettePicker />
         <Link
           to="/link"
           aria-label="Phone link alerts"

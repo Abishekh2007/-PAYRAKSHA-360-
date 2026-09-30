@@ -12,6 +12,7 @@ import { ThreatCard } from '../components/check/ThreatCard';
 import { ContextChips, ContextState } from '../components/check/ContextChips';
 import { BottomSheet } from '../components/check/BottomSheet';
 import { HoldButton } from '../components/check/HoldButton';
+import { CodePad, DEMO_PAY_CODE } from '../components/CodePad';
 import { BankAuditCard } from '../components/check/BankAuditCard';
 import { VendorAmount, withAmount } from '../components/check/VendorAmount';
 import { bank, vendorIdFromQr, type BankVendor } from '../../../src/services/bank';
@@ -53,6 +54,7 @@ function PayCheck() {
 
   const [showPaySheet, setShowPaySheet] = useState(false);
   const [showHoldSheet, setShowHoldSheet] = useState(false);
+  const [showPin, setShowPin] = useState(false);
 
   const mounted = useRef(true);
   useEffect(() => {
@@ -345,7 +347,7 @@ function PayCheck() {
           label="Hold to pay (demo)"
           onComplete={() => {
             setShowHoldSheet(false);
-            void handleDecision('paid_demo');
+            setShowPin(true);
           }}
         />
       </BottomSheet>
@@ -360,10 +362,21 @@ function PayCheck() {
         <div className="flex flex-col gap-3">
           <button className="pill-primary" onClick={() => {
             setShowPaySheet(false);
-            void handleDecision('paid_demo');
+            setShowPin(true);
           }}>Confirm (demo)</button>
           <button className="pill-text w-full py-3" onClick={() => setShowPaySheet(false)}>Back</button>
         </div>
+      </BottomSheet>
+
+      <BottomSheet
+        isOpen={showPin}
+        onClose={() => setShowPin(false)}
+        title="Enter demo payment code"
+        aria-label="Enter demo payment code"
+      >
+        <CodePad testId="pay-pin-pad" expected={DEMO_PAY_CODE} title={view.amount != null ? `Paying ${formatInr(view.amount)} (demo)` : 'Demo payment'}
+          subtitle="SIMULATION — not your real UPI PIN. No money moves."
+          onSuccess={() => { setShowPin(false); void handleDecision('paid_demo'); }} />
       </BottomSheet>
     </div>
   );

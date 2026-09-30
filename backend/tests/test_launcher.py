@@ -83,3 +83,11 @@ def test_banner_lines():
     assert "LAN mode:" in text
     assert "tailscale serve --bg 8091" not in text
     assert "Stop sharing" not in text
+
+
+def test_role_from_exe_names():
+    role_from_exe = launcher.role_from_exe
+    assert role_from_exe(r"C:\x\1-Bank-Console.exe") == "console"
+    assert role_from_exe("2-RakshaPay.exe") == "pay"
+    assert role_from_exe("3-AI-Auditor.exe") == "audit"
+    assert role_from_exe("PAYRAKSHA360.exe") is None

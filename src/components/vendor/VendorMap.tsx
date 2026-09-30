@@ -31,35 +31,57 @@ const HQ_ICON = L.divIcon({
   html: '<div style="width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#0ea5e9);color:#fff;display:grid;place-items:center;font:800 13px Inter,sans-serif;box-shadow:0 6px 16px -4px #4f46e5aa;border:2px solid #fff">B</div>',
 });
 
-function FitAndFollow({ vendors, v }: { vendors: BankVendor[]; v?: BankVendor }) {
+/** Vendors in the same city would stack on one spot: fan them out in a small ring so every logo is visible. */
+function spread(vs: BankVendor[]): Map<string, [number, number]> {
+  const out = new Map<string, [number, number]>();
+  const groups: BankVendor[][] = [];
+  for (const v of vs) {
+    const g = groups.find((x) => Math.abs(x[0].lat - v.lat) < 0.6 && Math.abs(x[0].lng - v.lng) < 0.6);
+    if (g) g.push(v); else groups.push([v]);
+  }
+  for (const g of groups) {
+    const r = g.length > 1 ? 0.45 + g.length * 0.05 : 0;
+    g.forEach((v, i) => {
+      const a = (2 * Math.PI * i) / g.length - Math.PI / 2;
+      out.set(v.id, [g[0].lat + r * Math.sin(a), g[0].lng + r * Math.cos(a) * 1.1]);
+    });
+  }
+  return out;
+}
+
+const INDIA_BOUNDS = L.latLngBounds([5.5, 66.5], [37.5, 98.5]);
+
+function FitAndFollow({ points, v }: { points: [number, number][]; v?: [number, number] }) {
   const map = useMap();
   const fitted = useRef(false);
   useEffect(() => {
-    if (fitted.current || vendors.length === 0) return;
+    if (fitted.current || points.length === 0) return;
     fitted.current = true;
-    map.fitBounds(L.latLngBounds([HQ, ...vendors.map((x) => [x.lat, x.lng] as [number, number])]), { padding: [40, 40] });
-  }, [vendors.length]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (v && fitted.current) map.panInside([v.lat, v.lng], { padding: [60, 60] }); }, [v?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    map.fitBounds(L.latLngBounds([HQ, ...points]), { padding: [40, 40] });
+  }, [points.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (v && fitted.current) map.panInside(v, { padding: [60, 60] }); }, [v?.[0], v?.[1]]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
 export function VendorMap({ vendors, selectedId, pulseId, onSelect }: { vendors: BankVendor[]; selectedId: string | null; pulseId?: string | null; onSelect: (id: string) => void }) {
   const sel = vendors.find((v) => v.id === selectedId);
+  const pos = useMemo(() => spread(vendors), [vendors]);
+  const selPos = sel ? pos.get(sel.id) : undefined;
   const icons = useMemo(() => new Map(vendors.map((v) => [v.id, pinIcon(v, v.id === selectedId, v.id === pulseId)])), [vendors, selectedId, pulseId]);
   return (
     <div className="relative z-0 h-[460px] overflow-hidden rounded-2xl border border-slate-200">
-      <MapContainer center={[22.8, 79.5]} zoom={5} minZoom={4} maxZoom={16} scrollWheelZoom style={{ height: '100%', width: '100%' }} aria-label="Map of India with demo merchant locations">
-        <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'} />
+      <MapContainer center={[22.8, 79.5]} zoom={5} minZoom={4} maxZoom={16} maxBounds={INDIA_BOUNDS} maxBoundsViscosity={0.8} scrollWheelZoom style={{ height: '100%', width: '100%' }} aria-label="Map of India with demo merchant locations">
+        <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" subdomains="abcd" maxZoom={19}
+          attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'} />
         <Marker position={HQ} icon={HQ_ICON}><Tooltip direction="top">Demo Bank HQ · Mumbai</Tooltip></Marker>
-        {sel && <Polyline positions={[HQ, [sel.lat, sel.lng]]} pathOptions={{ color: '#4f46e5', weight: 2.5, dashArray: '6 8', opacity: 0.8 }} />}
+        {selPos && <Polyline positions={[HQ, selPos]} pathOptions={{ color: '#4f46e5', weight: 2.5, dashArray: '6 8', opacity: 0.8 }} />}
         {vendors.map((v) => (
-          <Marker key={v.id} position={[v.lat, v.lng]} icon={icons.get(v.id)!} zIndexOffset={v.id === selectedId ? 1000 : 0}
+          <Marker key={v.id} position={pos.get(v.id) ?? [v.lat, v.lng]} icon={icons.get(v.id)!} zIndexOffset={v.id === selectedId ? 1000 : 0}
             eventHandlers={{ click: () => onSelect(v.id) }}>
             <Tooltip direction="top" offset={[0, -4]}><b>{v.name}</b><br />{v.city} · {v.category}</Tooltip>
           </Marker>
         ))}
-        <FitAndFollow vendors={vendors} v={sel} />
+        <FitAndFollow points={[...pos.values()]} v={selPos} />
       </MapContainer>
     </div>
   );

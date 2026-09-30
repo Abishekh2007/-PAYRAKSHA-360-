@@ -1,3 +1,4 @@
+import { PalettePicker } from '../../../src/theme/PalettePicker';
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -58,6 +59,7 @@ export default function Home() {
            <Search size={22} className="text-gp-ink-3 stroke-2" />
            <span className="text-gp-ink-3 text-[15px]">Pay friends and merchants</span>
          </button>
+         <PalettePicker />
          <Link to="/profile" aria-label="Profile" className="w-10 h-10 rounded-full bg-gp-blue text-white flex items-center justify-center font-medium shadow-sm shrink-0">
            {deviceName.charAt(0).toUpperCase()}
          </Link>
@@ -79,10 +81,10 @@ export default function Home() {
 
       {/* Hero card */}
       <motion.div {...animationProps} className="px-4 mb-6">
-        <div className="card shadow-card bg-gradient-to-br from-gp-blue-soft to-white p-5 flex flex-col items-center text-center gap-3">
-           <div className="text-[18px] font-medium text-gp-ink-2 leading-tight">Scan. Check. Then pay.</div>
-           <p className="text-[14px] text-gp-ink-3 max-w-[260px]">PayRaksha checks every QR for scam signals before you pay. SIMULATION — no real money moves.</p>
-           <Link to="/scan" className="pill-primary py-2.5 px-6 mt-1 text-[14px]">Scan any QR code</Link>
+        <div className="card shadow-card p-5 flex flex-col items-center text-center gap-3 text-white" style={{ backgroundImage: 'var(--brand-gradient)' }}>
+           <div className="text-[18px] font-semibold leading-tight">Scan. Check. Then pay.</div>
+           <p className="text-[14px] text-white/85 max-w-[260px]">PayRaksha checks every QR for scam signals before you pay. SIMULATION — no real money moves.</p>
+           <Link to="/scan" className="rounded-full bg-white text-gp-blue font-medium py-2.5 px-6 mt-1 text-[14px] shadow">Scan any QR code</Link>
         </div>
       </motion.div>
 
