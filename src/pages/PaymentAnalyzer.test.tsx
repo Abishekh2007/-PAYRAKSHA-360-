@@ -70,6 +70,29 @@ describe('PaymentAnalyzer', () => {
     });
   });
 
+  it('shield-status is idle before analysis and hold after high-risk analysis', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<PaymentAnalyzer />);
+
+    // Before analysing: shield-status should be idle
+    const shield = screen.getByTestId('shield-status');
+    expect(shield).toHaveAttribute('data-state', 'idle');
+
+    // Use the customer_care_scam preset which gives a HIGH risk score (88)
+    const scenario = getScenario('customer_care_scam');
+    const presetBtn = screen.getByRole('button', { name: scenario.shortLabel });
+    await user.click(presetBtn);
+
+    const analyzeBtn = screen.getByRole('button', { name: 'ANALYZE PAYMENT' });
+    await user.click(analyzeBtn);
+
+    // Wait for analysis to complete
+    await screen.findByTestId('risk-result', {}, { timeout: 8000 });
+
+    // After high-risk analysis: shield-status should be hold (HIGH level)
+    expect(screen.getByTestId('shield-status')).toHaveAttribute('data-state', 'hold');
+  });
+
   it('analyzes risky and safe inputs according to spec', async () => {
     const user = userEvent.setup();
     renderWithRouter(<PaymentAnalyzer />);

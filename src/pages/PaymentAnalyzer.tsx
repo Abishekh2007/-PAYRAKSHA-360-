@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PageShell } from '../components/layout';
-import { Button, ErrorNotice, GlassCard, SimulationBadge, SectionHeader } from '../components/ui';
+import { Button, ErrorNotice, SimulationBadge } from '../components/ui';
 import { RiskResultView, ContributionsChart, ScamDnaChart } from '../components/risk';
-import { GuardianRobot } from '../components/three';
+import { HudPanel, ShieldStatus, shieldStateFor } from '../components/soc';
 import { analyzeRisk } from '../services/api';
 import { controlScenarios, scenarioToInput, SOURCE_OPTIONS, URGENCY_OPTIONS, BEHAVIOUR_OPTIONS } from '../engine';
 import { useDemoStore } from '../store/demoStore';
@@ -85,6 +85,7 @@ export default function PaymentAnalyzer() {
         resolve();
       }, delay * 4));
     });
+    void animPromise;
 
     if (!shouldReduceMotion) {
       timeoutsRef.current.push(setTimeout(() => setAnimationStep(0), 0));
@@ -131,13 +132,11 @@ export default function PaymentAnalyzer() {
     }));
   };
 
-  const mood = isAnalyzing ? 'thinking' : result ? (result.report.level === 'LOW' ? 'safe' : 'alert') : 'idle';
-
-  const inputClasses = "w-full rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-400/60";
+  const inputClasses = "font-mono text-sm bg-black/40 border border-cyan-400/20 rounded-sm px-3 py-2 text-slate-100 focus:border-cyan-300 focus:outline-none w-full";
 
   const renderRadios = (legend: string, value: boolean | null | undefined, onChange: (val: boolean) => void, name: string) => (
     <fieldset className="flex items-center justify-between py-1">
-      <legend className="text-sm text-gray-300 float-left mr-4">{legend}</legend>
+      <legend className="hud-label float-left mr-4">{legend}</legend>
       <div className="flex gap-4 float-right">
         <label className="flex items-center space-x-2 cursor-pointer">
           <input
@@ -145,9 +144,9 @@ export default function PaymentAnalyzer() {
             name={name}
             checked={value === true}
             onChange={() => onChange(true)}
-            className="accent-brand-400"
+            className="accent-cyan-400"
           />
-          <span className="text-sm text-gray-300">YES</span>
+          <span className="font-mono text-sm text-slate-200">YES</span>
         </label>
         <label className="flex items-center space-x-2 cursor-pointer">
           <input
@@ -155,9 +154,9 @@ export default function PaymentAnalyzer() {
             name={name}
             checked={value === false}
             onChange={() => onChange(false)}
-            className="accent-brand-400"
+            className="accent-cyan-400"
           />
-          <span className="text-sm text-gray-300">NO</span>
+          <span className="font-mono text-sm text-slate-200">NO</span>
         </label>
       </div>
     </fieldset>
@@ -170,37 +169,43 @@ export default function PaymentAnalyzer() {
     'Combining signals'
   ];
 
+  const shieldState = shieldStateFor(result?.report.level ?? null, isAnalyzing);
+
   return (
     <PageShell
-      eyebrow="Analyzer"
+      eyebrow="SHIELDS"
       title="Payment Risk Analyzer"
-      subtitle="Analyze a full payment context"
+      subtitle="Analyze a full payment context before you pay."
       icon={<span aria-hidden="true">💸</span>}
+      width="wide"
+      actions={<SimulationBadge />}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <GlassCard className="mb-6">
-            <SectionHeader title="Presets" />
-            <div className="flex flex-wrap gap-2 mt-2">
+      <div className="grid gap-4 lg:grid-cols-12">
+        {/* Input column */}
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          {/* Demo Scenarios */}
+          <HudPanel eyebrow="DEMO SCENARIOS">
+            <div className="flex flex-col gap-1">
               {presets.map((preset) => (
                 <Button
                   key={preset.id}
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
+                  className="w-full justify-start text-left font-mono text-xs"
                   onClick={() => applyPreset(preset.id)}
                 >
                   {preset.shortLabel}
                 </Button>
               ))}
             </div>
-          </GlassCard>
+          </HudPanel>
 
-          <GlassCard>
-            <SectionHeader title="Payment Context" />
+          {/* Payment Context */}
+          <HudPanel eyebrow="PAYMENT CONTEXT · DEMO">
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="recipient" className="block text-sm mb-1 text-gray-300">Recipient ID</label>
+                  <label htmlFor="recipient" className="hud-label block mb-1">Recipient ID</label>
                   <input
                     id="recipient"
                     type="text"
@@ -209,10 +214,10 @@ export default function PaymentAnalyzer() {
                     onChange={(e) => updatePayment({ recipient: e.target.value === '' ? undefined : e.target.value })}
                     className={inputClasses}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Demo IDs end in @demo</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Demo IDs end in @demo</p>
                 </div>
                 <div>
-                  <label htmlFor="amount" className="block text-sm mb-1 text-gray-300">Amount (₹)</label>
+                  <label htmlFor="amount" className="hud-label block mb-1">Amount (₹)</label>
                   <input
                     id="amount"
                     type="number"
@@ -227,7 +232,7 @@ export default function PaymentAnalyzer() {
               </div>
 
               <div>
-                <label htmlFor="merchant" className="block text-sm mb-1 text-gray-300">Merchant / Claimed Organization</label>
+                <label htmlFor="merchant" className="hud-label block mb-1">Merchant / Claimed Organization</label>
                 <input
                   id="merchant"
                   type="text"
@@ -238,52 +243,52 @@ export default function PaymentAnalyzer() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                 <div>
-                   <label htmlFor="source" className="block text-sm mb-1 text-gray-300">Source</label>
-                   <select
-                     id="source"
-                     value={inputData.payment?.source || 'unknown'}
-                     onChange={(e) => updatePayment({ source: e.target.value as SourceId })}
-                     className={inputClasses}
-                   >
-                     {SOURCE_OPTIONS.map((opt) => (
-                       <option key={opt.id} value={opt.id} className="bg-slate-900">{opt.label}</option>
-                     ))}
-                   </select>
-                 </div>
-                 <div>
-                   <label htmlFor="urgency" className="block text-sm mb-1 text-gray-300">Urgency</label>
-                   <select
-                     id="urgency"
-                     value={inputData.payment?.urgency || 'none'}
-                     onChange={(e) => updatePayment({ urgency: e.target.value as UrgencyLevel })}
-                     className={inputClasses}
-                   >
-                     {URGENCY_OPTIONS.map((opt) => (
-                       <option key={opt} value={opt} className="bg-slate-900">{opt.toUpperCase()}</option>
-                     ))}
-                   </select>
-                 </div>
-                 <div>
-                   <label htmlFor="previous-payments" className="block text-sm mb-1 text-gray-300">Previous payments to this recipient</label>
-                   <input
-                     id="previous-payments"
-                     type="number"
-                     min={0}
-                     step={1}
-                     inputMode="numeric"
-                     value={inputData.payment?.previousPayments === undefined ? '' : inputData.payment.previousPayments}
-                     onChange={(e) => {
-                       const val = e.target.value;
-                       updatePayment({ previousPayments: val === '' ? undefined : Number(val) });
-                     }}
-                     className={inputClasses}
-                   />
-                 </div>
+                <div>
+                  <label htmlFor="source" className="hud-label block mb-1">Source</label>
+                  <select
+                    id="source"
+                    value={inputData.payment?.source || 'unknown'}
+                    onChange={(e) => updatePayment({ source: e.target.value as SourceId })}
+                    className={inputClasses}
+                  >
+                    {SOURCE_OPTIONS.map((opt) => (
+                      <option key={opt.id} value={opt.id} className="bg-slate-900">{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="urgency" className="hud-label block mb-1">Urgency</label>
+                  <select
+                    id="urgency"
+                    value={inputData.payment?.urgency || 'none'}
+                    onChange={(e) => updatePayment({ urgency: e.target.value as UrgencyLevel })}
+                    className={inputClasses}
+                  >
+                    {URGENCY_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt} className="bg-slate-900">{opt.toUpperCase()}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="previous-payments" className="hud-label block mb-1">Previous payments to this recipient</label>
+                  <input
+                    id="previous-payments"
+                    type="number"
+                    min={0}
+                    step={1}
+                    inputMode="numeric"
+                    value={inputData.payment?.previousPayments === undefined ? '' : inputData.payment.previousPayments}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updatePayment({ previousPayments: val === '' ? undefined : Number(val) });
+                    }}
+                    className={inputClasses}
+                  />
+                </div>
               </div>
 
-              <div className="pt-2 border-t border-gray-700">
-                <p className="text-xs text-slate-500 mb-2">Leave blank to let PAYRAKSHA infer it.</p>
+              <div className="pt-2 border-t border-cyan-400/15">
+                <p className="text-[11px] text-slate-500 mb-2">Leave blank to let PAYRAKSHA infer it.</p>
                 <div className="space-y-1">
                   {renderRadios('Recipient verified', inputData.payment?.recipientVerified, (v) => updatePayment({ recipientVerified: v }), 'recipientVerified')}
                   {renderRadios('Message contains payment request', inputData.payment?.hasPaymentRequest, (v) => updatePayment({ hasPaymentRequest: v }), 'hasPaymentRequest')}
@@ -291,28 +296,10 @@ export default function PaymentAnalyzer() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-gray-700">
-                <p className="text-sm font-semibold mb-2 text-gray-200">Behavioral Signals</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {BEHAVIOUR_OPTIONS.map((opt) => (
-                    <label key={opt.id} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={!!inputData.behaviour?.[opt.id]}
-                        onChange={(e) => updateBehaviour({ [opt.id]: e.target.checked })}
-                        className="rounded accent-brand-400"
-                      />
-                      <span className="text-sm text-gray-300">{opt.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-gray-700">
-                <p className="text-sm font-semibold mb-2 text-gray-200">Additional Context (Optional)</p>
+              <div className="pt-2 border-t border-cyan-400/15">
                 <div className="space-y-3">
                   <div>
-                    <label htmlFor="msg" className="block text-xs mb-1 text-gray-400">Message Text</label>
+                    <label htmlFor="msg" className="hud-label block mb-1">Message Text</label>
                     <textarea
                       id="msg"
                       rows={2}
@@ -322,9 +309,9 @@ export default function PaymentAnalyzer() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="url-input" className="block text-xs mb-1 text-gray-400">URL Context</label>
+                    <label htmlFor="url-ctx" className="hud-label block mb-1">URL Context</label>
                     <input
-                      id="url-input"
+                      id="url-ctx"
                       type="text"
                       value={inputData.url || ''}
                       onChange={(e) => setInputData({ ...inputData, url: e.target.value === '' ? undefined : e.target.value })}
@@ -337,97 +324,122 @@ export default function PaymentAnalyzer() {
               {error && <ErrorNotice message={error} className="mt-4" />}
 
               <Button
+                variant="primary"
                 onClick={handleAnalyze}
                 loading={isAnalyzing}
                 fullWidth
-                className="mt-4"
+                className="mt-2"
               >
                 ANALYZE PAYMENT
               </Button>
 
+              <p className="font-mono text-[10px] tracking-[0.16em] text-red-300/80 mt-2">
+                NEVER REQUESTS: UPI PIN · OTP · PASSWORD · CVV · CARD NUMBER
+              </p>
             </form>
-          </GlassCard>
+          </HudPanel>
+
+          {/* Behaviour Signals */}
+          <HudPanel eyebrow="BEHAVIOUR SIGNALS" title="SIGNAL SWITCHBOARD">
+            <div className="grid sm:grid-cols-2 gap-2">
+              {BEHAVIOUR_OPTIONS.map((opt) => (
+                <label key={opt.id} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!inputData.behaviour?.[opt.id as BehaviourKey]}
+                    onChange={(e) => updateBehaviour({ [opt.id]: e.target.checked })}
+                    className="rounded accent-cyan-400"
+                  />
+                  <span className="font-mono text-xs text-slate-300">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </HudPanel>
         </div>
 
-        <div>
-           <div className="h-48 mb-6 relative">
-             <GuardianRobot mood={mood} />
-           </div>
+        {/* Result column */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <ShieldStatus
+            state={shieldState}
+            shield="PAYMENT SHIELD"
+            score={result?.report.score ?? null}
+            detail={result ? result.report.patternName : 'Awaiting payment context'}
+          />
 
-           {(isAnimating || result) && (
-              <GlassCard>
-                {isAnimating ? (
-                  <div className="py-4">
-                    <h3 className="text-lg font-bold mb-4">Calculating contextual risk…</h3>
-                    <div className="space-y-3">
-                      {animationSteps.map((step, idx) => (
-                        <div key={idx} className={`flex items-center gap-3 transition-opacity duration-300 ${animationStep >= idx ? 'opacity-100' : 'opacity-0'}`}>
-                          <div className="w-5 h-5 flex items-center justify-center">
-                            {animationStep > idx || shouldReduceMotion ? (
-                              <span className="text-green-500 font-bold">✓</span>
-                            ) : (
-                              <div className="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
-                            )}
-                          </div>
-                          <span className={`text-sm ${animationStep > idx ? 'text-gray-300' : 'text-gray-100'}`}>{step}</span>
+          {(isAnimating || result) && (
+            <HudPanel eyebrow="ANALYSIS">
+              {isAnimating ? (
+                <div className="py-4">
+                  <h3 className="hud-title mb-4">Calculating contextual risk…</h3>
+                  <div className="space-y-3">
+                    {animationSteps.map((step, idx) => (
+                      <div key={idx} className={`flex items-center gap-3 transition-opacity duration-300 ${animationStep >= idx ? 'opacity-100' : 'opacity-0'}`}>
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          {animationStep > idx || shouldReduceMotion ? (
+                            <span className="text-green-500 font-bold">✓</span>
+                          ) : (
+                            <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                          )}
                         </div>
-                      ))}
+                        <span className={`text-sm font-mono ${animationStep > idx ? 'text-slate-400' : 'text-slate-100'}`}>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-cyan-400 transition-all duration-300 ease-linear"
+                      style={{ width: `${Math.max(0, Math.min(100, (animationStep + 1) * 25))}%` }}
+                    />
+                  </div>
+                </div>
+              ) : result ? (
+                <>
+                  <SimulationBadge />
+                  <h3 className="hud-title mb-4 mt-2 border-b border-dashed border-cyan-400/15 pb-2">CONTEXTUAL RISK</h3>
+
+                  <RiskResultView
+                    report={result.report}
+                    source={result.source}
+                    latencyMs={result.latencyMs}
+                    ml={result.ml}
+                    showPayment={true}
+                    className="mb-6"
+                  />
+
+                  {result.report.contributions && (
+                    <div className="mb-6">
+                      <h4 className="hud-label mb-2">RISK FACTORS</h4>
+                      <ul aria-label="Risk factors" className="space-y-2">
+                        {[...result.report.contributions]
+                          .filter(c => c.points > 0)
+                          .sort((a, b) => b.points - a.points)
+                          .map((c, i) => (
+                            <li key={i} className="flex flex-col text-sm text-slate-300">
+                              <div className="flex w-full items-baseline">
+                                <span>{c.label}</span>
+                                <span className="text-red-400 font-bold ml-1">+{c.points}</span>
+                              </div>
+                              {c.detail && <span className="text-xs text-slate-500 mt-0.5">{c.detail}</span>}
+                            </li>
+                          ))}
+                      </ul>
                     </div>
-                    <div className="mt-6 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-brand-400 transition-all duration-300 ease-linear"
-                        style={{ width: `${Math.max(0, Math.min(100, (animationStep + 1) * 25))}%` }}
-                      />
+                  )}
+
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+                    <div>
+                      <h4 className="hud-label mb-2">Scam DNA</h4>
+                      <ScamDnaChart dna={result.report.dna} />
+                    </div>
+                    <div>
+                      <h4 className="hud-label mb-2">Risk Contributions</h4>
+                      <ContributionsChart contributions={result.report.contributions} clamped={result.report.clamped} score={result.report.score} />
                     </div>
                   </div>
-                ) : result ? (
-                  <>
-                    <SimulationBadge />
-                    <h3 className="text-lg font-bold mb-4 mt-2 border-b border-gray-700 pb-2">CONTEXTUAL RISK</h3>
-
-                    <RiskResultView
-                      report={result.report}
-                      source={result.source}
-                      latencyMs={result.latencyMs}
-                      ml={result.ml}
-                      showPayment={true}
-                      className="mb-6"
-                    />
-
-                    {result.report.contributions && (
-                      <div className="mb-6">
-                        <h4 className="text-sm font-semibold mb-2 text-gray-300 uppercase tracking-wider">RISK FACTORS</h4>
-                        <ul aria-label="Risk factors" className="space-y-2">
-                          {[...result.report.contributions]
-                            .filter(c => c.points > 0)
-                            .sort((a, b) => b.points - a.points)
-                            .map((c, i) => (
-                              <li key={i} className="flex flex-col text-sm text-gray-300">
-                                <div className="flex w-full items-baseline">
-                                  <span>{c.label}</span>
-                                  <span className="text-red-400 font-bold ml-1">+{c.points}</span>
-                                </div>
-                                {c.detail && <span className="text-xs text-gray-500 mt-0.5">{c.detail}</span>}
-                              </li>
-                            ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-                      <div>
-                        <h4 className="text-sm font-semibold mb-2 text-gray-300">Scam DNA</h4>
-                        <ScamDnaChart dna={result.report.dna} />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold mb-2 text-gray-300">Risk Contributions</h4>
-                        <ContributionsChart contributions={result.report.contributions} clamped={result.report.clamped} score={result.report.score} />
-                      </div>
-                    </div>
-                  </>
-                ) : null}
-              </GlassCard>
-           )}
+                </>
+              ) : null}
+            </HudPanel>
+          )}
         </div>
       </div>
     </PageShell>
