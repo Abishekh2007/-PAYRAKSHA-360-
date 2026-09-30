@@ -8,6 +8,13 @@ export interface BankVendor {
   latestAudit: { id: number; score: number; verdict: AuditVerdict; at: string } | null;
   stats?: { txCount: number; volume: number; avgTicket: number; disputes: number; disputeRatePct: number };
 }
+/** Bank-internal live view of one AI audit: prompt, streamed text and raw output (in memory on the server only). */
+export interface AuditLive {
+  available: boolean; simulation: true; model?: string; servedModel?: string | null; endpoint?: string;
+  messages?: { role: string; content: string }[]; text?: string; thinking?: string; chunks?: number;
+  status?: 'streaming' | 'done' | 'fallback' | 'simulated'; error?: string | null; finishReason?: string | null;
+  usage?: Record<string, number> | null; parsed?: unknown; elapsedMs?: number;
+}
 export interface VendorDetail extends BankVendor {
   myHistory: { count: number; total: number; last: string | null };
   feeQuote: FeeInfo; qrText: string;
@@ -23,7 +30,12 @@ export interface AuditResponse {
   mode: 'full' | 'quick' | 'summary' | 'off'; vendor: { id: string; name: string; brandColor: string; verified: boolean };
   amount: number; largeAmount: number; report: CustomerAudit | null; fee: FeeInfo | null; warning?: string;
 }
+export interface AuditCustomer {
+  customerId: string | null; name: string; kycLevel: string | null; customerSince: string | null; accountId: string; account: string;
+  balanceDemo: number; aiAuditEnabled: boolean; transactions: number; volume: number; merchants: number; audits: number;
+}
 export interface FullAudit {
+  customer?: AuditCustomer | null;
   id: number; transaction_ref: string; vendor_id: string; amount: number; device: string; kind: 'full' | 'quick';
   status: 'running' | 'done'; score: number | null; verdict: AuditVerdict | null; verdictLabel: string;
   headline: string | null; summary: string | null; reasoning: ReasoningStep[] | null; recommendation: string | null;
@@ -48,6 +60,7 @@ export const bank = {
   audit: (vendorId: string, amount: number, device: string, transactionRef?: string) =>
     j<AuditResponse>('/api/bank/audit', { method: 'POST', body: JSON.stringify({ vendorId, amount, device, transactionRef }) }),
   report: (id: number) => j<CustomerAudit>(`/api/bank/audits/${id}`),
+  live: (id: number) => j<AuditLive>(`/api/bank/audits/${id}/live`),
   audits: () => j<{ audits: FullAudit[]; database: string }>('/api/bank/audits'),
   settings: () => j<BankSettings>('/api/bank/settings'),
   setAudit: (on: boolean, acknowledged = false, device = 'customer') =>

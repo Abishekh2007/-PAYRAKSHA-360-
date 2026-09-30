@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         // Futuristic digital bank: midnight surfaces (kept under the old `navy` name so every page re-skins at once).
-        navy: { 950: '#050816', 900: '#070b1d', 850: '#0a1026', 800: '#0e1530', 700: '#151e42', 600: '#1e2a57', 500: '#2b3a73' },
+        navy: { 950: '#f4f6fb', 900: '#ffffff', 850: '#f8fafc', 800: '#eef2f7', 700: '#e2e8f0', 600: '#cbd5e1', 500: '#94a3b8' },
         // `cyan-*` is remapped to the brand blue scale: pages use cyan-* utilities as the system colour.
         cyan: {
           50: '#eef4ff', 100: '#dce8ff', 200: '#bcd3ff', 300: '#93b7ff', 400: '#6b9bff',
@@ -16,10 +16,10 @@ export default {
         brand: { 200: '#bcd3ff', 300: '#93b7ff', 400: '#6b9bff', 500: '#4f7fff', 600: '#3b63f0', indigo: '#6366f1', blue: '#3b82f6', aqua: '#22d3ee' },
         risk: { low: '#22c55e', caution: '#f59e0b', elevated: '#f97316', high: '#ef4444' },
         soc: {
-          void: '#050816',
-          deep: '#070b1d',
-          panel: '#0c1330',
-          line: '#1d2750',
+          void: '#f4f6fb',
+          deep: '#ffffff',
+          panel: '#ffffff',
+          line: '#e2e8f0',
           cyan: '#6b9bff',
           violet: '#a78bfa',
           muted: '#7c86a8',
@@ -43,8 +43,8 @@ export default {
         '3xl': '1.75rem',
       },
       boxShadow: {
-        glass: '0 24px 60px -30px rgba(2, 6, 23, 0.9)',
-        card: 'inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -28px rgba(0, 0, 0, 0.85)',
+        glass: '0 12px 32px -18px rgba(15, 23, 42, 0.25)',
+        card: '0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -16px rgba(15, 23, 42, 0.18)',
         'glow-brand': '0 12px 36px -12px rgba(79, 127, 255, 0.65)',
         'glow-low': '0 12px 36px -12px rgba(34, 197, 94, 0.55)',
         'glow-caution': '0 12px 36px -12px rgba(245, 158, 11, 0.55)',

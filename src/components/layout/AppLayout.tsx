@@ -63,7 +63,7 @@ function TopBar({
     <header
       data-testid="soc-topbar"
       role="banner"
-      className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-cyan-400/15 bg-navy-950/85 px-4 py-3 backdrop-blur"
+      className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-cyan-400/15 bg-white/90 px-4 py-3 backdrop-blur"
     >
       <div className="flex items-center gap-3">
         <button
@@ -77,11 +77,11 @@ function TopBar({
         </button>
         
         <div className="hidden lg:flex flex-col">
-          <span className="text-sm font-medium text-slate-200">{greeting} · Demo user</span>
+          <span className="whitespace-nowrap text-sm font-medium text-slate-200">{greeting} · Demo user</span>
         </div>
       </div>
 
-      <div className="flex flex-1 items-center gap-2 max-w-md mx-4">
+      <div className="flex min-w-[180px] flex-1 items-center gap-2 max-w-md mx-4">
         <button
           type="button"
           aria-label="Open command palette"
@@ -90,7 +90,7 @@ function TopBar({
         >
           <div className="flex items-center gap-2">
             <Search size={16} />
-            <span className="hidden sm:inline">Search or jump to…</span>
+            <span className="hidden whitespace-nowrap sm:inline">Search or jump to…</span>
           </div>
           <kbd className="hidden sm:inline-block rounded border border-cyan-400/20 bg-black/30 px-1.5 py-0.5 font-mono text-[9px]">
             Ctrl K

@@ -27,7 +27,7 @@ export function Navbar({ open, onClose }: NavbarProps) {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-60 flex-col border-r border-cyan-400/15 bg-navy-950 transition-transform duration-200 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:flex`}
+        className={`fixed inset-y-0 left-0 z-30 flex w-60 flex-col border-r border-cyan-400/15 bg-white transition-transform duration-200 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:flex`}
       >
         <div className="flex-shrink-0 border-b border-cyan-400/15 px-3 py-4">
           <Link to="/" className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-sm">
@@ -70,8 +70,8 @@ export function Navbar({ open, onClose }: NavbarProps) {
                       className={({ isActive }) =>
                         `flex items-center gap-2.5 px-3 py-1.5 text-[13px] transition-colors rounded-xl mx-2 relative overflow-hidden ${
                           isActive
-                            ? 'bg-gradient-to-r from-brand-indigo/25 to-brand-aqua/10 text-white ring-1 ring-white/10'
-                            : 'text-slate-300 hover:bg-white/5'
+                            ? 'bg-indigo-50 font-semibold text-indigo-700 ring-1 ring-indigo-100'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                         }`
                       }
                     >

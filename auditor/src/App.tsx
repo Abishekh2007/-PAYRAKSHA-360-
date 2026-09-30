@@ -1,9 +1,10 @@
 // PAYRAKSHA AI Auditor: the bank-internal, server-side view of every vendor audit: data used, reasoning, findings.
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDownRight, ArrowUpRight, Bot, Building2, Database, FileSearch, Lock, Minus, ScrollText, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Bot, Building2, UserRound, Database, FileSearch, Lock, Minus, ScrollText, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
 import { bank, inr, scoreColor, VERDICT_TONE, type FullAudit } from '../../src/services/bank';
 import { VendorLogo } from '../../src/components/vendor/VendorLogo';
+import { LiveReasoning, RawOutput, useLive } from './LivePanels';
 
 function fmt(v: unknown): string {
   if (v === null || v === undefined) return '—';
@@ -18,11 +19,11 @@ function Gauge({ score }: { score: number | null }) {
   const col = scoreColor(score), r = 70, c = Math.PI * r;
   return (
     <svg viewBox="0 0 180 104" className="w-44">
-      <path d="M20 94 A70 70 0 0 1 160 94" stroke="#ffffff14" strokeWidth="14" fill="none" strokeLinecap="round" />
+      <path d="M20 94 A70 70 0 0 1 160 94" stroke="#e2e8f0" strokeWidth="14" fill="none" strokeLinecap="round" />
       <motion.path d="M20 94 A70 70 0 0 1 160 94" stroke={col} strokeWidth="14" fill="none" strokeLinecap="round"
         strokeDasharray={c} initial={{ strokeDashoffset: c }} animate={{ strokeDashoffset: c - (c * (score ?? 0)) / 100 }} transition={{ duration: 1 }} />
-      <text x="90" y="84" textAnchor="middle" fontSize="34" fontWeight="700" fill="#fff">{score ?? '…'}</text>
-      <text x="90" y="100" textAnchor="middle" fontSize="9" fill="#94a3b8" letterSpacing="2">RISK / 100</text>
+      <text x="90" y="84" textAnchor="middle" fontSize="34" fontWeight="700" fill="#0f172a">{score ?? '…'}</text>
+      <text x="90" y="100" textAnchor="middle" fontSize="9" fill="#64748b" letterSpacing="2">RISK / 100</text>
     </svg>
   );
 }
@@ -33,7 +34,7 @@ function Running({ a }: { a: FullAudit }) {
   useEffect(() => { const t = window.setInterval(() => setI((x) => (x + 1) % lines.length), 1800); return () => window.clearInterval(t); }, []);
   return (
     <div className="glass rounded-3xl p-8 text-center">
-      <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-indigo-500/20"><Bot className="h-8 w-8 animate-pulse text-indigo-300" /></div>
+      <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-indigo-50"><Bot className="h-8 w-8 animate-pulse text-indigo-600" /></div>
       <div className="text-lg font-semibold text-white">Auditing {a.vendor?.name} · {inr(a.amount)}</div>
       <AnimatePresence mode="wait"><motion.p key={i} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 text-sm text-slate-400">{lines[i]}</motion.p></AnimatePresence>
     </div>
@@ -45,8 +46,8 @@ function Report({ a }: { a: FullAudit }) {
   const tone = a.verdict ? VERDICT_TONE[a.verdict] : null, col = scoreColor(a.score);
   return (
     <div className="space-y-5">
-      <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="glass relative overflow-hidden rounded-3xl p-6">
-        <div className="pointer-events-none absolute inset-0 opacity-30" style={{ background: `radial-gradient(600px 200px at 10% 0%, ${col}55, transparent)` }} />
+      <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="glass relative overflow-hidden rounded-3xl border-t-4 p-6" style={{ borderTopColor: col }}>
+        <div className="pointer-events-none absolute inset-0 opacity-60" style={{ background: `radial-gradient(600px 200px at 10% 0%, ${col}22, transparent)` }} />
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center">
           <Gauge score={a.score} />
           <div className="min-w-0 flex-1">
@@ -67,14 +68,14 @@ function Report({ a }: { a: FullAudit }) {
       </motion.section>
 
       <section className="glass rounded-3xl p-6">
-        <h3 className="mb-4 flex items-center gap-2 font-semibold text-white"><Sparkles className="h-4 w-4 text-indigo-300" /> AI reasoning</h3>
+        <h3 className="mb-4 flex items-center gap-2 font-semibold text-white"><Sparkles className="h-4 w-4 text-indigo-600" /> AI reasoning</h3>
         <ol className="relative space-y-4 border-l border-white/10 pl-6">
           {(a.reasoning || []).map((s, i) => {
             const Icon = s.impact === 'raises' ? ArrowUpRight : s.impact === 'lowers' ? ArrowDownRight : Minus;
             const c = s.impact === 'raises' ? '#f97316' : s.impact === 'lowers' ? '#10b981' : '#94a3b8';
             return (
               <motion.li key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }} className="relative">
-                <span className="absolute -left-[35px] grid h-6 w-6 place-items-center rounded-full text-[11px] font-bold text-white ring-4 ring-[#0b1020]" style={{ background: c }}>{i + 1}</span>
+                <span className="absolute -left-[35px] grid h-6 w-6 place-items-center rounded-full text-[11px] font-bold text-white ring-4 ring-white" style={{ background: c }}>{i + 1}</span>
                 <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-medium text-white">{s.title}</div>
@@ -83,7 +84,7 @@ function Report({ a }: { a: FullAudit }) {
                   <p className="mt-1.5 text-sm leading-relaxed text-slate-300">{s.detail}</p>
                   {s.evidence.length > 0 && (
                     <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {s.evidence.map((e) => <code key={e} className="rounded-lg bg-indigo-500/10 px-2 py-1 font-code text-[11px] text-indigo-200">{e}</code>)}
+                      {s.evidence.map((e) => <code key={e} className="rounded-lg bg-indigo-500/10 px-2 py-1 font-code text-[11px] text-indigo-700">{e}</code>)}
                     </div>
                   )}
                 </div>
@@ -95,13 +96,13 @@ function Report({ a }: { a: FullAudit }) {
 
       <div className="grid gap-5 md:grid-cols-2">
         <section className="glass rounded-3xl p-5">
-          <h3 className="mb-3 flex items-center gap-2 font-semibold text-white"><Building2 className="h-4 w-4 text-orange-300" /> Vendor issues</h3>
-          {(a.vendorIssues || []).length ? <ul className="space-y-2">{a.vendorIssues!.map((x) => <li key={x} className="rounded-xl bg-orange-500/10 px-3 py-2 text-sm text-orange-100">{x}</li>)}</ul>
+          <h3 className="mb-3 flex items-center gap-2 font-semibold text-white"><Building2 className="h-4 w-4 text-orange-500" /> Vendor issues</h3>
+          {(a.vendorIssues || []).length ? <ul className="space-y-2">{a.vendorIssues!.map((x) => <li key={x} className="rounded-xl border border-orange-100 bg-orange-50 px-3 py-2 text-sm text-orange-900">{x}</li>)}</ul>
             : <p className="text-sm text-slate-400">No vendor issues found.</p>}
         </section>
         <section className="glass rounded-3xl p-5">
-          <h3 className="mb-3 flex items-center gap-2 font-semibold text-white"><ShieldAlert className="h-4 w-4 text-red-300" /> Security issues</h3>
-          {(a.securityIssues || []).length ? <ul className="space-y-2">{a.securityIssues!.map((x) => <li key={x} className="rounded-xl bg-red-500/10 px-3 py-2 text-sm text-red-100">{x}</li>)}</ul>
+          <h3 className="mb-3 flex items-center gap-2 font-semibold text-white"><ShieldAlert className="h-4 w-4 text-red-500" /> Security issues</h3>
+          {(a.securityIssues || []).length ? <ul className="space-y-2">{a.securityIssues!.map((x) => <li key={x} className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-900">{x}</li>)}</ul>
             : <p className="text-sm text-slate-400">No security issues found.</p>}
         </section>
       </div>
@@ -137,6 +138,46 @@ function DataUsed({ a }: { a: FullAudit }) {
   );
 }
 
+function CustomerCard({ a }: { a: FullAudit }) {
+  const cu = a.customer;
+  if (!cu) return null;
+  const hist = a.data_used?.find((t) => t.table.startsWith('transactions (this customer'))?.fields ?? {};
+  const rows: [string, string][] = [
+    ['Customer', `${cu.name} (${cu.customerId})`], ['Account', cu.account], ['KYC', cu.kycLevel ?? '—'], ['Customer since', cu.customerSince ?? '—'],
+    ['Demo balance', inr(cu.balanceDemo)], ['AI audit', cu.aiAuditEnabled ? 'on' : 'off (opted out)'], ['Device', a.device],
+    ['All transactions', `${cu.transactions} · ${inr(cu.volume)} · ${cu.merchants} merchants`], ['Audits run', String(cu.audits)],
+    ...Object.entries(hist).map(([k, v]) => [`With this vendor: ${label(k)}`, fmt(v)] as [string, string]),
+  ];
+  return (
+    <section className="glass rounded-3xl p-5">
+      <h3 className="mb-1 flex items-center gap-2 font-semibold text-slate-900"><UserRound className="h-4 w-4 text-indigo-600" /> Customer details</h3>
+      <p className="mb-3 text-xs text-slate-500">Bank-internal only (simulated demo customer). Not sent to the AI model and not shown on the phone.</p>
+      <dl className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+        {rows.map(([k, v]) => <div key={k} className="flex justify-between gap-3 border-b border-slate-100 py-1"><dt className="text-slate-500">{k}</dt><dd className="text-right font-medium text-slate-900">{v}</dd></div>)}
+      </dl>
+    </section>
+  );
+}
+
+type Tab = 'report' | 'live' | 'raw';
+function Detail({ a }: { a: FullAudit }) {
+  const [tab, setTab] = useState<Tab>(a.status === 'running' ? 'live' : 'report');
+  const live = useLive(a);
+  useEffect(() => { setTab(a.status === 'running' ? 'live' : 'report'); }, [a.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const tabs: [Tab, string][] = [['report', 'Audit report'], ['live', a.status === 'running' ? 'Live reasoning ●' : 'Live reasoning'], ['raw', 'Model & raw output']];
+  return (
+    <div className="space-y-4">
+      <div role="tablist" aria-label="Audit views" className="inline-flex flex-wrap rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+        {tabs.map(([id, l]) => (
+          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+            className={`rounded-xl px-4 py-2 text-sm font-medium transition ${tab === id ? 'bg-indigo-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}>{l}</button>
+        ))}
+      </div>
+      {tab === 'report' ? <><Report a={a} /><CustomerCard a={a} /></> : tab === 'live' ? <LiveReasoning a={a} live={live} /> : <RawOutput a={a} live={live} />}
+    </div>
+  );
+}
+
 export default function App() {
   const [audits, setAudits] = useState<FullAudit[]>([]);
   const [sel, setSel] = useState<number | null>(null);
@@ -154,8 +195,8 @@ export default function App() {
   }, [audits]);
 
   return (
-    <div className="min-h-screen text-slate-200">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#060a18]/80 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#f4f6fb] text-slate-800">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-white/95 shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex max-w-[96rem] flex-wrap items-center gap-3 px-4 py-3">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg"><FileSearch className="h-5 w-5 text-white" /></div>
           <div className="mr-auto">
@@ -163,7 +204,7 @@ export default function App() {
             <div className="text-[11px] tracking-wide text-slate-400">SERVER-SIDE · BANK INTERNAL · DEMO / SIMULATION</div>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs"><Database className="h-3.5 w-3.5 text-cyan-300" /> {dbName === 'postgres' ? 'PostgreSQL (Docker)' : dbName ? 'SQLite fallback' : '…'}</span>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs ${down ? 'bg-red-500/15 text-red-300' : 'bg-emerald-500/15 text-emerald-300'}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs ${down ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${down ? 'bg-red-400' : 'bg-emerald-400 animate-pulse'}`} /> {down ? 'API offline' : 'Live'}
           </span>
         </div>
@@ -182,7 +223,7 @@ export default function App() {
             <ul className="max-h-[70vh] space-y-1 overflow-y-auto" aria-label="Audit queue">
               {audits.map((a) => (
                 <li key={a.id}>
-                  <button onClick={() => setSel(a.id)} className={`flex w-full items-center gap-3 rounded-2xl p-2.5 text-left transition ${current?.id === a.id ? 'bg-white/10 ring-1 ring-indigo-400/40' : 'hover:bg-white/5'}`}>
+                  <button onClick={() => setSel(a.id)} className={`flex w-full items-center gap-3 rounded-2xl p-2.5 text-left transition ${current?.id === a.id ? 'bg-indigo-50 ring-1 ring-indigo-200' : 'hover:bg-slate-50'}`}>
                     {a.vendor && <VendorLogo v={a.vendor} size={36} />}
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium text-white">{a.vendor?.name}</span>
@@ -197,9 +238,9 @@ export default function App() {
           </div>
         </aside>
         <section className="min-w-0">
-          {current ? <Report a={current} /> : (
+          {current ? <Detail a={current} /> : (
             <div className="glass grid min-h-[50vh] place-items-center rounded-3xl p-8 text-center">
-              <div><Bot className="mx-auto h-10 w-10 text-indigo-300" /><p className="mt-3 text-slate-300">No audits yet. Scan a vendor QR above ₹10,000 on RakshaPay.</p></div>
+              <div><Bot className="mx-auto h-10 w-10 text-indigo-600" /><p className="mt-3 text-slate-300">No audits yet. Scan a vendor QR above ₹10,000 on RakshaPay.</p></div>
             </div>
           )}
         </section>

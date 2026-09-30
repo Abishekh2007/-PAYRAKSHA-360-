@@ -10,7 +10,7 @@ from sqlalchemy import func, insert, select, update
 from app.config import load_config
 from app.engine import analyze
 from app.bank import db
-from app.bank.ai import run_ai_audit, simulated_audit, verdict_for
+from app.bank.ai import LIVE, run_ai_audit, simulated_audit, verdict_for
 
 router = APIRouter(prefix='/api/bank')
 
@@ -134,7 +134,7 @@ def _finish(rid: int, rep: dict, source: str, model: str, ms: int) -> None:
 
 def _worker(rid: int, ev: dict) -> None:
     try:
-        rep, source, model, ms = run_ai_audit(ev)
+        rep, source, model, ms = run_ai_audit(ev, rid)
     except Exception:
         rep, source, model, ms = simulated_audit(ev), 'simulated', 'simulated-auditor', 0
     _finish(rid, rep, source, model, ms)
@@ -244,15 +244,35 @@ async def audit(request: Request):
         return {**base, 'mode': 'full' if large else 'quick', 'report': _customer_view(r, large), 'fee': fee}
 
 
+def _customer_profile(c, account_id: str) -> dict | None:
+    """Bank-internal customer view for the auditor portal (simulated demo customer; never sent to the AI or the phone)."""
+    a = c.execute(select(db.accounts).where(db.accounts.c.id == account_id)).mappings().first()
+    if not a:
+        return None
+    cu = c.execute(select(db.customers).where(db.customers.c.id == a['customer_id'])).mappings().first()
+    tx = c.execute(select(func.count(), func.coalesce(func.sum(db.transactions.c.amount), 0), func.count(func.distinct(db.transactions.c.vendor_id)))
+                   .where(db.transactions.c.account_id == account_id)).first()
+    n_aud = c.execute(select(func.count()).select_from(db.audit_reports).where(db.audit_reports.c.account_id == account_id)).scalar() or 0
+    since = _aware(cu['created_at']) if cu else None
+    return {'customerId': cu['id'] if cu else None, 'name': cu['name'] if cu else 'Unknown', 'kycLevel': cu['kyc_level'] if cu else None,
+            'customerSince': since.date().isoformat() if since else None, 'accountId': account_id, 'account': a['masked_no'],
+            'balanceDemo': a['balance_demo'], 'aiAuditEnabled': a['ai_audit_enabled'],
+            'transactions': int(tx[0]), 'volume': round(float(tx[1]), 2), 'merchants': int(tx[2]), 'audits': int(n_aud)}
+
+
 @router.get('/audits')
 def audits(after: int = 0, limit: int = 30):
     with db.get_engine().begin() as c:
         q = select(db.audit_reports).order_by(db.audit_reports.c.id.desc()).limit(max(1, min(limit, 100)))
         rows = c.execute(q).mappings().all()
         names = {v['id']: v for v in c.execute(select(db.vendors)).mappings().all()}
+        custs: dict[str, dict] = {}
         out = []
         for r in rows:
             d = _full(r)
+            if r['account_id'] not in custs:
+                custs[r['account_id']] = _customer_profile(c, r['account_id'])
+            d['customer'] = custs[r['account_id']]
             vv = names.get(r['vendor_id'])
             d['vendor'] = {'id': vv['id'], 'name': vv['name'], 'brandColor': vv['brand_color'], 'city': vv['city']} if vv else None
             out.append(d)
@@ -266,6 +286,17 @@ def audit_one(rid: int, view: str = 'customer'):
         if not r:
             raise HTTPException(404, 'Unknown report')
         return _full(r) if view == 'auditor' else _customer_view(r, r['kind'] == 'full')
+
+
+@router.get('/audits/{rid}/live')
+def audit_live(rid: int):
+    """Bank-internal: the prompt sent to the model, the text streamed so far and the raw output (in memory only)."""
+    lv = LIVE.get(rid)
+    if not lv:
+        return {'available': False, 'simulation': True}
+    import time as _t
+    return {'available': True, 'elapsedMs': int((_t.time() - lv['startedAt']) * 1000), 'simulation': True,
+            **{k: v for k, v in lv.items() if k != 'startedAt'}}
 
 
 @router.get('/settings')

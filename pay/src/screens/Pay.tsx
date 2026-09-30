@@ -14,7 +14,8 @@ import { BottomSheet } from '../components/check/BottomSheet';
 import { HoldButton } from '../components/check/HoldButton';
 import { BankAuditCard } from '../components/check/BankAuditCard';
 import { VendorAmount, withAmount } from '../components/check/VendorAmount';
-import { vendorIdFromQr } from '../../../src/services/bank';
+import { bank, vendorIdFromQr, type BankVendor } from '../../../src/services/bank';
+import { VendorLogo } from '../../../src/components/vendor/VendorLogo';
 
 const MIN_CHECK_MS = import.meta.env.MODE === 'test' ? 0 : 900;
 
@@ -36,6 +37,11 @@ function PayCheck() {
   const { draft, deviceName, addRecord, updateRecord, records } = usePayStore();
 
   const [loading, setLoading] = useState<'initial' | 'rechecking' | 'done'>('initial');
+  const [merchant, setMerchant] = useState<BankVendor | null>(null);
+  useEffect(() => {
+    const vid = draft?.input.qrText ? vendorIdFromQr(draft.input.qrText) : null;
+    if (vid) bank.vendor(vid, 0).then(setMerchant).catch(() => setMerchant(null));
+  }, [draft?.input.qrText]);
   const [recordId, setRecordId] = useState<string | null>(null);
   const [report, setReport] = useState<RiskReport | null>(null);
 
@@ -208,9 +214,10 @@ function PayCheck() {
         {/* Header */}
         <div className="flex flex-col items-center text-center mt-4">
           <div className="relative mb-4">
+            {merchant ? <VendorLogo v={merchant} size={72} /> : (
             <div className={`w-[72px] h-[72px] rounded-full flex items-center justify-center text-3xl font-medium ${getToneAvatarBg(view.tone)}`}>
               {view.payee.initial}
-            </div>
+            </div>)}
             <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
               <Shield className="w-5 h-5 text-gp-blue" />
             </div>
@@ -219,7 +226,11 @@ function PayCheck() {
           <h1 className="text-2xl font-medium mb-1">Paying {view.payee.name}</h1>
           <p className="text-sm text-gp-ink-3 mb-2">{view.payee.displayVpa || "No UPI ID in this QR"}</p>
 
-          {view.payee.verified ? (
+          {merchant ? (
+            <div className={`flex items-center text-xs font-medium mb-6 ${merchant.verified ? 'text-risk-low' : 'text-risk-high'}`}>
+              <CheckCircle2 className="w-4 h-4 mr-1" /> {merchant.verified ? 'Bank-verified merchant' : 'Not verified by your bank'} · KYC {merchant.kycStatus}
+            </div>
+          ) : view.payee.verified ? (
             <div className="flex items-center text-risk-low text-xs font-medium mb-6">
               <CheckCircle2 className="w-4 h-4 mr-1" /> Verified demo merchant
             </div>

@@ -5,19 +5,19 @@
 /* PAYRAKSHA 360 · futuristic digital bank tokens: midnight surface with soft aurora glows, frosted glass cards,
    indigo → blue → aqua accent gradient, red / amber / green risk colours, violet for predictions. */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --navy-950: #050816;
   --navy-900: #070b1d;
-  --bank-bg: #050816;
-  --bank-line: rgba(255, 255, 255, 0.09);
+  --bank-bg: #f4f6fb;
+  --bank-line: #e2e8f0;
   --brand-indigo: #6366f1;
   --brand-blue: #3b82f6;
   --brand-aqua: #22d3ee;
   --brand-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 55%, #22d3ee 100%);
   /* Old SOC names, kept as aliases so existing inline styles keep working. */
-  --soc-void: #050816;
-  --soc-panel: rgba(255, 255, 255, 0.045);
-  --soc-line: rgba(255, 255, 255, 0.09);
+  --soc-void: #f4f6fb;
+  --soc-panel: #ffffff;
+  --soc-line: #e2e8f0;
   --soc-cyan: #6b9bff;
   --soc-violet: #a78bfa;
   --brand: #4f7fff;
@@ -28,18 +28,17 @@
 }
 
 @layer base {
-  html { @apply bg-soc-void text-slate-100 antialiased; font-family: theme('fontFamily.sans'); }
+  html { @apply bg-soc-void text-slate-800 antialiased; font-family: theme('fontFamily.sans'); }
   body {
     min-height: 100vh;
     background:
-      radial-gradient(900px 620px at 8% -10%, rgba(99, 102, 241, 0.24), transparent 60%),
-      radial-gradient(820px 560px at 96% 4%, rgba(34, 211, 238, 0.12), transparent 62%),
-      radial-gradient(1100px 760px at 50% 115%, rgba(139, 92, 246, 0.16), transparent 62%),
+      radial-gradient(900px 520px at 0% -10%, rgba(79, 70, 229, 0.07), transparent 60%),
+      radial-gradient(820px 520px at 100% 0%, rgba(14, 165, 233, 0.06), transparent 62%),
       var(--bank-bg);
     background-attachment: fixed;
   }
   h1, h2, h3, h4 { font-family: theme('fontFamily.display'); letter-spacing: -0.015em; }
-  ::selection { background: rgba(99, 102, 241, 0.35); }
+  ::selection { background: rgba(99, 102, 241, 0.2); }
   /* Elder mode: <html class="elder"> scales every rem-based size up and uses the plain sans face for headings. */
   html.elder { font-size: 20px; }
   html.elder h1, html.elder h2, html.elder h3, html.elder h4 { font-family: theme('fontFamily.sans'); letter-spacing: 0; }
@@ -56,36 +55,35 @@
     position: relative;
     border: 1px solid var(--bank-line);
     border-radius: 1.25rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.022));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 48px -28px rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(18px) saturate(140%);
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px -18px rgba(15, 23, 42, 0.2);
   }
-  .glass-strong { background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)); border-color: rgba(255, 255, 255, 0.13); }
+  .glass-strong { background: #ffffff; border-color: #dbe2ec; }
   /* White card, kept for printable documents (incident report). */
-  .glass-light { @apply rounded-2xl border border-white/60 bg-white/95 text-navy-900 shadow-glass; }
+  .glass-light { @apply rounded-2xl border border-white/60 bg-white text-slate-900 shadow-glass; }
 
-  .hud-eyebrow { @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400; }
-  .hud-title { @apply font-display text-[15px] font-semibold tracking-tight text-white; }
-  .hud-label { @apply font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-slate-400; }
+  .hud-eyebrow { @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500; }
+  .hud-title { @apply font-display text-[15px] font-semibold tracking-tight text-slate-900; }
+  .hud-label { @apply font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-slate-500; }
   .hud-num { @apply font-mono tabular-nums; }
-  .hud-glow { text-shadow: 0 0 28px color-mix(in srgb, currentColor 35%, transparent); }
-  .hud-rule { @apply border-t border-white/10; }
+  .hud-glow { text-shadow: none; }
+  .hud-rule { @apply border-t border-slate-200; }
   /* Retired in the banking theme (no scanlines); kept so old markup still compiles. */
   .hud-scanlines { position: relative; }
 
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-display text-sm font-semibold tracking-tight transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-navy-950 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-display text-sm font-semibold tracking-tight transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50; }
   .btn-primary { @apply btn text-white shadow-glow-brand hover:brightness-110; background-image: var(--brand-gradient); }
   .btn-danger { @apply btn bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-glow-high hover:brightness-110; }
   .btn-safe { @apply btn bg-gradient-to-br from-emerald-400 to-green-600 text-white shadow-glow-low hover:brightness-110; }
-  .btn-ghost { @apply btn border border-white/10 bg-white/5 text-slate-100 hover:border-white/20 hover:bg-white/10; }
-  .btn-outline { @apply btn border border-cyan-300/40 text-cyan-200 hover:bg-cyan-400/10; }
+  .btn-ghost { @apply btn border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50; }
+  .btn-outline { @apply btn border border-cyan-500/40 text-cyan-700 hover:bg-cyan-50; }
   .btn-sm { @apply rounded-lg px-3 py-1.5 text-xs; }
   .btn-lg { @apply px-6 py-3 text-base; }
   .chip { @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-medium tracking-wide; }
-  .eyebrow { @apply font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300; }
-  .text-gradient { @apply bg-clip-text text-transparent; background-image: linear-gradient(120deg, #c7d2fe 0%, #93c5fd 45%, #67e8f9 100%); }
+  .eyebrow { @apply font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-600; }
+  .text-gradient { @apply bg-clip-text text-transparent; background-image: linear-gradient(120deg, #4338ca 0%, #2563eb 50%, #0891b2 100%); }
   .brand-gradient { background-image: var(--brand-gradient); }
-  .input { @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/25; }
+  .input { @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/25; }
   .mono { font-family: theme('fontFamily.mono'); font-variant-numeric: tabular-nums; }
   /* Retired: the banking theme has no grid. */
   .grid-overlay { background-image: none; }
@@ -95,3 +93,27 @@
   /* Figures in the display face line up in tables and counters. */
   .font-mono { font-variant-numeric: tabular-nums; }
 }
+
+/* ---- Light banking theme: pages were written for the old midnight theme, so their dark-surface utilities are remapped here.
+   Attribute selectors on purpose: Tailwind rewrites rules that name its own classes. ---- */
+[class~="text-white"], [class~="hover:text-white"]:hover { color: #0f172a; }
+[class~="text-slate-100"], [class~="text-slate-200"] { color: #1e293b; }
+[class~="text-slate-300"] { color: #475569; }
+[class~="text-slate-400"] { color: #64748b; }
+[class~="text-cyan-100"], [class~="text-cyan-200"], [class~="text-cyan-300"] { color: #2f4fd0; }
+[class~="text-red-100"], [class~="text-red-200"], [class~="text-red-300"], [class~="text-rose-300"] { color: #dc2626; }
+[class~="text-amber-200"], [class~="text-amber-300"] { color: #b45309; }
+[class~="text-green-300"], [class~="text-emerald-300"] { color: #15803d; }
+[class~="text-violet-200"], [class~="text-violet-300"] { color: #7c3aed; }
+[class~="text-orange-300"] { color: #c2410c; }
+[class~="bg-slate-900"], [class~="bg-slate-950"] { background-color: #ffffff; }
+[class~="bg-slate-800"] { background-color: #f1f5f9; }
+[class~="bg-slate-700"] { background-color: #e2e8f0; }
+[class~="border-slate-600"], [class~="border-slate-700"], [class~="border-slate-800"], [class~="border-slate-900"], [class*="border-white/"] { border-color: #e2e8f0; }
+[class*="bg-white/"]:not([class*="bg-white/9"]) { background-color: rgba(15, 23, 42, 0.035); }
+[class*="bg-black/"] { background-color: #f8fafc; }
+:is([class*="bg-slate-900/"], [class*="bg-slate-950/"], [class*="bg-slate-800/"]):not([class*="inset-0"]) { background-color: #ffffff; }
+[class*="bg-black/"][class*="inset-0"] { background-color: rgba(15, 23, 42, 0.45); }
+/* White text stays white on coloured and gradient surfaces. */
+[class^="bg-red-5"] [class~="text-white"], [class^="bg-red-5"][class~="text-white"], [class*=" bg-red-5"] [class~="text-white"], [class*=" bg-red-5"][class~="text-white"], [class^="bg-red-6"] [class~="text-white"], [class^="bg-red-6"][class~="text-white"], [class*=" bg-red-6"] [class~="text-white"], [class*=" bg-red-6"][class~="text-white"], [class^="bg-rose-5"] [class~="text-white"], [class^="bg-rose-5"][class~="text-white"], [class*=" bg-rose-5"] [class~="text-white"], [class*=" bg-rose-5"][class~="text-white"], [class^="bg-rose-6"] [class~="text-white"], [class^="bg-rose-6"][class~="text-white"], [class*=" bg-rose-6"] [class~="text-white"], [class*=" bg-rose-6"][class~="text-white"], [class^="bg-emerald-5"] [class~="text-white"], [class^="bg-emerald-5"][class~="text-white"], [class*=" bg-emerald-5"] [class~="text-white"], [class*=" bg-emerald-5"][class~="text-white"], [class^="bg-emerald-6"] [class~="text-white"], [class^="bg-emerald-6"][class~="text-white"], [class*=" bg-emerald-6"] [class~="text-white"], [class*=" bg-emerald-6"][class~="text-white"], [class^="bg-green-5"] [class~="text-white"], [class^="bg-green-5"][class~="text-white"], [class*=" bg-green-5"] [class~="text-white"], [class*=" bg-green-5"][class~="text-white"], [class^="bg-green-6"] [class~="text-white"], [class^="bg-green-6"][class~="text-white"], [class*=" bg-green-6"] [class~="text-white"], [class*=" bg-green-6"][class~="text-white"], [class^="bg-indigo-5"] [class~="text-white"], [class^="bg-indigo-5"][class~="text-white"], [class*=" bg-indigo-5"] [class~="text-white"], [class*=" bg-indigo-5"][class~="text-white"], [class^="bg-indigo-6"] [class~="text-white"], [class^="bg-indigo-6"][class~="text-white"], [class*=" bg-indigo-6"] [class~="text-white"], [class*=" bg-indigo-6"][class~="text-white"], [class^="bg-blue-5"] [class~="text-white"], [class^="bg-blue-5"][class~="text-white"], [class*=" bg-blue-5"] [class~="text-white"], [class*=" bg-blue-5"][class~="text-white"], [class^="bg-blue-6"] [class~="text-white"], [class^="bg-blue-6"][class~="text-white"], [class*=" bg-blue-6"] [class~="text-white"], [class*=" bg-blue-6"][class~="text-white"], [class^="bg-cyan-5"] [class~="text-white"], [class^="bg-cyan-5"][class~="text-white"], [class*=" bg-cyan-5"] [class~="text-white"], [class*=" bg-cyan-5"][class~="text-white"], [class^="bg-cyan-6"] [class~="text-white"], [class^="bg-cyan-6"][class~="text-white"], [class*=" bg-cyan-6"] [class~="text-white"], [class*=" bg-cyan-6"][class~="text-white"], [class^="bg-violet-5"] [class~="text-white"], [class^="bg-violet-5"][class~="text-white"], [class*=" bg-violet-5"] [class~="text-white"], [class*=" bg-violet-5"][class~="text-white"], [class^="bg-violet-6"] [class~="text-white"], [class^="bg-violet-6"][class~="text-white"], [class*=" bg-violet-6"] [class~="text-white"], [class*=" bg-violet-6"][class~="text-white"], [class^="bg-orange-5"] [class~="text-white"], [class^="bg-orange-5"][class~="text-white"], [class*=" bg-orange-5"] [class~="text-white"], [class*=" bg-orange-5"][class~="text-white"], [class^="bg-amber-5"] [class~="text-white"], [class^="bg-amber-5"][class~="text-white"], [class*=" bg-amber-5"] [class~="text-white"], [class*=" bg-amber-5"][class~="text-white"], [class^="bg-gradient-to"] [class~="text-white"], [class^="bg-gradient-to"][class~="text-white"], [class*=" bg-gradient-to"] [class~="text-white"], [class*=" bg-gradient-to"][class~="text-white"], [class^="brand-gradient"] [class~="text-white"], [class^="brand-gradient"][class~="text-white"], [class*=" brand-gradient"] [class~="text-white"], [class*=" brand-gradient"][class~="text-white"], [class^="btn-primary"] [class~="text-white"], [class^="btn-primary"][class~="text-white"], [class*=" btn-primary"] [class~="text-white"], [class*=" btn-primary"][class~="text-white"], [class^="btn-danger"] [class~="text-white"], [class^="btn-danger"][class~="text-white"], [class*=" btn-danger"] [class~="text-white"], [class*=" btn-danger"][class~="text-white"], [class^="btn-safe"] [class~="text-white"], [class^="btn-safe"][class~="text-white"], [class*=" btn-safe"] [class~="text-white"], [class*=" btn-safe"][class~="text-white"] { color: #ffffff; }
+.leaflet-container [class~="text-white"] { color: #ffffff; }

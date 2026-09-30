@@ -6,6 +6,19 @@ import { bank, inr, scoreColor, vendorIdFromQr, type AuditResponse, type Custome
 
 const STEPS = ['Reading merchant KYC record', 'Checking dispute history', 'Comparing with your past payments', 'AI auditor reasoning'];
 
+/** One plain-language issue for the phone: the first key point, split into a title and a short detail. */
+function simpleIssue(r: CustomerAudit): { title: string; detail: string } | null {
+  const p = r.keyPoints[0];
+  if (!p) return r.headline ? { title: r.headline, detail: '' } : null;
+  const i = p.indexOf(': ');
+  const title = i > 0 ? p.slice(0, i) : p;
+  let detail = i > 0 ? p.slice(i + 2) : '';
+  const dot = detail.search(/[.!?](\s|$)/);
+  if (dot > 0) detail = detail.slice(0, dot + 1);
+  if (detail.length > 150) detail = detail.slice(0, 147).trimEnd() + '…';
+  return { title, detail };
+}
+
 export function BankAuditCard({ qrText, amount, device, transactionRef }: {
   qrText?: string | null; amount: number | null; device: string; transactionRef?: string | null;
 }) {
@@ -54,6 +67,7 @@ export function BankAuditCard({ qrText, amount, device, transactionRef }: {
   }
 
   const done = rep?.status === 'done';
+  const issue = done ? simpleIssue(rep!) : null;
   const col = scoreColor(rep?.score);
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="card mt-6 border border-gp-line p-4" aria-label="Bank AI audit">
@@ -61,11 +75,7 @@ export function BankAuditCard({ qrText, amount, device, transactionRef }: {
       {!done ? (
         <div className="mt-3 space-y-2">
           <div className="flex items-center gap-2 text-sm text-gp-blue"><Bot className="h-4 w-4 animate-pulse" /> Auditing {res.vendor.name} for {inr(res.amount)}…</div>
-          {STEPS.map((s, i) => (
-            <div key={s} className={`flex items-center gap-2 text-xs ${i <= step ? 'text-gp-ink' : 'text-gp-ink-3'}`}>
-              <span className={`h-2 w-2 rounded-full ${i < step ? 'bg-risk-low' : i === step ? 'bg-gp-blue animate-ping' : 'bg-gp-line'}`} /> {s}
-            </div>
-          ))}
+          <div className="text-xs text-gp-ink-3">{STEPS[step]}…</div>
         </div>
       ) : (
         <div className="mt-3">
@@ -75,17 +85,18 @@ export function BankAuditCard({ qrText, amount, device, transactionRef }: {
             </div>
             <div className="min-w-0">
               <div className="font-medium" style={{ color: col }}>{rep!.verdictLabel}</div>
-              <div className="text-sm text-gp-ink-2">{rep!.headline}</div>
+
             </div>
           </div>
-          {rep!.keyPoints.length > 0 && (
-            <ul className="mt-3 space-y-1.5">
-              {rep!.keyPoints.map((p) => <li key={p} className="rounded-xl bg-gp-surface px-3 py-2 text-xs leading-relaxed text-gp-ink-2">{p}</li>)}
-            </ul>
+          {issue && (
+            <div className="mt-3 rounded-2xl bg-gp-surface px-3 py-2.5">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-gp-ink-3">Main issue</div>
+              <div className="text-sm font-medium text-gp-ink">{issue.title}</div>
+              {issue.detail && <p className="mt-0.5 text-xs leading-relaxed text-gp-ink-2">{issue.detail}</p>}
+            </div>
           )}
-          {rep!.recommendation && <p className="mt-2 text-sm font-medium text-gp-ink">{rep!.recommendation}</p>}
           <p className="mt-3 flex items-start gap-1.5 text-[11px] text-gp-ink-3"><Lock className="mt-0.5 h-3 w-3 shrink-0" />
-            {res.mode === 'summary' ? 'Small payment: showing the earlier bank audit (score and key points only). ' : ''}{rep!.privacy}</p>
+            {res.mode === 'summary' ? 'Earlier bank audit shown. ' : ''}Full details stay with your bank.</p>
         </div>
       )}
       {res.fee && (

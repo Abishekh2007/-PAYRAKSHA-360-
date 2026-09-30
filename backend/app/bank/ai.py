@@ -122,21 +122,66 @@ def simulated_audit(ev: dict) -> dict:
             'privacyNote': 'Vendor identifiers were masked; only aggregate statistics were used.'}
 
 
-def run_ai_audit(evidence: dict) -> tuple[dict, str, str, int]:
+# Live view of each audit for the bank-internal auditor portal: the prompt, the streamed model text and the raw response.
+# Kept in memory only (never persisted, never shown to the customer).
+LIVE: dict[int, dict] = {}
+
+
+def _stream_chat(messages: list[dict], live: dict) -> str:
+    """Streams an OpenAI-compatible chat completion, appending text (and any reasoning_content) to `live` as it arrives."""
+    with httpx.stream('POST', f'{BASE_URL}/chat/completions', timeout=TIMEOUT_S,
+                      headers={'Authorization': f'Bearer {API_KEY}', 'Content-Type': 'application/json'},
+                      json={'model': MODEL, 'temperature': 0.2, 'max_tokens': 2200, 'stream': True,
+                            'messages': messages}) as r:
+        r.raise_for_status()
+        for line in r.iter_lines():
+            if not line.startswith('data:'):
+                continue
+            data = line[5:].strip()
+            if data == '[DONE]':
+                break
+            try:
+                chunk = json.loads(data)
+            except ValueError:
+                continue
+            live['chunks'] += 1
+            for ch in chunk.get('choices') or []:
+                d = ch.get('delta') or ch.get('message') or {}
+                live['thinking'] += d.get('reasoning_content') or d.get('reasoning') or ''
+                live['text'] += d.get('content') or ''
+                if ch.get('finish_reason'):
+                    live['finishReason'] = ch['finish_reason']
+            if chunk.get('usage'):
+                live['usage'] = chunk['usage']
+            if chunk.get('model'):
+                live['servedModel'] = chunk['model']
+    return live['text']
+
+
+def run_ai_audit(evidence: dict, rid: int | None = None) -> tuple[dict, str, str, int]:
     """Returns (report, source, model, latency_ms). Falls back to the simulated auditor on any failure."""
     fallback = simulated_audit(evidence)
     t0 = time.time()
+    messages = [{'role': 'system', 'content': SYSTEM},
+                {'role': 'user', 'content': 'Evidence pulled from the bank database (JSON):\n' +
+                 json.dumps(evidence, ensure_ascii=False, default=str)}]
+    live = {'model': MODEL, 'endpoint': f'{BASE_URL}/chat/completions', 'messages': messages, 'text': '', 'thinking': '',
+            'chunks': 0, 'status': 'streaming', 'error': None, 'finishReason': None, 'usage': None, 'servedModel': None,
+            'parsed': None, 'startedAt': t0}
+    if rid is not None:
+        LIVE[rid] = live
+        while len(LIVE) > 50:
+            LIVE.pop(next(iter(LIVE)))
     if os.environ.get('PAYRAKSHA_AUDIT_AI', '1') == '0':
+        live.update(status='simulated', error='AI disabled (PAYRAKSHA_AUDIT_AI=0): simulated auditor used.', parsed=fallback)
         return fallback, 'simulated', 'simulated-auditor', 0
     try:
-        r = httpx.post(f'{BASE_URL}/chat/completions', timeout=TIMEOUT_S,
-                       headers={'Authorization': f'Bearer {API_KEY}', 'Content-Type': 'application/json'},
-                       json={'model': MODEL, 'temperature': 0.2, 'max_tokens': 2200,
-                             'messages': [{'role': 'system', 'content': SYSTEM},
-                                          {'role': 'user', 'content': 'Evidence pulled from the bank database (JSON):\n' +
-                                           json.dumps(evidence, ensure_ascii=False, default=str)}]})
-        r.raise_for_status()
-        content = r.json()['choices'][0]['message']['content']
-        return _clean(_extract_json(content), fallback), 'ai', MODEL, int((time.time() - t0) * 1000)
-    except Exception:
+        content = _stream_chat(messages, live)
+        if not content.strip():
+            raise ValueError('empty model response')
+        rep = _clean(_extract_json(content), fallback)
+        live.update(status='done', parsed=rep)
+        return rep, 'ai', MODEL, int((time.time() - t0) * 1000)
+    except Exception as e:  # noqa: BLE001
+        live.update(status='fallback', error=f'{type(e).__name__}: {e}'[:300], parsed=fallback)
         return fallback, 'simulated', 'simulated-auditor (AI unreachable)', int((time.time() - t0) * 1000)
