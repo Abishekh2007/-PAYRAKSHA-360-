@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { PageShell } from '../components/layout';
 import { useDemoStore, useCurrentReport } from '../store/demoStore';
 import { controlScenarios, runScenarioLocal, scenarioToInput } from '../engine';
-import { Button, GlassCard, SimulationBadge, Toggle } from '../components/ui';
-import { HeartHandshake, Volume2, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Button, SimulationBadge, Toggle } from '../components/ui';
+import { HeartHandshake, Volume2 } from 'lucide-react';
+import { HudPanel, socToneForLevel, SOC_TONES } from '../components/soc';
 
 export default function ElderMode() {
   const navigate = useNavigate();
@@ -54,15 +55,21 @@ export default function ElderMode() {
   const isSafe = report.level === 'LOW';
 
   const reasons = report.explanation.reasons.slice(0, 3).map(r => r.replace(/\s*\(\+\d+\)$/, ''));
+  const tone = socToneForLevel(report.level);
 
   return (
     <PageShell
       title="Elder Safety Mode"
+      eyebrow="RESPONSE"
+      width="wide"
       icon={<HeartHandshake className="w-8 h-8" />}
       actions={<SimulationBadge />}
     >
       <div className="flex flex-col gap-8">
-        <GlassCard>
+        <HudPanel
+          title="ELDER MODE SETTINGS"
+          tone="cyan"
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <Toggle
               label="Elder Safety Mode"
@@ -78,7 +85,7 @@ export default function ElderMode() {
               <select
                 id="scenario-select"
                 aria-label="Preview scenario"
-                className="bg-slate-900 border border-slate-700 text-white rounded p-2"
+                className="bg-slate-900 border border-slate-700 text-white rounded p-2 text-lg"
                 onChange={handleScenarioChange}
                 value={report.id}
               >
@@ -91,12 +98,15 @@ export default function ElderMode() {
               </select>
             </div>
           </div>
-        </GlassCard>
+        </HudPanel>
 
         {/* Live Preview */}
-        <div className="border-4 border-slate-700 rounded-3xl p-1 bg-black max-w-lg mx-auto w-full">
-          <div className="bg-slate-950 rounded-[1.3rem] overflow-hidden">
-            <div className={`p-6 sm:p-8 flex flex-col gap-6 ${isHighDanger ? 'bg-risk-high/10' : isCaution ? 'bg-risk-caution/10' : 'bg-risk-low/10'}`}>
+        <div className="max-w-2xl mx-auto w-full">
+          <HudPanel
+            title={isSafe ? "SAFE TO PROCEED" : "WARNING DETECTED"}
+            tone={tone}
+          >
+            <div className={`p-6 sm:p-8 flex flex-col gap-6 ${SOC_TONES[tone].bg}`}>
 
               <div className="flex justify-between items-start">
                 <h2 className="text-4xl sm:text-5xl font-black">
@@ -165,7 +175,7 @@ export default function ElderMode() {
               )}
 
             </div>
-          </div>
+          </HudPanel>
         </div>
 
       </div>

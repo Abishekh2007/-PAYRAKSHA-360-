@@ -22,6 +22,7 @@ describe('ElderMode', () => {
     expect(toggle).toHaveAttribute('aria-checked', 'false');
     await user.click(toggle);
     expect(useDemoStore.getState().elderMode).toBe(true);
+    expect(screen.getByText(/ELDER MODE SETTINGS/i)).toBeInTheDocument();
 
     // Flagship defaults
     expect(screen.getByText('⚠️ STOP')).toBeInTheDocument();

@@ -19,7 +19,8 @@ describe('IncidentReport', () => {
     renderWithRouter(<IncidentReport />);
     
     expect(screen.getByText('DEMO REPORT — NOT AN OFFICIAL CYBERCRIME REPORT')).toBeInTheDocument();
-    
+    expect(screen.getByText(/CASE FILE · DEMO/i)).toBeInTheDocument();
+
     const flag = flagshipReport();
     expect(screen.getByText(`ID: ${flag.id}`)).toBeInTheDocument();
     

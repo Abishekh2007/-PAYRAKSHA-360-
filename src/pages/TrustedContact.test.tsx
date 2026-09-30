@@ -23,6 +23,7 @@ describe('TrustedContact', () => {
     expect(screen.getByText(/PAYRAKSHA SAFETY ALERT/i)).toBeInTheDocument();
     expect(screen.getByText(/₹15,000/i)).toBeInTheDocument();
     expect(screen.getByText(/88\/100/i)).toBeInTheDocument();
+    expect(screen.getByText(/RESPONSE PROTOCOL/i)).toBeInTheDocument();
 
     const markSafe = screen.getByRole('button', { name: /MARK SAFE/i });
     await user.click(markSafe);
