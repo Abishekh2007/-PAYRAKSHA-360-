@@ -251,7 +251,7 @@ export default function QrShield() {
                     <Button
                       key={s.id}
                       variant="ghost"
-                      className="justify-start font-mono text-xs uppercase text-slate-300 hover:text-cyan-300"
+                      className="justify-start font-display text-xs uppercase text-slate-300 hover:text-cyan-300"
                       aria-label={`${id} · ${s.shortLabel || s.title}`}
                       onClick={() => handleDemoClick(s)}
                     >
@@ -270,7 +270,7 @@ export default function QrShield() {
                 <video ref={videoRef} playsInline muted className="absolute inset-x-0 inset-y-0 h-full w-full object-cover opacity-80" />
                 <div className="pointer-events-none absolute inset-0">
                    {!reduceMotion && (
-                     <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-cyan-400/50 shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-scan" style={{ marginTop: '-1px' }} />
+                     <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-cyan-400/50 shadow-glow-brand animate-scan" style={{ marginTop: '-1px' }} />
                    )}
                 </div>
                 <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-center">
@@ -279,7 +279,7 @@ export default function QrShield() {
                     </Button>
                 </div>
               </div>
-              <p className="mt-4 text-center font-mono text-[10px] tracking-wide text-cyan-300/70 uppercase">
+              <p className="mt-4 text-center hud-eyebrow text-cyan-300/70">
                 CAMERA / UPLOAD · DEMO — NEVER TRIGGERS A PAYMENT
               </p>
             </HudPanel>
@@ -287,7 +287,7 @@ export default function QrShield() {
 
           {!report && !scanning && activeTab === 'none' && !errorMsg && (
             <HudPanel className="opacity-50">
-               <div className="flex h-32 items-center justify-center font-mono text-xs uppercase text-slate-500">
+               <div className="flex h-32 items-center justify-center hud-eyebrow">
                  Awaiting Input Method
                </div>
             </HudPanel>
@@ -322,7 +322,7 @@ export default function QrShield() {
 
               {qrText && (
                 <HudPanel title="DECODED PAYLOAD (DEMO)">
-                  <div className="rounded-[3px] bg-black/40 border border-cyan-400/20 p-3 font-mono text-emerald-300 text-xs break-all">
+                  <div className="rounded bg-black/40 border border-cyan-400/20 p-3 font-code text-cyan-300 text-xs break-all">
                     {qrText}
                   </div>
                 </HudPanel>

@@ -99,7 +99,7 @@ export default function UrlShield() {
                 onKeyDown={handleKeyDown}
                 placeholder="https://"
                 aria-label="URL to analyze"
-                className="font-mono bg-black/40 border border-cyan-400/20 text-slate-200 outline-none p-3 w-full block focus:border-cyan-300 transition-colors"
+                className="font-code bg-black/40 border border-cyan-400/20 text-slate-200 outline-none rounded-lg p-3 w-full block focus:border-cyan-300 transition-colors"
                 autoComplete="off"
                 spellCheck="false"
               />
@@ -131,7 +131,7 @@ export default function UrlShield() {
                   >
                     Official bank (demo)
                   </Button>
-                  <p className="mt-1 font-mono text-xs text-slate-400 break-all">https://official-demo-bank.example</p>
+                  <p className="mt-1 font-code text-xs text-slate-400 break-all">https://official-demo-bank.example</p>
                 </div>
                 <div>
                   <Button
@@ -145,7 +145,7 @@ export default function UrlShield() {
                   >
                     KYC look-alike (demo)
                   </Button>
-                  <p className="mt-1 font-mono text-xs text-slate-400 break-all">https://secure-bank-kyc-demo.example</p>
+                  <p className="mt-1 font-code text-xs text-slate-400 break-all">https://secure-bank-kyc-demo.example</p>
                 </div>
                 <div>
                   <Button
@@ -159,7 +159,7 @@ export default function UrlShield() {
                   >
                     Shopping offer (demo)
                   </Button>
-                  <p className="mt-1 font-mono text-xs text-slate-400 break-all">https://example-shopping-offer.demo</p>
+                  <p className="mt-1 font-code text-xs text-slate-400 break-all">https://example-shopping-offer.demo</p>
                 </div>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function UrlShield() {
                 <button
                   key={s.id}
                   type="button"
-                  className="w-full text-left font-mono text-xs border border-cyan-400/15 rounded-sm px-3 py-2 hover:bg-cyan-400/10 transition-colors flex items-center justify-between gap-2 text-slate-200"
+                  className="w-full text-left font-display text-xs border border-cyan-400/15 rounded-lg px-3 py-2 hover:bg-cyan-400/10 transition-colors flex items-center justify-between gap-2 text-slate-200"
                   onClick={() => {
                     const url = s.url!;
                     setUrlInput(url);
@@ -242,9 +242,9 @@ export default function UrlShield() {
                     </div>
                   </div>
 
-                  <div className="mb-6 bg-cyan-950/20 border border-cyan-400/20 p-4 rounded-sm break-all">
-                    <p className="text-xs text-cyan-500 mb-1 font-mono uppercase tracking-widest">Host:</p>
-                    <span className="font-mono text-sm text-cyan-100">{urlResult.analysis.host}</span>
+                  <div className="mb-6 bg-cyan-950/20 border border-cyan-400/20 p-4 rounded-lg break-all">
+                    <p className="text-xs text-cyan-500 mb-1 hud-eyebrow">Host:</p>
+                    <span className="font-code text-sm text-cyan-100">{urlResult.analysis.host}</span>
                   </div>
 
                   {urlResult.analysis.reputation ? (
@@ -275,10 +275,10 @@ export default function UrlShield() {
                           {hasRisks && (
                             <ul className="space-y-3 mb-4">
                               {riskFactors.map(c => (
-                                <li key={c.id} className="flex flex-col p-3 bg-red-950/20 border border-red-900/50 rounded-sm">
+                                <li key={c.id} className="flex flex-col p-3 bg-red-950/20 border border-red-900/50 rounded-lg">
                                   <div className="flex justify-between items-start gap-2 mb-1">
-                                    <span className="font-medium text-slate-200 text-sm font-mono">{c.label}</span>
-                                    <span className="text-risk-high font-mono text-sm font-semibold shrink-0">+{c.points}</span>
+                                    <span className="font-medium text-slate-200 text-sm font-display">{c.label}</span>
+                                    <span className="text-red-400 font-mono text-sm font-semibold shrink-0">+{c.points}</span>
                                   </div>
                                   <p className="text-xs text-slate-400">{c.detail}</p>
                                 </li>
@@ -296,7 +296,7 @@ export default function UrlShield() {
                                 <ul className="space-y-2 mt-3 ml-4 border-l border-cyan-400/20 pl-4">
                                   {safeSignals.map(c => (
                                     <li key={c.id} className="flex flex-col">
-                                      <span className="font-medium text-slate-300 text-xs font-mono">{c.label}</span>
+                                      <span className="font-medium text-slate-300 text-xs font-display">{c.label}</span>
                                       <p className="text-[11px] text-slate-500">{c.detail}</p>
                                     </li>
                                   ))}

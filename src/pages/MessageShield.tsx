@@ -35,12 +35,12 @@ function HighlightedMessage({ text, cues }: { text: string; cues: { word: string
   });
 
   return (
-    <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-300 p-3 bg-black/40 border border-cyan-400/20 rounded-[3px]">
+    <div className="whitespace-pre-wrap font-code text-sm leading-relaxed text-slate-300 p-3 bg-black/40 border border-cyan-400/20 rounded-lg">
       {highlighted.map((segment, i) =>
         segment.severity ? (
           <span
             key={i}
-            className={`font-semibold px-1 rounded-[2px] ${
+            className={`font-semibold px-1 rounded-sm ${
               segment.severity === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
             }`}
           >
@@ -134,9 +134,9 @@ export default function MessageShield() {
                 maxLength={2000}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full h-40 p-3 bg-black/40 text-slate-100 border border-cyan-400/20 rounded-[3px] focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 placeholder:text-slate-600 font-mono text-sm caret-cyan-300 resize-none"
+                className="w-full h-40 p-3 bg-black/40 text-slate-100 border border-cyan-400/20 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500 placeholder:text-slate-600 text-sm resize-none"
               />
-              <div className="text-right text-xs text-slate-500 font-mono mt-1">
+              <div className="text-right hud-eyebrow mt-1">
                 {message.length} / 2000
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function MessageShield() {
           </HudPanel>
 
           <HudPanel title="SAMPLE MESSAGES">
-            <p className="text-xs text-slate-400 mb-3 font-mono uppercase">Load standard vector:</p>
+            <p className="hud-eyebrow mb-3">Load standard vector:</p>
             <div className="flex flex-wrap gap-2">
               {sampleIds.map((id) => {
                 const scenario = getScenario(id);
@@ -162,7 +162,7 @@ export default function MessageShield() {
                     key={id}
                     variant="outline"
                     size="sm"
-                    className="font-mono text-xs uppercase"
+                    className="font-display text-xs uppercase"
                     onClick={() => {
                       setMessage(scenario.message);
                       handleAnalyze(scenario.message);
@@ -174,10 +174,10 @@ export default function MessageShield() {
               })}
             </div>
 
-            <div className="mt-6 pt-4 border-t border-dashed border-cyan-400/15">
+            <div className="mt-6 pt-4 border-t border-cyan-400/15">
               <Link
                 to="/qr?demo=QR002"
-                className="text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 uppercase tracking-wide group w-fit"
+                className="hud-eyebrow text-cyan-400 hover:text-cyan-300 flex items-center gap-1 w-fit"
               >
                 See a safe payment (QR002)
                 <span className="group-hover:translate-x-0.5 transition-transform">→</span>
@@ -202,10 +202,10 @@ export default function MessageShield() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <HudPanel title="SCAM DNA">
-                  <ul aria-label="Scam DNA" className="space-y-2 text-xs font-mono">
+                  <ul aria-label="Scam DNA" className="space-y-2 text-xs font-display">
                     {activeSignals.length === 0 ? (
                       <li className="text-cyan-600/80 uppercase">
-                        [ NO SCAM SIGNALS DETECTED ]
+                        NO SCAM SIGNALS DETECTED
                       </li>
                     ) : (
                       activeSignals.map((signal) => (
@@ -227,11 +227,11 @@ export default function MessageShield() {
                 <HudPanel title="PATTERN DETECT" className="h-full">
                   <div className="text-sm font-semibold mb-2 text-slate-300 hud-label">Detected pattern:</div>
                   {hasPattern ? (
-                    <div className="font-mono text-sm uppercase font-bold text-red-400">
+                    <div className="font-display text-sm uppercase font-bold text-red-400">
                       {primaryPattern}
                     </div>
                   ) : (
-                    <div className="font-mono text-sm uppercase text-slate-400">
+                    <div className="font-display text-sm uppercase text-slate-400">
                       NO SIGNIFICANT SCAM PATTERN
                     </div>
                   )}

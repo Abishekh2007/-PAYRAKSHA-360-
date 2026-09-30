@@ -132,7 +132,7 @@ export default function PaymentAnalyzer() {
     }));
   };
 
-  const inputClasses = "font-mono text-sm bg-black/40 border border-cyan-400/20 rounded-sm px-3 py-2 text-slate-100 focus:border-cyan-300 focus:outline-none w-full";
+  const inputClasses = "text-sm bg-black/40 border border-cyan-400/20 rounded-lg px-3 py-2 text-slate-100 focus:border-cyan-300 focus:outline-none w-full";
 
   const renderRadios = (legend: string, value: boolean | null | undefined, onChange: (val: boolean) => void, name: string) => (
     <fieldset className="flex items-center justify-between py-1">
@@ -146,7 +146,7 @@ export default function PaymentAnalyzer() {
             onChange={() => onChange(true)}
             className="accent-cyan-400"
           />
-          <span className="font-mono text-sm text-slate-200">YES</span>
+          <span className="font-display text-sm text-slate-200">YES</span>
         </label>
         <label className="flex items-center space-x-2 cursor-pointer">
           <input
@@ -156,7 +156,7 @@ export default function PaymentAnalyzer() {
             onChange={() => onChange(false)}
             className="accent-cyan-400"
           />
-          <span className="font-mono text-sm text-slate-200">NO</span>
+          <span className="font-display text-sm text-slate-200">NO</span>
         </label>
       </div>
     </fieldset>
@@ -191,7 +191,7 @@ export default function PaymentAnalyzer() {
                   key={preset.id}
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start text-left font-mono text-xs"
+                  className="w-full justify-start text-left font-display text-xs"
                   onClick={() => applyPreset(preset.id)}
                 >
                   {preset.shortLabel}
@@ -333,7 +333,7 @@ export default function PaymentAnalyzer() {
                 ANALYZE PAYMENT
               </Button>
 
-              <p className="font-mono text-[10px] tracking-[0.16em] text-red-300/80 mt-2">
+              <p className="font-display text-[10px] tracking-widest text-red-400 font-semibold mt-2">
                 NEVER REQUESTS: UPI PIN · OTP · PASSWORD · CVV · CARD NUMBER
               </p>
             </form>
@@ -350,7 +350,7 @@ export default function PaymentAnalyzer() {
                     onChange={(e) => updateBehaviour({ [opt.id]: e.target.checked })}
                     className="rounded accent-cyan-400"
                   />
-                  <span className="font-mono text-xs text-slate-300">{opt.label}</span>
+                  <span className="font-display text-xs text-slate-300">{opt.label}</span>
                 </label>
               ))}
             </div>
@@ -381,7 +381,7 @@ export default function PaymentAnalyzer() {
                             <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
                           )}
                         </div>
-                        <span className={`text-sm font-mono ${animationStep > idx ? 'text-slate-400' : 'text-slate-100'}`}>{step}</span>
+                        <span className={`text-sm font-display ${animationStep > idx ? 'text-slate-400' : 'text-slate-100'}`}>{step}</span>
                       </div>
                     ))}
                   </div>
@@ -395,7 +395,7 @@ export default function PaymentAnalyzer() {
               ) : result ? (
                 <>
                   <SimulationBadge />
-                  <h3 className="hud-title mb-4 mt-2 border-b border-dashed border-cyan-400/15 pb-2">CONTEXTUAL RISK</h3>
+                  <h3 className="hud-title mb-4 mt-2 border-b border-cyan-400/15 pb-2">CONTEXTUAL RISK</h3>
 
                   <RiskResultView
                     report={result.report}
