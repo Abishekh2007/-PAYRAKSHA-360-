@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { RiskReport } from '../types';
 import { PageShell } from '../components/layout';
-import { SectionHeader, SimulationBadge, GlassCard, RiskGauge, Button } from '../components/ui';
+import { Button, RiskGauge } from '../components/ui';
 import { runSignalsConnected } from '../engine';
+import { HudPanel, ScamConstellation, NextMoveCard, socToneForLevel, SOC_TONES } from '../components/soc';
 
 export default function SignalsConnected() {
   const seq = useMemo(() => runSignalsConnected(), []);
@@ -11,7 +13,7 @@ export default function SignalsConnected() {
   useEffect(() => {
     if (playing) {
       const timer = setInterval(() => {
-        setActiveStep(prev => {
+        setActiveStep((prev) => {
           if (prev >= seq.steps.length - 1) {
             return prev;
           }
@@ -30,7 +32,7 @@ export default function SignalsConnected() {
 
   const addNextSignal = () => {
     if (activeStep < seq.steps.length - 1) {
-      setActiveStep(prev => prev + 1);
+      setActiveStep((prev) => prev + 1);
     }
   };
 
@@ -46,11 +48,25 @@ export default function SignalsConnected() {
     setPlaying(false);
   };
 
-  return (
-    <PageShell title="Signals Connected" actions={<SimulationBadge />}>
-      <SectionHeader title="SIGNALS CONNECTED" />
+  // The active report is the report of the latest revealed step (null when none revealed)
+  const activeReport: RiskReport | null =
+    activeStep >= 0 ? seq.steps[activeStep].report : null;
 
-      <div className="flex flex-wrap gap-4 mt-6 mb-12">
+  const revealedCount = activeStep + 1;
+
+  return (
+    <PageShell title="Signals Connected">
+      {/* Page heading keeps the literal text "SIGNALS CONNECTED" */}
+      <h2 className="hud-title mb-2 text-cyan-300">SIGNALS CONNECTED</h2>
+      <p className="hud-label mb-1 text-slate-500">
+        INTELLIGENCE · SIMULATION
+      </p>
+      <p className="hud-label mb-4 text-slate-500">
+        LINKED {revealedCount}/{seq.steps.length}
+      </p>
+
+      {/* Controls */}
+      <div className="flex flex-wrap gap-3 mb-6">
         <Button
           onClick={addNextSignal}
           disabled={activeStep >= seq.steps.length - 1 || playing}
@@ -69,59 +85,76 @@ export default function SignalsConnected() {
         </Button>
       </div>
 
-      <div className="relative">
-        {/* Background dark line */}
-        <div className="absolute left-[15px] top-0 bottom-0 w-[2px] bg-slate-800" />
+      {/* Main grid */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        {/* Left: Signal ladder — lg:col-span-5 */}
+        <div className="lg:col-span-5">
+          <HudPanel eyebrow="SIGNAL LADDER · SIMULATION" title="CUMULATIVE RISK SIGNALS" bodyClassName="p-3">
+            <div className="flex flex-col gap-2">
+              {seq.steps.map((step, i) => {
+                const revealed = i <= activeStep;
+                const tone = socToneForLevel(step.report.level);
+                const toneClasses = SOC_TONES[tone];
 
-        {/* Lit up line for active progress */}
-        {activeStep >= 0 && (
-          <div
-            className="absolute left-[15px] top-0 w-[2px] bg-brand-500 shadow-[0_0_8px_#38bdf8] transition-all duration-700 ease-in-out"
-            style={{ height: `${(activeStep / (seq.steps.length - 1)) * 100}%` }}
-          />
-        )}
+                return (
+                  <div
+                    key={step.id}
+                    className={`flex items-center gap-3 rounded-sm border px-3 py-2 transition-all duration-500 ${
+                      revealed
+                        ? `${toneClasses.border} ${toneClasses.bg} opacity-100`
+                        : 'border-slate-700/30 bg-slate-800/20 opacity-30'
+                    }`}
+                  >
+                    {/* Step label */}
+                    <div className="flex-1 min-w-0">
+                      <p className={`hud-label truncate ${revealed ? toneClasses.text : 'text-slate-500'}`}>
+                        {step.label}
+                      </p>
+                      <p className={`hud-label text-xs mt-0.5 ${revealed ? 'text-slate-400' : 'text-slate-600'}`}>
+                        {step.report.patternName}
+                      </p>
+                    </div>
 
-        <div className="relative z-10 flex flex-col gap-12">
-          {seq.steps.map((step, i) => {
-            const revealed = i <= activeStep;
-            const delta = i === 0 ? null : step.report.score - seq.steps[i - 1].report.score;
+                    {/* Risk gauge (role=meter, aria-valuenow=score) */}
+                    <div className="flex-shrink-0">
+                      <RiskGauge
+                        score={step.report.score}
+                        level={step.report.level}
+                        size={64}
+                        showLabel={false}
+                      />
+                    </div>
 
-            return (
-              <div
-                key={step.id}
-                className={`flex gap-6 items-center transition-all duration-500 ${
-                  revealed ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'
-                }`}
-              >
-                {/* Node */}
-                <div
-                  className={`w-[32px] h-[32px] flex-shrink-0 rounded-full border-4 border-slate-900 transition-colors duration-500 ${
-                    revealed ? 'bg-brand-500 shadow-[0_0_12px_#38bdf8]' : 'bg-slate-700'
-                  }`}
-                />
-
-                <GlassCard className="flex-1 flex items-center justify-between">
-                  <div>
-                    <div className="text-xl font-bold">{step.label}</div>
-                    {delta !== null && (
-                      <div className="text-brand-300 mt-1 font-mono text-sm">
-                        +{delta} points combined
-                      </div>
-                    )}
+                    {/* RISK score label */}
+                    <div className="flex-shrink-0 text-right w-16">
+                      <span className={`hud-num text-sm font-bold ${toneClasses.text}`}>
+                        RISK {step.report.score}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <RiskGauge score={step.report.score} level={step.report.level} size={100} showLabel={false} />
-                    <div className="text-sm font-bold mt-2">{step.report.levelLabel}</div>
-                  </div>
-                </GlassCard>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </HudPanel>
+        </div>
+
+        {/* Right: Constellation + Next Move — lg:col-span-7 */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <HudPanel
+            eyebrow="SIGNAL CONSTELLATION"
+            title="ACTIVE THREAT INTELLIGENCE"
+            bodyClassName="p-4"
+          >
+            <ScamConstellation report={activeReport} />
+          </HudPanel>
+
+          <NextMoveCard report={activeReport} />
         </div>
       </div>
 
+      {/* Final text — shown only when all steps are revealed */}
       {activeStep === seq.steps.length - 1 && (
-        <div className="mt-12 p-6 border border-brand-500/30 rounded bg-brand-500/10 text-brand-100 font-bold text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="mt-6 p-4 border border-cyan-400/20 rounded-sm bg-cyan-400/5 text-slate-200 text-sm text-center">
           {seq.finalText}
         </div>
       )}

@@ -54,4 +54,22 @@ describe('SignalsConnected', () => {
 
     expect(screen.getByText('PAYRAKSHA does not rely on one indicator. Risk increases when multiple contextual signals appear together.')).toBeInTheDocument();
   });
+
+  it('after revealing all steps scam-constellation has stars and next-move-likelihood exists', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<SignalsConnected />);
+
+    const seq = runSignalsConnected();
+    const addBtn = screen.getByRole('button', { name: 'ADD NEXT SIGNAL' });
+
+    for (let i = 0; i < seq.steps.length; i++) {
+      await user.click(addBtn);
+    }
+
+    const constellation = screen.getByTestId('scam-constellation');
+    const stars = constellation.querySelectorAll('[data-testid^="star-"]');
+    expect(stars.length).toBeGreaterThan(0);
+
+    expect(screen.getByTestId('next-move-likelihood')).toBeInTheDocument();
+  });
 });
