@@ -20,6 +20,22 @@ describe('ScamLab', () => {
         const scenariosList = labScenarios();
         expect(cards.length).toBe(scenariosList.length);
 
+        for (const s of scenariosList) {
+            const report = runScenarioLocal(s.id);
+            expect(screen.getAllByText(`${report.attackChain.length} BEATS`).length).toBeGreaterThan(0);
+        }
+
+        const { getScenario } = await import('../engine');
+        const legitScen = getScenario('legit_utility');
+        const scamScen = getScenario('utility_scam');
+
+        const legitRowText = screen.getByText(legitScen.labLabel || legitScen.title).closest('tr')?.textContent;
+        expect(legitRowText).toMatch(/SHOULD PASS/);
+
+        const scamRowCells = screen.getAllByRole('cell', { name: scamScen.labLabel || scamScen.title });
+        const scamRow = scamRowCells[0].closest('tr');
+        expect(scamRow?.textContent).toMatch(/✓ MATCH/);
+
         const targetScenario = scenariosList.find(s => (s.labLabel || s.title).includes('Customer Care')) || scenariosList[0];
 
         const btn = screen.getByRole('button', { name: new RegExp(`RUN IN LAB.*${targetScenario.labLabel || targetScenario.title}`, 'i') });
