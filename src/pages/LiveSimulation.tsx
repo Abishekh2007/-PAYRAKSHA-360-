@@ -255,7 +255,7 @@ export default function LiveSimulation() {
                 </svg>
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-600">
+                  <span className="text-sm font-semibold tracking-wide text-slate-600">
                     AWAITING DATA
                   </span>
                 </div>

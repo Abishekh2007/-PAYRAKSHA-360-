@@ -302,7 +302,7 @@ export default function LiveProtection() {
         <StatusPill tone={phase === 'idle' ? 'green' : phase === 'scanning' ? 'amber' : 'cyan'} pulse={phase === 'scanning'}>
           {statusText}
         </StatusPill>
-        <span className="font-mono text-[10px] text-slate-500 uppercase tracking-[0.14em]">{healthText}</span>
+        <span className="hud-eyebrow">{healthText}</span>
       </div>
 
       {/* KPI strip */}
@@ -345,44 +345,44 @@ export default function LiveProtection() {
               </div>
               <div>
                 <p className="hud-label mb-0.5">Handle</p>
-                <p className="font-mono text-[11px] text-cyan-300">{activeEvent.handle}</p>
+                <p className="font-mono text-sm text-cyan-300">{activeEvent.handle}</p>
               </div>
               {activeEvent.amount !== null && (
                 <div>
                   <p className="hud-label mb-0.5">Amount</p>
-                  <p className="font-mono text-[11px] text-slate-200">₹{activeEvent.amount.toLocaleString('en-IN')} <span className="text-slate-500">(DEMO)</span></p>
+                  <p className="font-mono text-sm text-slate-200">₹{activeEvent.amount.toLocaleString('en-IN')} <span className="text-slate-500">(DEMO)</span></p>
                 </div>
               )}
               <div>
                 <p className="hud-label mb-0.5">Risk Score</p>
-                <p className="font-mono text-[13px] font-semibold text-red-400">
+                <p className="font-mono text-lg font-semibold text-red-400">
                   RISK {activeEvent.score}
                 </p>
               </div>
               <div>
                 <p className="hud-label mb-0.5">Status</p>
-                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-300">
+                <p className="text-xs uppercase tracking-wider text-slate-300">
                   {activeEvent.status === 'HELD' ? 'HELD FOR REVIEW' : activeEvent.status === 'CHECK' ? 'CHECK BEFORE PAYING' : 'LOW RISK'}
                 </p>
               </div>
               {activeEvent.report.patternName && (
                 <div>
                   <p className="hud-label mb-0.5">Pattern</p>
-                  <p className="font-mono text-[10px] text-slate-300">{activeEvent.report.patternName}</p>
+                  <p className="text-sm text-slate-300">{activeEvent.report.patternName}</p>
                 </div>
               )}
               {activeEvent.report.dna
                 .filter((strand) => strand.severity !== 'none')
                 .slice(0, 4)
                 .map((strand) => (
-                  <p key={strand.key} className="font-mono text-[10px] text-amber-300/80">
-                    ▸ {strand.label}
+                  <p key={strand.key} className="text-sm text-amber-300/80">
+                    • {strand.label}
                   </p>
                 ))}
-              <p className="font-mono text-[9px] text-cyan-400/40 uppercase tracking-[0.18em] mt-1">SIMULATION</p>
+              <p className="text-[10px] text-cyan-400/40 uppercase tracking-widest mt-1">SIMULATION</p>
             </div>
           ) : (
-            <p className="font-mono text-[10px] text-slate-500 uppercase">No contact selected</p>
+            <p className="text-sm text-slate-500">No contact selected</p>
           )}
         </HudPanel>
       </div>
@@ -403,8 +403,8 @@ export default function LiveProtection() {
               className="flex flex-col items-center gap-2 py-4 text-center"
             >
               <span className="text-2xl">{card.emoji}</span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.14em]">{card.label}</span>
-              <span className="text-[10px] text-slate-400 normal-case font-sans">{card.desc}</span>
+              <span className="hud-eyebrow">{card.label}</span>
+              <span className="text-xs text-slate-400 normal-case font-sans">{card.desc}</span>
             </ButtonLink>
           ))}
         </div>
@@ -443,20 +443,16 @@ export default function LiveProtection() {
               role="log"
               aria-label="Live event stream"
               aria-live="polite"
-              className="bg-black/60 border border-cyan-400/10 rounded-sm p-3 font-mono text-[11px]"
+              className="hud-panel p-4"
             >
-              <ol>
+              <ol className="space-y-1 text-sm">
                 {scanEvents.map((ev, i) => (
-                  <li key={i} className="flex items-start gap-2 py-0.5">
+                  <li key={i} className="flex flex-wrap items-start gap-2 py-0.5">
                     <span className="text-green-400">✓</span>
-                    <span className="text-slate-400">{ev.timestamp} — {ev.text}</span>
+                    <span className="text-slate-400 font-mono">{ev.timestamp} — </span>
+                    <span className="text-slate-300">{ev.text}</span>
                   </li>
                 ))}
-                {phase === 'scanning' && !reducedMotion && (
-                  <li className="flex items-start gap-2 py-0.5">
-                    <span className="text-cyan-400 animate-blink">▋</span>
-                  </li>
-                )}
               </ol>
             </div>
           )}
@@ -466,7 +462,7 @@ export default function LiveProtection() {
             <div
               data-testid="risk-result"
               data-score={result.report.score}
-              className="flex flex-col gap-4 border border-dashed border-cyan-400/20 rounded-sm p-4"
+              className="flex flex-col gap-4 hud-panel p-4"
             >
               <div className="flex items-center gap-2">
                 <span className="hud-label">RISK SCORE</span>

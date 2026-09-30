@@ -138,7 +138,7 @@ export default function Dashboard() {
 
                 {selectedReport && (
                   <>
-                    <div className="hud-rule" />
+                    <div className="border-t border-white/10" />
                     <div className="space-y-1">
                       <p className="hud-eyebrow">RECIPIENT</p>
                       <p className="font-mono text-xs text-slate-300">
@@ -154,10 +154,10 @@ export default function Dashboard() {
 
                     {selectedReport.explanation.reasons.length > 0 && (
                       <>
-                        <div className="hud-rule" />
+                        <div className="border-t border-white/10" />
                         <ul className="space-y-1">
                           {selectedReport.explanation.reasons.slice(0, 3).map((reason, i) => (
-                            <li key={i} className="flex gap-2 font-mono text-[11px] text-slate-400">
+                            <li key={i} className="flex gap-2 text-sm text-slate-300">
                               <span className="text-cyan-400 shrink-0">▸</span>
                               <span>{reason}</span>
                             </li>
@@ -193,18 +193,18 @@ export default function Dashboard() {
                   type="button"
                   aria-pressed={selectedId === 'analysis-current'}
                   onClick={() => handleRowClick('analysis-current')}
-                  className={`w-full px-4 py-2.5 text-left font-mono text-xs transition-colors hover:bg-cyan-400/5 ${
+                  className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-cyan-400/5 ${
                     selectedId === 'analysis-current'
                       ? 'border-l-2 border-cyan-400 bg-cyan-400/10'
                       : 'border-l-2 border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3 flex-wrap min-w-0">
-                    <span className="text-slate-500 shrink-0">{istTime(current.at)} IST</span>
+                    <span className="text-slate-500 shrink-0 font-mono">{istTime(current.at)} IST</span>
                     <span className="chip bg-cyan-400/10 border-cyan-400/30 text-cyan-300 text-[10px]">YOUR LAST ANALYSIS</span>
                     <span className="text-slate-300 truncate flex-1">{current.label}</span>
-                    <span className="text-slate-500 shrink-0">{current.report.payment.recipient ?? 'unknown@demo'}</span>
-                    <span className={`font-semibold shrink-0 ${SOC_TONES[socToneForLevel(current.report.level)].text}`}>
+                    <span className="text-slate-500 shrink-0 font-mono">{current.report.payment.recipient ?? 'unknown@demo'}</span>
+                    <span className={`font-semibold font-mono shrink-0 ${SOC_TONES[socToneForLevel(current.report.level)].text}`}>
                       RISK {current.report.score}
                     </span>
                     <StatusPill tone={socToneForLevel(current.report.level)}>
@@ -230,18 +230,18 @@ export default function Dashboard() {
                     type="button"
                     aria-pressed={isSelected}
                     onClick={() => handleRowClick(ev.id)}
-                    className={`w-full px-4 py-2.5 text-left font-mono text-xs transition-colors hover:bg-cyan-400/5 ${
+                    className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-cyan-400/5 ${
                       isSelected
                         ? 'border-l-2 border-cyan-400 bg-cyan-400/10'
                         : 'border-l-2 border-transparent'
                     }`}
                   >
                     <div className="flex items-center gap-3 flex-wrap min-w-0">
-                      <span className="text-slate-500 shrink-0">{ev.time} IST</span>
+                      <span className="text-slate-500 shrink-0 font-mono">{ev.time} IST</span>
                       <span className="chip bg-slate-700/50 border-slate-600/40 text-slate-300 text-[10px] shrink-0">{ev.channel}</span>
                       <span className="text-slate-300 truncate flex-1">{ev.title}</span>
-                      <span className="text-slate-500 shrink-0 truncate max-w-[120px]">{ev.handle}</span>
-                      <span className={`font-semibold shrink-0 ${SOC_TONES[tone].text}`}>RISK {ev.score}</span>
+                      <span className="text-slate-500 shrink-0 truncate max-w-[120px] font-mono">{ev.handle}</span>
+                      <span className={`font-semibold font-mono shrink-0 ${SOC_TONES[tone].text}`}>RISK {ev.score}</span>
                       <StatusPill tone={tone}>{STATUS_LABEL[ev.status]}</StatusPill>
                     </div>
                   </button>
@@ -268,9 +268,9 @@ export default function Dashboard() {
                 return (
                   <div key={ch} className="flex items-center gap-2">
                     <span className="hud-label w-20 shrink-0 text-right">{ch}</span>
-                    <div className="flex-1 h-3 bg-slate-800 rounded-sm overflow-hidden">
+                    <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-cyan-400/40 rounded-sm"
+                        className="h-full bg-cyan-400/40 rounded-full"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -300,11 +300,11 @@ export default function Dashboard() {
                   return (
                     <li
                       key={record.id}
-                      className="flex items-center gap-3 font-mono text-xs py-1 border-b border-cyan-400/10 last:border-0"
+                      className="flex items-center gap-3 text-sm py-2 border-b border-white/5 last:border-0"
                     >
-                      <span className="text-slate-500 shrink-0">{istTime(record.at)} IST</span>
+                      <span className="text-slate-500 shrink-0 font-mono">{istTime(record.at)} IST</span>
                       <span className="text-slate-300 truncate flex-1">{record.label}</span>
-                      <span className={`font-semibold shrink-0 ${SOC_TONES[tone].text}`}>
+                      <span className={`font-semibold font-mono shrink-0 ${SOC_TONES[tone].text}`}>
                         RISK {record.report.score}
                       </span>
                       <StatusPill tone={tone}>{record.report.levelLabel}</StatusPill>
