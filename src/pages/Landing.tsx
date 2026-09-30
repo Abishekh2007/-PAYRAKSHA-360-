@@ -1,174 +1,276 @@
-import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { QrCode, MessageSquare, Link as LinkIcon, HandCoins, Dna, GitBranch, Lightbulb, FlaskConical, UserCheck, Accessibility, ShieldAlert, Shield } from 'lucide-react';
-import { SimulationBadge, GlassCard, Button, ButtonLink } from '../components/ui';
+import {
+  QrCode,
+  MessageSquare,
+  Link as LinkIcon,
+  HandCoins,
+  Dna,
+  GitBranch,
+  Lightbulb,
+  FlaskConical,
+  UserCheck,
+  Accessibility,
+  ShieldAlert,
+  Shield,
+} from 'lucide-react';
+import { ButtonLink } from '../components/ui';
 import { RiskScoreCard } from '../components/risk';
-import { HeroScene } from '../components/three';
-import { FLAGSHIP_SCENARIO_ID, runScenarioLocal, FACTOR_KEYS, scenarios } from '../engine';
+import {
+  HudPanel,
+  StatusPill,
+  ThreatLevel,
+  KpiTile,
+  simulatedFeed,
+  socToneForLevel,
+  SOC_TONES,
+} from '../components/soc';
+import { PaymentTwin } from '../components/soc';
+import { flagshipReport } from '../store/demoStore';
+import { scenarios, FACTOR_KEYS } from '../engine';
+
+const PIPELINE_STEPS = [
+  { emoji: '📱', id: 'MESSAGE', label: 'MESSAGE', desc: 'Suspicious contact signal' },
+  { emoji: '🌐', id: 'LINK', label: 'LINK', desc: 'URL reputation check' },
+  { emoji: '📷', id: 'QR', label: 'QR', desc: 'QR destination scan' },
+  { emoji: '🧠', id: 'CONTEXT', label: 'CONTEXT ENGINE', desc: 'Behavioural context' },
+  { emoji: '🚨', id: 'RISK', label: 'RISK SCORE', desc: 'Explainable score' },
+  { emoji: '🛡️', id: 'DECISION', label: 'DECISION', desc: 'Hold / Pass verdict' },
+];
+
+const CAPABILITY_TILES = [
+  { icon: QrCode, to: '/qr', title: 'QR Scanner', desc: 'Decode QR before paying' },
+  { icon: MessageSquare, to: '/message', title: 'Message Analysis', desc: 'Context from text signals' },
+  { icon: LinkIcon, to: '/url', title: 'URL Checks', desc: 'Link reputation scoring' },
+  { icon: HandCoins, to: '/payment', title: 'Payment Context', desc: 'Pressure pattern detection' },
+  { icon: Dna, to: '/dna', title: 'Scam DNA', desc: 'Pattern fingerprinting' },
+  { icon: GitBranch, to: '/attack-chain', title: 'Attack Chain', desc: 'Multi-step threat map' },
+  { icon: Lightbulb, to: '/what-if', title: 'What-If Scenarios', desc: 'Counterfactual reasoning' },
+  { icon: FlaskConical, to: '/lab', title: 'Scam Lab', desc: 'Simulate threat inputs' },
+  { icon: UserCheck, to: '/trusted', title: 'Trusted Contacts', desc: 'Second-opinion alerts' },
+  { icon: Accessibility, to: '/elder', title: 'Elder Mode', desc: 'Simplified safety UX' },
+  { icon: ShieldAlert, to: '/threat-intel', title: 'Threat Intelligence', desc: 'Live pattern intel' },
+  { icon: Shield, to: '/privacy', title: 'Privacy Controls', desc: 'On-device only processing' },
+];
+
+function LevelColorText({ level, score }: { level: string; score: number }) {
+  const tone = socToneForLevel(level);
+  const t = SOC_TONES[tone];
+  return <span className={`font-mono text-xs font-semibold ${t.text}`}>RISK {score}</span>;
+}
 
 export default function Landing() {
   const shouldReduceMotion = useReducedMotion();
-  const report = runScenarioLocal(FLAGSHIP_SCENARIO_ID);
+  const flagship = flagshipReport();
+  const now = Date.now();
+  const feed = simulatedFeed({ now, count: 6 });
 
-  const modules = [
-    { to: '/qr', icon: QrCode, text: 'QR Scanner' },
-    { to: '/message', icon: MessageSquare, text: 'Message Analysis' },
-    { to: '/url', icon: LinkIcon, text: 'URL Checks' },
-    { to: '/payment', icon: HandCoins, text: 'Payment Context' },
-    { to: '/dna', icon: Dna, text: 'Scam DNA' },
-    { to: '/attack-chain', icon: GitBranch, text: 'Attack Chain' },
-    { to: '/what-if', icon: Lightbulb, text: 'What-If Scenarios' },
-    { to: '/lab', icon: FlaskConical, text: 'Scam Lab' },
-    { to: '/trusted', icon: UserCheck, text: 'Trusted Contacts' },
-    { to: '/elder', icon: Accessibility, text: 'Elder Mode' },
-    { to: '/threat-intel', icon: ShieldAlert, text: 'Threat Intelligence' },
-    { to: '/privacy', icon: Shield, text: 'Privacy Controls' },
-  ];
+  const fadeIn = (delay: number) =>
+    shouldReduceMotion ? {} : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { delay } };
 
-  const animateProps = shouldReduceMotion ? {} : {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 }
-  };
-  const animateFadeProp = shouldReduceMotion ? {} : {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 }
-  };
+  const fadeOnly = (delay: number) =>
+    shouldReduceMotion ? {} : { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay } };
 
   return (
-    <div className="landing-page max-w-[360px] md:max-w-none mx-auto md:w-full overflow-x-hidden">
-      <section className="hero flex flex-col md:flex-row gap-8 py-16 px-4 md:px-8">
-        <div className="flex-1">
-          <motion.h1
-            {...animateProps}
-            className="text-4xl md:text-6xl font-display font-bold mb-4"
-          >
-            PAYRAKSHA 360
-          </motion.h1>
-          <motion.p className="text-xl mb-2" {...animateFadeProp} transition={{ delay: 0.1 }}>
-            Think Before You Pay.
-          </motion.p>
-          <motion.p className="text-lg text-neutral-400 mb-6" {...animateFadeProp} transition={{ delay: 0.2 }}>
-            An Explainable AI Pre-Payment Scam Defense System
-          </motion.p>
-
-          <motion.div className="flex flex-col gap-4 mb-8" {...animateFadeProp} transition={{ delay: 0.3 }}>
-            <blockquote className="font-display font-semibold text-2xl md:text-4xl text-white">
-              <p>Don't detect fraud after the loss.</p>
-              <p className="text-brand-400 mt-2">Understand the risk before the payment.</p>
-            </blockquote>
-            <p className="text-neutral-400 max-w-2xl mt-4">
-              An explainable, privacy-conscious pre-payment safety layer that analyzes suspicious signals surrounding digital payments before money is sent.
-            </p>
-            <p className="text-sm tracking-[0.2em] text-neutral-500 uppercase mt-4">Pause. Understand. Pay Safely.</p>
-          </motion.div>
-
-          <motion.div className="flex flex-col gap-4" {...animateFadeProp} transition={{ delay: 0.4 }}>
-            <div className="flex flex-wrap gap-4">
-              <ButtonLink to="/simulation" variant="danger">🚨 TRY LIVE DEMO</ButtonLink>
-              <ButtonLink to="/qr" icon={<QrCode />} variant="primary">SCAN QR</ButtonLink>
-              <ButtonLink to="/technology" variant="outline">EXPLORE TECHNOLOGY</ButtonLink>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <ButtonLink to="/judge" variant="primary" size="sm">🏆 JUDGE MODE</ButtonLink>
-              <ButtonLink to="/message" icon={<MessageSquare />} variant="primary" size="sm">ANALYZE MESSAGE</ButtonLink>
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="flex-1 min-h-[300px]">
-          <HeroScene />
-        </div>
-      </section>
-
-      <section className="px-4 md:px-8 mb-16">
-        <GlassCard>
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="flex-1">
-              <p className="text-sm text-neutral-400 mb-2">QR001 · Electricity bill · ₹1,999 via WhatsApp (demo)</p>
-              <RiskScoreCard report={report} />
-            </div>
-            <div>
-              <ButtonLink to="/qr?demo=QR001" variant="outline">See it in QR Shield</ButtonLink>
-            </div>
-          </div>
-        </GlassCard>
-      </section>
-
-      <section className="px-4 md:px-8 mb-16 overflow-x-auto">
-        <motion.div
-          className="flex gap-4 min-w-max text-center"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={{
-            visible: { transition: { staggerChildren: 0.1 } }
-          }}
-        >
-          {['Signals', 'Contextual Risk Engine', 'Scam Pattern', 'Explainable Score', 'Scam DNA', 'Attack Chain', 'Safe Action'].map((step, i) => (
-            <motion.div
-              key={step}
-              className="flex items-center"
-              variants={shouldReduceMotion ? {} : {
-                hidden: { opacity: 0, x: -20 },
-                visible: { opacity: 1, x: 0 }
-              }}
-            >
-              <div className="p-4 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center whitespace-nowrap">
-                {step}
-              </div>
-              {i < 6 && <span className="mx-4 text-neutral-600">→</span>}
+    <div className="max-w-7xl mx-auto px-4">
+      {/* ─── 1. HERO ─────────────────────────────────────────────────────── */}
+      <section className="py-12">
+        <div className="grid gap-6 lg:grid-cols-12">
+          {/* Left: copy + CTAs */}
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            <motion.div {...fadeIn(0)}>
+              <p className="hud-eyebrow mb-3">// PRE-PAYMENT THREAT DEFENSE · SIMULATION</p>
+              <h1
+                aria-label="PAYRAKSHA 360"
+                className="font-mono text-5xl md:text-7xl font-bold text-white leading-none tracking-tight"
+              >
+                PAYRAKSHA{' '}
+                <span className="text-cyan-300 hud-glow">360</span>
+              </h1>
             </motion.div>
-          ))}
-        </motion.div>
-      </section>
 
-      <section className="px-4 md:px-8 mb-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {modules.map(mod => (
-            <Link key={mod.to} to={mod.to} className="block group">
-              <GlassCard className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-neutral-800 transition-colors">
-                <mod.icon className="w-8 h-8 mb-4 opacity-70 group-hover:opacity-100 transition-all" />
-                <span className="text-sm font-medium">{mod.text}</span>
-              </GlassCard>
-            </Link>
-          ))}
+            <motion.div {...fadeOnly(0.1)}>
+              <p className="text-xl text-white font-semibold">Think Before You Pay.</p>
+              <p className="text-lg text-slate-400 mt-1">An Explainable AI Pre-Payment Scam Defense System</p>
+            </motion.div>
+
+            <motion.div {...fadeOnly(0.2)} className="space-y-3">
+              <blockquote className="font-mono font-semibold text-xl md:text-2xl text-white">
+                <p>Don&apos;t detect fraud after the loss.</p>
+                <p className="text-cyan-300 mt-2">Understand the risk before the payment.</p>
+              </blockquote>
+              <p className="text-sm text-slate-300 max-w-2xl">
+                An explainable, privacy-conscious pre-payment safety layer that analyzes suspicious signals surrounding
+                digital payments before money is sent.
+              </p>
+              <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
+                Pause. Understand. Pay safely.
+              </p>
+            </motion.div>
+
+            {/* CTA links */}
+            <motion.div {...fadeOnly(0.3)} className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-3">
+                <ButtonLink to="/simulation" variant="danger">🚨 TRY LIVE DEMO</ButtonLink>
+                <ButtonLink to="/qr" icon={<QrCode />} variant="primary">SCAN QR</ButtonLink>
+                <ButtonLink to="/technology" variant="outline">EXPLORE TECHNOLOGY</ButtonLink>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <ButtonLink to="/judge" variant="primary" size="sm">🏆 JUDGE MODE</ButtonLink>
+                <ButtonLink to="/message" icon={<MessageSquare />} variant="primary" size="sm">ANALYZE MESSAGE</ButtonLink>
+              </div>
+            </motion.div>
+
+            {/* KPI strip */}
+            <motion.div {...fadeOnly(0.4)} className="grid grid-cols-3 gap-3">
+              <KpiTile label="REAL PAYMENTS" value="0 real payments" tone="green" hint="SIMULATION ONLY" />
+              <KpiTile label="DEMO SCENARIOS" value={`${scenarios.length} DEMO scenarios`} tone="cyan" hint="ALL SIMULATED" />
+              <KpiTile label="ENGINES" value="Browser + API engines" tone="violet" hint="IN-BROWSER FIRST" />
+            </motion.div>
+          </div>
+
+          {/* Right: live threat console panel */}
+          <motion.div className="lg:col-span-5" {...fadeIn(0.2)}>
+            <HudPanel
+              eyebrow="MONITOR · SIMULATION"
+              title="LIVE THREAT CONSOLE"
+              tone="red"
+              right={
+                <StatusPill tone="red" pulse>
+                  LIVE · SIMULATION
+                </StatusPill>
+              }
+              bodyClassName="p-4 relative overflow-hidden"
+            >
+              {/* Scan line (none under reduced motion) */}
+              {!shouldReduceMotion && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 top-0 h-px bg-cyan-400/30 animate-scan z-10"
+                />
+              )}
+
+              <div className="mb-3">
+                <ThreatLevel level="HIGH" score={92} />
+              </div>
+
+              <ol aria-label="Live threat console feed" className="space-y-1.5 text-xs">
+                {feed.map((evt) => {
+                  const tone = socToneForLevel(evt.level);
+                  const t = SOC_TONES[tone];
+                  return (
+                    <li
+                      key={evt.id}
+                      className="flex items-center gap-2 border border-cyan-400/10 rounded-sm px-2 py-1.5 bg-slate-900/40"
+                    >
+                      <span className="font-mono text-slate-500 shrink-0">{evt.time}</span>
+                      <span className={`font-mono text-[10px] px-1 py-0.5 rounded-sm border shrink-0 ${t.text} ${t.border} ${t.bg}`}>
+                        {evt.channel}
+                      </span>
+                      <span className="font-mono text-slate-300 truncate flex-1 min-w-0">{evt.title}</span>
+                      <LevelColorText level={evt.level} score={evt.score} />
+                    </li>
+                  );
+                })}
+              </ol>
+            </HudPanel>
+          </motion.div>
         </div>
       </section>
 
-      <section className="px-4 md:px-8 mb-16">
-        <div className="flex justify-center flex-wrap gap-8 py-8 bg-neutral-900/50 rounded-xl">
-          <div className="text-center">
-            <p className="text-4xl font-mono font-bold text-brand-400">{scenarios.length}</p>
-            <p className="text-sm text-neutral-400 mt-2">Demo Scenarios</p>
+      {/* ─── 2. HOW PAYRAKSHA THINKS ─────────────────────────────────────── */}
+      <section className="mb-12">
+        <HudPanel eyebrow="ANALYSIS PIPELINE · SIMULATION" title="HOW PAYRAKSHA THINKS" bodyClassName="p-4">
+          <div className="flex flex-wrap gap-3 justify-center items-center">
+            {PIPELINE_STEPS.map((step, i) => (
+              <div key={step.id} className="flex items-center gap-3">
+                <div className="hud-panel px-3 py-2 text-center min-w-[80px]">
+                  <div className="text-lg" aria-hidden="true">{step.emoji}</div>
+                  <div className="hud-label mt-1">{step.label}</div>
+                  <div className="font-mono text-[10px] text-slate-500 mt-0.5">{step.desc}</div>
+                </div>
+                {i < PIPELINE_STEPS.length - 1 && (
+                  <svg
+                    aria-hidden="true"
+                    width="24"
+                    height="12"
+                    viewBox="0 0 24 12"
+                    className="shrink-0 text-cyan-400/60"
+                  >
+                    <line
+                      x1="0"
+                      y1="6"
+                      x2="24"
+                      y2="6"
+                      stroke="currentColor"
+                      strokeWidth="1"
+                      strokeDasharray="6 6"
+                      className={shouldReduceMotion ? '' : 'animate-dash-flow'}
+                    />
+                  </svg>
+                )}
+              </div>
+            ))}
           </div>
-          <div className="text-center">
-            <p className="text-4xl font-mono font-bold text-brand-400">{FACTOR_KEYS.length}</p>
-            <p className="text-sm text-neutral-400 mt-2">Risk Factors</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-mono font-bold text-brand-400">0 real payments</p>
-          </div>
-        </div>
+        </HudPanel>
       </section>
 
-      <section className="px-4 md:px-8 mb-16 text-center">
-        <div className="inline-flex flex-col sm:flex-row items-center gap-3 p-4 rounded-xl bg-neutral-900/40 border border-neutral-800">
-          <SimulationBadge />
-          <span className="text-sm text-neutral-300">
-            No real payments. No UPI PIN, OTP or password requests. No bank connections.
-          </span>
-        </div>
+      {/* ─── 3. FLAGSHIP CASE ────────────────────────────────────────────── */}
+      <section className="mb-12">
+        <HudPanel eyebrow="FLAGSHIP CASE · SIMULATION" title="QR001 · ELECTRICITY BILL SCAM" bodyClassName="p-4">
+          <p className="text-sm text-slate-400 mb-4">QR001 · Electricity bill · ₹1,999 via WhatsApp (demo)</p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <RiskScoreCard report={flagship} />
+            <PaymentTwin report={flagship} compact />
+          </div>
+        </HudPanel>
       </section>
 
-      <section className="px-4 md:px-8 pb-32 text-center">
-        <div className="max-w-2xl mx-auto space-y-6 text-xl md:text-2xl font-display">
-          <p className="text-neutral-400">Most fraud detection asks: <span className="font-bold text-neutral-200">Was this transaction fraudulent?</span></p>
-          <p className="text-neutral-400 pt-8">We ask: <span className="font-bold text-neutral-200">Does this payment situation make sense BEFORE you pay?</span></p>
-          <div className="pt-8 flex flex-col items-center gap-2 text-3xl md:text-4xl font-bold tracking-wider">
-            <span className="text-brand-400">PAUSE.</span>
-            <span className="text-brand-400">UNDERSTAND.</span>
-            <span className="text-brand-400">VERIFY.</span>
-            <span className="text-green-500">PAY SAFELY.</span>
+      {/* ─── 4. CAPABILITIES ─────────────────────────────────────────────── */}
+      <section className="mb-12">
+        <HudPanel eyebrow="CAPABILITIES · SIMULATION" title="DEFENSE MODULES" bodyClassName="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {CAPABILITY_TILES.map((cap) => (
+              <div
+                key={cap.to}
+                className="hud-panel px-3 py-3 flex flex-col items-center text-center gap-1"
+              >
+                <cap.icon className="w-5 h-5 text-cyan-300 mb-1" aria-hidden="true" />
+                <p className="hud-title text-[11px]">{cap.title}</p>
+                <p className="font-mono text-[10px] text-slate-500">{cap.desc}</p>
+              </div>
+            ))}
+          </div>
+        </HudPanel>
+      </section>
+
+      {/* ─── 5. SAFETY BAND ──────────────────────────────────────────────── */}
+      <section className="mb-12 py-6 border border-red-500/20 bg-red-500/5 rounded-sm text-center">
+        <p className="font-mono text-xs font-bold text-red-400 uppercase tracking-[0.28em]">
+          NEVER REQUESTS: UPI PIN · OTP · PASSWORD · CVV · FULL CARD NUMBER
+        </p>
+        <p className="font-mono text-[10px] text-slate-500 mt-2 uppercase tracking-[0.16em]">
+          SIMULATED HACKATHON DATA · {scenarios.length} SCENARIOS · {FACTOR_KEYS.length} RISK FACTORS · 0 REAL PAYMENTS
+        </p>
+      </section>
+
+      {/* ─── Closing copy ────────────────────────────────────────────────── */}
+      <section className="pb-24 text-center">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <p className="text-slate-400 text-lg">
+            Most fraud detection asks:{' '}
+            <span className="font-bold text-slate-200">Was this transaction fraudulent?</span>
+          </p>
+          <p className="text-slate-400 pt-4 text-lg">
+            We ask:{' '}
+            <span className="font-bold text-slate-200">
+              Does this payment situation make sense BEFORE you pay?
+            </span>
+          </p>
+          <div className="pt-6 flex flex-col items-center gap-2 font-mono font-bold tracking-widest text-2xl">
+            <span className="text-cyan-400">PAUSE.</span>
+            <span className="text-cyan-400">UNDERSTAND.</span>
+            <span className="text-cyan-400">VERIFY.</span>
+            <span className="text-green-400">PAY SAFELY.</span>
           </div>
         </div>
       </section>

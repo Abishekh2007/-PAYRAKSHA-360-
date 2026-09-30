@@ -1,12 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { screen, within } from '@testing-library/react';
 import { renderWithRouter } from '../test/utils';
 import Landing from './Landing';
 import { runScenarioLocal } from '../engine';
-
-vi.mock('../components/three', () => ({
-  HeroScene: () => <div data-testid="hero-scene">Hero Scene Fallback</div>
-}));
 
 describe('Landing', () => {
   it('renders verbatim content', () => {
@@ -53,5 +49,20 @@ describe('Landing', () => {
   it('has literal 0 real payments', () => {
     renderWithRouter(<Landing />);
     expect(screen.getByText('0 real payments')).toBeInTheDocument();
+  });
+
+  it('renders live threat console feed with 6 items containing RISK 92', () => {
+    renderWithRouter(<Landing />);
+
+    const list = screen.getByRole('list', { name: 'Live threat console feed' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(6);
+    expect(list.textContent).toContain('RISK 92');
+  });
+
+  it('threat level widget shows HIGH level', () => {
+    renderWithRouter(<Landing />);
+    const threatLevel = screen.getByTestId('threat-level');
+    expect(threatLevel).toHaveAttribute('data-level', 'HIGH');
   });
 });
