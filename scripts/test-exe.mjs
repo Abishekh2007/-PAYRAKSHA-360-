@@ -9,6 +9,16 @@ import { ROOT } from './lib/python.mjs';
 const EXE = path.join(ROOT, 'release', 'PAYRAKSHA360.exe');
 const PORT = 8799;
 const BASE = `http://127.0.0.1:${PORT}`;
+const PAY_PORT = PORT + 1;
+const PAY_BASE = `http://127.0.0.1:${PAY_PORT}`;
+const UTIL_QR = `PAYRAKSHA://demo-payment
+recipient=unknown-electricity@demo
+amount=1999
+merchant=Electricity Board Demo
+source=WhatsApp Demo
+urgency=true
+recipientVerified=false
+scenario=utility_scam`;
 
 if (!existsSync(EXE)) {
   console.error('release/PAYRAKSHA360.exe not found. Run: npm run build:exe');
@@ -44,11 +54,11 @@ async function pollHealth(timeoutMs = 120_000) {
   return null;
 }
 
-async function portFree(timeoutMs = 10_000) {
+async function portFree(timeoutMs = 10_000, p = PORT) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      await fetch(`${BASE}/api/health`);
+      await fetch(`http://127.0.0.1:${p}/api/health`);
       await sleep(500);
     } catch {
       return true; // connection refused = port free
@@ -58,7 +68,7 @@ async function portFree(timeoutMs = 10_000) {
 }
 
 const log = [];
-const child = spawn(EXE, ['--no-browser', '--port', String(PORT)], {
+const child = spawn(EXE, ['--no-browser', '--port', String(PORT), '--pay-port', String(PAY_PORT)], {
   stdio: ['ignore', 'pipe', 'pipe'],
   windowsHide: true,
 });
@@ -109,7 +119,35 @@ try {
   }
   console.log(`ok  POST /api/analyze utility_scam → score=${analyzeData.score} level=${analyzeData.level}`);
 
+
+  // 5. GET PAY / -> 200 contains RakshaPay
+  const pRes = await fetch(`${PAY_BASE}/`);
+  if (pRes.status !== 200) throw new Error(`PAY GET / returned ${pRes.status}`);
+  const pBody = await pRes.text();
+  if (!pBody.includes('RakshaPay')) throw new Error(`PAY GET / body does not contain 'RakshaPay'`);
+  console.log(`ok  PAY GET / -> contains RakshaPay`);
+
+  // 6. POST PAY /api/link/scan
+  const scanRes = await fetch(`${PAY_BASE}/api/link/scan`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ device: 'test-exe', source: 'sample', input: { qrText: UTIL_QR } })
+  });
+  if (!scanRes.ok) throw new Error(`PAY POST /api/link/scan returned ${scanRes.status}`);
+  const scanData = await scanRes.json();
+  if (scanData.event?.score !== 70) throw new Error(`scan returned score ${scanData.event?.score}, expected 70`);
+  console.log(`ok  PAY POST /api/link/scan -> score 70`);
+
+  // 7. GET CONSOLE /api/link/events?after=0
+  const evRes = await fetch(`${BASE}/api/link/events?after=0`);
+  if (!evRes.ok) throw new Error(`CONSOLE GET /api/link/events returned ${evRes.status}`);
+  const evData = await evRes.json();
+  const foundEv = evData.events.find((e) => e.recipient === 'unknown-electricity@demo');
+  if (!foundEv) throw new Error(`CONSOLE GET /api/link/events did not contain expected recipient`);
+  console.log(`ok  CONSOLE GET /api/link/events -> verified shared store`);
+
   console.log('EXE OK');
+
 } catch (e) {
   exitCode = 1;
   console.error('EXE TEST FAILED:', e.message);
@@ -123,7 +161,9 @@ try {
     execFileSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
   } catch { /* already dead */ }
   // Wait until port is free
-  const freed = await portFree(10_000);
+  const freed = await portFree(10_000, PORT);
+  const freedPay = await portFree(10_000, PAY_PORT);
+  if (!freedPay) console.warn(`WARNING: port ${PAY_PORT} still in use after 10 s`);
   if (!freed) console.warn(`WARNING: port ${PORT} still in use after 10 s`);
 }
 

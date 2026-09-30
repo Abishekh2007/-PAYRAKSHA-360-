@@ -24,6 +24,11 @@ if (!existsSync(path.join(ROOT, 'dist', 'index.html'))) {
   process.exit(1);
 }
 
+if (!existsSync(path.join(ROOT, "dist-pay", "index.html"))) {
+  console.error("dist-pay/index.html is missing after build. The web build must have failed.");
+  process.exit(1);
+}
+
 // ── 2. Locate Python / check PyInstaller ────────────────────────────────────
 const py = findPython();
 const piCheck = spawnSync(py.cmd, [...py.args, '-m', 'PyInstaller', '--version'], {
@@ -50,6 +55,7 @@ const sep = path.delimiter; // ';' on Windows
 
 const addDataArgs = [
   `${path.join(ROOT, 'dist')}${sep}dist`,
+  `${path.join(ROOT, 'dist-pay')}${sep}dist-pay`,
   ...sharedJsons.map(f => `${path.join(ROOT, 'shared', f)}${sep}shared`),
 ].flatMap(d => ['--add-data', d]);
 

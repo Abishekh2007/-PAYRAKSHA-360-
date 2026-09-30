@@ -7,6 +7,15 @@ import { ROOT, findPython } from './lib/python.mjs';
 import * as E from '../shared/reference/engine.mjs';
 import { loadConfig, loadScenarios } from '../shared/reference/load.mjs';
 
+const UTIL_QR = `PAYRAKSHA://demo-payment
+recipient=unknown-electricity@demo
+amount=1999
+merchant=Electricity Board Demo
+source=WhatsApp Demo
+urgency=true
+recipientVerified=false
+scenario=utility_scam`;
+
 const PORT = Number(process.env.SMOKE_PORT || 8765);
 const BASE = `http://127.0.0.1:${PORT}`;
 const py = findPython();
@@ -72,7 +81,18 @@ try {
   const url = await call('/api/analyze/url', { url: u });
   if (!isDeepStrictEqual(url, E.analyzeUrl(u, cfg))) fail('url analysis differs from the reference engine');
   console.log(`ok  url: ${url.score}/100 ${url.level}`);
+
+  // Link system checks
+  await call('/api/link/reset', {});
+  const scanData = await call('/api/link/scan', { device: 'smoke', source: 'sample', input: { qrText: UTIL_QR } });
+  if (scanData.event?.score !== 70) fail(`scan returned score ${scanData.event?.score}, expected 70`);
+  const evData = await call('/api/link/events?after=0');
+  if (evData.events?.length !== 1) fail(`events length !== 1`);
+  if (evData.latestSeq < 1) fail(`latestSeq < 1`);
+  console.log(`ok  link system checks passed`);
+
   console.log('SMOKE OK');
+
 } catch (e) {
   exitCode = 1;
   console.error('SMOKE FAIL: ' + (e instanceof SmokeFailure ? e.message : e?.stack || String(e)));

@@ -30,6 +30,9 @@ Double-click `release/PAYRAKSHA360.exe`. The default browser opens automatically
 |---|---|
 | `--port N` | Listen on port N instead of choosing the first free port in 8000-8020. |
 | `--no-browser` | Start the server without opening the browser. |
+| `--pay-port N` | Wait and use port N for the RakshaPay server. |
+| `--lan` | Expose RakshaPay on all interfaces (0.0.0.0) for LAN access. |
+| `--no-pay` | Start only the console server without RakshaPay. |
 
 ## Notes
 

@@ -6,7 +6,11 @@ import { ROOT } from './lib/python.mjs';
 const procs = [
   spawn(process.execPath, [path.join(ROOT, 'scripts', 'backend.mjs')], { cwd: ROOT, stdio: 'inherit' }),
   spawn(process.execPath, [path.join(ROOT, 'node_modules', 'vite', 'bin', 'vite.js')], { cwd: ROOT, stdio: 'inherit' }),
+  spawn(process.execPath, [path.join(ROOT, 'node_modules', 'vite', 'bin', 'vite.js'), '--config', path.join('pay', 'vite.config.ts')], { cwd: ROOT, stdio: 'inherit' }),
 ];
+
+console.log("Console http://localhost:5173 · RakshaPay http://localhost:5174");
+
 let stopping = false;
 const stop = () => {
   if (stopping) return;
