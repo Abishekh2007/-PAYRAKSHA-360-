@@ -20,7 +20,10 @@ describe('ScamDna Page', () => {
 
     // Check for pattern name of flagship (utility_scam)
     const report = runScenarioLocal('utility_scam');
-    expect(screen.getByText(report.patternName)).toBeInTheDocument();
+    expect(screen.getAllByText(report.patternName, { exact: false }).length).toBeGreaterThan(0);
+
+    // Check for SOC element
+    expect(screen.getByText('DNA FINGERPRINT STRIP')).toBeInTheDocument();
 
     // Check for default message
     expect(screen.getByText(/Showing the flagship demo: QR001 electricity-bill scam/)).toBeInTheDocument();

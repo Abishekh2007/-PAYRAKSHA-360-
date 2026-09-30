@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCurrentReport, useDemoStore } from '../store/demoStore';
-import { PageShell } from '../components/layout/PageShell'; // assuming PageShell location
+import { PageShell } from '../components/layout/PageShell';
 import { ContextBar } from './ScamDna';
 import { RiskScoreCard } from '../components/risk/RiskScoreCard';
 import { ExplanationPanel } from '../components/risk/ExplanationPanel';
@@ -10,6 +10,7 @@ import { ContributionsChart } from '../components/risk/ContributionsChart';
 import { SignalList } from '../components/risk/SignalList';
 import { UrlChecksList } from '../components/risk/UrlChecksList';
 import { Toggle } from '../components/ui/Toggle';
+import { HudPanel, NextMoveCard } from '../components/soc';
 
 export default function RiskExplanation() {
   const { report, record, isDefault } = useCurrentReport();
@@ -20,105 +21,113 @@ export default function RiskExplanation() {
   const totalPoints = report.contributions.reduce((sum, c) => sum + c.points, 0);
 
   return (
-    <PageShell eyebrow="Analysis" title="Risk Explanation" subtitle="Explainable AI" icon="brain">
-      <div className="max-w-4xl mx-auto space-y-8 pb-12 w-full p-4 sm:p-6" data-testid="risk-explanation">
+    <PageShell eyebrow="INTELLIGENCE" title="Risk Explanation" subtitle="Explainable AI" icon="brain" width="wide">
+      <div className="mx-auto space-y-6 pb-12 w-full p-4 sm:p-6" data-testid="risk-explanation">
         <ContextBar currentReportId={report.id} record={record} isDefault={isDefault} />
 
-        {/* Top Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={transition}>
-            <RiskScoreCard report={report} />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.1 }}>
-            <ExplanationPanel report={report} />
-          </motion.div>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={transition}>
+                <RiskScoreCard report={report} />
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.1 }}>
+                <ExplanationPanel report={report} />
+              </motion.div>
+            </div>
 
-        {/* Contributions */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.2 }} className="bg-navy-950 p-6 rounded-xl border border-navy-800">
-          <h2 className="font-display text-xl text-white mb-6">Score Contributions</h2>
-          <div className="mb-8">
-            <ContributionsChart contributions={report.contributions} score={report.score} clamped={report.clamped} />
+            {/* Contributions */}
+            <HudPanel eyebrow="SCORING" title="Score Contributions" className="w-full">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.2 }}>
+                <div className="mb-8">
+                  <ContributionsChart contributions={report.contributions} score={report.score} clamped={report.clamped} />
+                </div>
+
+                <div className="bg-black/20 p-4 rounded-sm border border-cyan-400/15 overflow-x-auto text-slate-300">
+                  <div className="text-cyan-400/70 mb-2 pb-2 border-b border-cyan-400/15 font-mono text-xs">
+                    Risk score = baseline + Σ (weight × signal value) + combination bonuses, clamped to 0-100
+                  </div>
+                  <div className="text-cyan-300 font-mono text-[11px] uppercase tracking-wider">
+                    {report.contributions.map(c => c.points).join(' + ')}
+                    {' = '}{totalPoints}
+                    {totalPoints !== report.score && ` → clamped to ${report.score}`}
+                  </div>
+                </div>
+              </motion.div>
+            </HudPanel>
           </div>
 
-          <div className="bg-navy-900 font-mono text-xs p-4 rounded border border-navy-800 overflow-x-auto text-navy-200">
-            <div className="text-navy-400 mb-2 pb-2 border-b border-navy-800">
-              Risk score = baseline + Σ (weight × signal value) + combination bonuses, clamped to 0-100
-            </div>
-            <div className="text-brand-300">
-              {report.contributions.map(c => c.points).join(' + ')}
-              {' = '}{totalPoints}
-              {totalPoints !== report.score && ` → clamped to ${report.score}`}
-            </div>
+          <div className="lg:col-span-4 space-y-6">
+            <HudPanel eyebrow="PREDICTION" title="ADVERSARY NEXT MOVE">
+              <NextMoveCard report={report} />
+            </HudPanel>
+
+            <HudPanel eyebrow="SIGNALS" title="DETECTED THREAT VECTORS">
+              <div className="space-y-6">
+                {report.analyses.text && !report.analyses.text.empty && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.3 }} className="bg-cyan-400/5 p-4 rounded-[3px] border border-cyan-400/15">
+                    <h3 className="hud-label text-cyan-500 mb-4">Text Signals Detected</h3>
+                    <SignalList signals={report.analyses.text.signals} />
+                  </motion.div>
+                )}
+
+                {report.analyses.url && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.4 }} className="bg-cyan-400/5 p-4 rounded-[3px] border border-cyan-400/15">
+                    <h3 className="hud-label text-cyan-500 mb-4">URL Analysis</h3>
+                    <UrlChecksList analysis={report.analyses.url} />
+                  </motion.div>
+                )}
+              </div>
+            </HudPanel>
           </div>
-        </motion.div>
-
-        {/* Signals */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {report.analyses.text && !report.analyses.text.empty && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.3 }} className="bg-navy-900 p-4 rounded-xl border border-navy-800">
-              <h3 className="font-medium text-white mb-4 text-sm">Text Signals Detected</h3>
-              <SignalList signals={report.analyses.text.signals} />
-            </motion.div>
-          )}
-
-          {report.analyses.url && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.4 }} className="bg-navy-900 p-4 rounded-xl border border-navy-800">
-              <h3 className="font-medium text-white mb-4 text-sm">URL Analysis</h3>
-              <UrlChecksList analysis={report.analyses.url} />
-            </motion.div>
-          )}
         </div>
 
         {/* Technical View Toggle & Table */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.5 }} className="bg-navy-950 p-6 rounded-xl border border-navy-800 space-y-4">
-          <div className="flex items-center justify-between pb-4 border-b border-navy-800">
-            <div>
-              <h3 className="text-white font-medium">Technical view</h3>
-              <p className="text-xs text-navy-300">Show raw feature values exposed to the ML layer</p>
-            </div>
-            <Toggle checked={technicalView} onChange={setTechnicalView} label="Technical view" className="text-brand-500" />
-          </div>
-
-          {technicalView && (
-            <div className="overflow-x-auto pt-4">
-              <table className="w-full text-left text-sm text-navy-100">
-                <thead className="bg-navy-900 text-navy-300 font-mono text-xs uppercase">
-                  <tr>
-                    <th className="px-4 py-2 border-b border-navy-800 font-normal">Feature / Key</th>
-                    <th className="px-4 py-2 border-b border-navy-800 font-normal w-24 text-right">Value</th>
-                    <th className="px-4 py-2 border-b border-navy-800 font-normal">Detail</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-navy-800/50">
-                  {Object.entries(report.features).map(([key, value]) => (
-                    <tr key={key} className="hover:bg-navy-900/50">
-                      <td className="px-4 py-2 font-mono text-xs text-brand-300">{key}</td>
-                      <td className="px-4 py-2 font-mono text-right">{typeof value === 'number' ? value.toFixed(2) : String(value)}</td>
-                      <td className="px-4 py-2 text-xs text-navy-300">{report.featureDetails[key as keyof typeof report.featureDetails] || '-'}</td>
+        <HudPanel eyebrow="TELEMETRY" title="Technical view" right={
+          <Toggle checked={technicalView} onChange={setTechnicalView} label="Technical view" className="text-cyan-500" />
+        }>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ ...transition, delay: 0.5 }} className="space-y-4">
+            <p className="text-xs text-slate-400 font-mono">Show raw feature values exposed to the ML layer</p>
+            {technicalView && (
+              <div className="overflow-x-auto pt-4">
+                <table className="w-full text-left text-sm text-slate-300">
+                  <thead className="bg-cyan-400/10 text-cyan-500 font-mono text-[10px] uppercase tracking-widest border-b border-cyan-400/20">
+                    <tr>
+                      <th className="px-4 py-3 font-normal">Feature / Key</th>
+                      <th className="px-4 py-3 font-normal w-24 text-right">Value</th>
+                      <th className="px-4 py-3 font-normal">Detail</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="mt-4 text-right">
-                <Link to="/technical" className="text-brand-400 hover:text-brand-300 text-sm underline underline-offset-4">
-                  View full technical payload
-                </Link>
+                  </thead>
+                  <tbody className="divide-y divide-cyan-400/10 border-b border-cyan-400/20">
+                    {Object.entries(report.features).map(([key, value]) => (
+                      <tr key={key} className="hover:bg-cyan-400/5 transition-colors">
+                        <td className="px-4 py-3 font-mono text-[11px] text-cyan-300">{key}</td>
+                        <td className="px-4 py-3 font-mono text-[11px] text-right">{typeof value === 'number' ? value.toFixed(2) : String(value)}</td>
+                        <td className="px-4 py-3 text-[11px] font-mono text-slate-400">{report.featureDetails[key as keyof typeof report.featureDetails] || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="mt-4 text-right">
+                  <Link to="/technical" className="text-cyan-400 hover:text-cyan-300 font-mono text-[10px] uppercase tracking-widest underline underline-offset-4">
+                    VIEW FULL TECHNICAL PAYLOAD
+                  </Link>
+                </div>
               </div>
-            </div>
-          )}
-        </motion.div>
+            )}
+          </motion.div>
+        </HudPanel>
 
         {/* Navigation */}
-        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-navy-800">
-          <Link to="/dna" className="btn-outline px-4 py-2 rounded text-sm text-brand-400 border border-brand-900 hover:bg-navy-800 transition-colors">
-            View Scam DNA
+        <div className="flex flex-wrap gap-4 pt-6 mt-6 border-t border-dashed border-cyan-400/20">
+          <Link to="/dna" className="hud-label px-4 py-2 rounded-sm text-cyan-400 border border-cyan-800 hover:bg-cyan-900/30 transition-colors">
+            VIEW SCAM DNA
           </Link>
-          <Link to="/attack-chain" className="btn-outline px-4 py-2 rounded text-sm text-brand-400 border border-brand-900 hover:bg-navy-800 transition-colors">
-            View Attack Chain
+          <Link to="/attack-chain" className="hud-label px-4 py-2 rounded-sm text-cyan-400 border border-cyan-800 hover:bg-cyan-900/30 transition-colors">
+            VIEW ATTACK CHAIN
           </Link>
-          <Link to="/report" className="btn-outline px-4 py-2 rounded text-sm text-brand-400 border border-brand-900 hover:bg-navy-800 transition-colors">
-            Incident Report
+          <Link to="/report" className="hud-label px-4 py-2 rounded-sm text-cyan-400 border border-cyan-800 hover:bg-cyan-900/30 transition-colors">
+            INCIDENT REPORT
           </Link>
         </div>
       </div>

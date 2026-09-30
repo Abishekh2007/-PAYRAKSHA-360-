@@ -24,5 +24,8 @@ describe('AttackChain Page', () => {
     expect(listItems.length).toBe(activeNodes.length);
 
     expect(screen.getByText(report.recommendation.title)).toBeInTheDocument();
+
+    // Check for new SOC element
+    expect(screen.getByText(`${report.attackChain.length} STAGES`)).toBeInTheDocument();
   });
 });

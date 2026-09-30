@@ -17,6 +17,9 @@ describe('RiskExplanation Page', () => {
 
     expect(screen.getByTestId('risk-explanation')).toBeInTheDocument();
     expect(screen.getByTestId('contributions')).toBeInTheDocument();
+
+    // Check for SOC elements
+    expect(screen.getByText('ADVERSARY NEXT MOVE')).toBeInTheDocument();
   });
 
   it('contains the arithmetic line correctly formatted', () => {

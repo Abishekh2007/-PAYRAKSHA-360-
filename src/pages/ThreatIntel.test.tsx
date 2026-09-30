@@ -15,5 +15,8 @@ describe('ThreatIntel', () => {
     expect(screen.getAllByText(String(utilityReport.score))[0]).toBeInTheDocument();
     expect(screen.getAllByText(utilityReport.levelLabel)[0]).toBeInTheDocument();
     expect(screen.getAllByText(utilityReport.patternName)[0]).toBeInTheDocument();
+
+    // Check for SOC elements and styling markers
+    expect(screen.getByText('THREAT INTELLIGENCE BOARD')).toBeInTheDocument();
   });
 });
