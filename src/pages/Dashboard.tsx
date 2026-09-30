@@ -1,114 +1,320 @@
-import React from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageShell } from '../components/layout';
-import { StatCard, SectionHeader, GlassCard, SimulationBadge } from '../components/ui';
+import { Button, SimulationBadge } from '../components/ui';
+import {
+  HudPanel,
+  KpiTile,
+  ThreatLevel,
+  StatusPill,
+  PaymentTwin,
+  NextMoveCard,
+  simulatedFeed,
+  SIM_CHANNELS,
+  STATUS_LABEL,
+  socToneForLevel,
+  SOC_TONES,
+  istTime,
+} from '../components/soc';
 import { useDemoStore } from '../store/demoStore';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Link } from 'react-router-dom';
+import { getScenario, FLAGSHIP_SCENARIO_ID } from '../engine';
+import type { SimEvent } from '../components/soc';
+import type { RiskReport } from '../types';
+
+function fmtRiskINR(amount: number | null | undefined): string {
+  if (amount == null) return '';
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
+}
 
 export default function Dashboard() {
   const history = useDemoStore((s) => s.history);
-  
-  const numAnalyses = history.length;
-  const highCautionCount = history.filter(r => r.report.level === 'HIGH' || r.report.level === 'HIGH_CAUTION').length;
-  const avgScore = history.length > 0 ? Math.round(history.reduce((a, b) => a + b.report.score, 0) / history.length) : 0;
-  const latestLabel = history.length > 0 ? history[0].label : 'None';
+  const current = useDemoStore((s) => s.current);
+  const navigate = useNavigate();
 
-  const chartData = [...history].reverse().map((r, i) => ({
-    name: `A${i + 1}`,
-    score: r.report.score,
-    label: r.label,
-    level: r.report.levelLabel
-  }));
+  const [nowMs] = useState(() => Date.now());
+  const feed = simulatedFeed({ now: nowMs });
+
+  // Default selection: if there is a current analysis, select it; otherwise flag utility_scam
+  const defaultId = current ? `analysis-current` : `sim-${FLAGSHIP_SCENARIO_ID}`;
+  const [selectedId, setSelectedId] = useState<string>(defaultId);
+
+  // Resolve selected report
+  function resolveSelectedReport(): RiskReport | null {
+    if (selectedId === 'analysis-current' && current) {
+      return current.report;
+    }
+    const event = feed.find((e) => e.id === selectedId);
+    return event ? event.report : (feed[0]?.report ?? null);
+  }
+
+  const selectedReport = resolveSelectedReport();
+  const selectedEvent = feed.find((e) => e.id === selectedId);
+  const selectedTitle =
+    selectedId === 'analysis-current' && current
+      ? current.label
+      : selectedEvent?.title ?? getScenario(FLAGSHIP_SCENARIO_ID).title;
+
+  // KPI counts
+  const numAnalyses = history.length;
+  const highCautionCount = history.filter(
+    (r) => r.report.level === 'HIGH' || r.report.level === 'HIGH_CAUTION',
+  ).length;
+  const heldCount = feed.filter((e) => e.status === 'HELD').length;
+  const checkCount = feed.filter((e) => e.status === 'CHECK').length;
+  const lowCount = feed.filter((e) => e.status === 'LOW').length;
+
+  // Channel mix
+  const channelCounts = Object.fromEntries(SIM_CHANNELS.map((ch) => [ch, 0])) as Record<string, number>;
+  for (const ev of feed) {
+    channelCounts[ev.channel] = (channelCounts[ev.channel] ?? 0) + 1;
+  }
+  const maxChannel = Math.max(...Object.values(channelCounts), 1);
+
+  function handleRowClick(id: string) {
+    setSelectedId(id);
+  }
+
+  function handleAnalyzeInDetail() {
+    if (!selectedReport) return;
+    useDemoStore.getState().recordAnalysis({
+      label: selectedTitle,
+      input: selectedReport.input,
+      report: selectedReport,
+      source: 'browser',
+    });
+    navigate('/explain');
+  }
 
   return (
     <PageShell
-      title={<span className="flex items-center gap-3">Safety Dashboard <SimulationBadge /></span>}
-      subtitle="Digital Safety Overview"
+      eyebrow="MONITOR"
+      title="Command Center"
+      subtitle="Live view of simulated payment threats across every channel. Every event is DEMO data."
+      width="wide"
+      actions={<StatusPill tone="red" pulse>LIVE FEED · SIMULATED</StatusPill>}
     >
-      <div className="flex flex-col gap-8">
-        <GlassCard>
-          <SectionHeader title="Digital Safety Overview" eyebrow="SIMULATION / DEMO" />
-          <div className="grid gap-6 md:grid-cols-5 mt-6">
-            <StatCard label="Threats analyzed" value={42} />
-            <StatCard label="High-risk situations" value={5} />
-            <StatCard label="Suspicious URLs" value={8} />
-            <StatCard label="Unknown recipients" value={12} />
-            <StatCard label="Protected demo decisions" value={17} />
-          </div>
-        </GlassCard>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <GlassCard>
-            <SectionHeader title="This session" eyebrow="SIMULATION / DEMO" />
-            <dl className="mt-4 grid grid-cols-2 gap-4">
-              <div>
-                <dt className="text-sm text-gray-400">Analyses</dt>
-                <dd className="text-2xl font-bold">{numAnalyses}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-400">High / High Caution</dt>
-                <dd className="text-2xl font-bold">{highCautionCount}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-400">Average Score</dt>
-                <dd className="text-2xl font-bold">{avgScore}</dd>
-              </div>
-              <div>
-                <dt className="text-sm text-gray-400">Latest Label</dt>
-                <dd className="text-lg font-bold">{latestLabel}</dd>
-              </div>
-            </dl>
-          </GlassCard>
-
-          <GlassCard>
-            <SectionHeader title="Score History" eyebrow="SIMULATION / DEMO" />
-            <div className="h-[200px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                  <XAxis dataKey="name" stroke="#888" />
-                  <YAxis stroke="#888" />
-                  <Tooltip wrapperClassName="dark text-black" />
-                  <Bar dataKey="score" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="sr-only">
-                <ul>
-                  {chartData.map((d) => (
-                    <li key={d.name}>{d.name} - {d.score}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </GlassCard>
+      <div className="flex flex-col gap-4">
+        {/* ── KPI strip ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <KpiTile label="Analyses" value={numAnalyses} tone="cyan" hint="THIS SESSION" />
+          <KpiTile label="High / High Caution" value={highCautionCount} tone="red" hint="THIS SESSION" />
+          <KpiTile
+            label="Threats analyzed"
+            value={42}
+            tone="amber"
+            hint="SIMULATED HACKATHON DATA"
+          />
+          <KpiTile label="Held for review" value={heldCount} tone="red" hint="SIMULATED FEED" />
+          <KpiTile label="Check before paying" value={checkCount} tone="amber" hint="SIMULATED FEED" />
+          <KpiTile label="Low risk" value={lowCount} tone="green" hint="SIMULATED FEED" />
         </div>
 
-        <GlassCard>
-          <SectionHeader title="Recent History" eyebrow="SIMULATION / DEMO" />
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left font-mono text-sm leading-relaxed text-gray-300">
-              <thead>
-                <tr className="border-b border-white/10 text-gray-400">
-                  <th className="py-3 pr-4 font-normal">Label</th>
-                  <th className="py-3 pr-4 font-normal text-right">Score</th>
-                  <th className="py-3 pr-4 font-normal">Level</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((record) => (
-                  <tr key={record.id} className="border-b border-white/5 last:border-0 hover:bg-white/5">
-                    <td className="py-2 pr-4">{record.label}</td>
-                    <td className="py-2 pr-4 text-right">{record.report.score}</td>
-                    <td className="py-2 pr-4">{record.report.levelLabel}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* ── Twin + Threat panel ───────────────────────────────── */}
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* Payment Twin */}
+          <HudPanel
+            eyebrow="DIGITAL TWIN · SIMULATION"
+            title="Payment path"
+            className="lg:col-span-8"
+            bodyClassName="p-4"
+          >
+            <PaymentTwin report={selectedReport} />
+          </HudPanel>
+
+          {/* Threat Assessment */}
+          <div className="flex flex-col gap-4 lg:col-span-4">
+            <HudPanel
+              eyebrow="THREAT ASSESSMENT"
+              title={selectedTitle}
+              tone={socToneForLevel(selectedReport?.level)}
+              bodyClassName="p-4"
+            >
+              <div className="flex flex-col gap-3">
+                <ThreatLevel
+                  level={selectedReport?.level ?? null}
+                  score={selectedReport?.score}
+                  live={false}
+                />
+
+                {selectedReport && (
+                  <>
+                    <div className="hud-rule" />
+                    <div className="space-y-1">
+                      <p className="hud-eyebrow">RECIPIENT</p>
+                      <p className="font-mono text-xs text-slate-300">
+                        {selectedReport.payment.recipient ?? 'unknown@demo'}{' '}
+                        <span className="text-slate-500">DEMO</span>
+                      </p>
+                      {selectedReport.payment.amount != null && (
+                        <p className="font-mono text-xs text-slate-300">
+                          {fmtRiskINR(selectedReport.payment.amount)}
+                        </p>
+                      )}
+                    </div>
+
+                    {selectedReport.explanation.reasons.length > 0 && (
+                      <>
+                        <div className="hud-rule" />
+                        <ul className="space-y-1">
+                          {selectedReport.explanation.reasons.slice(0, 3).map((reason, i) => (
+                            <li key={i} className="flex gap-2 font-mono text-[11px] text-slate-400">
+                              <span className="text-cyan-400 shrink-0">▸</span>
+                              <span>{reason}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </>
+                )}
+
+                <Button variant="primary" onClick={handleAnalyzeInDetail} fullWidth>
+                  Analyze in detail
+                </Button>
+              </div>
+            </HudPanel>
+
+            <NextMoveCard report={selectedReport} />
           </div>
-          <div className="mt-6 flex gap-4">
-            <Link to="/report" className="text-brand-400 hover:text-brand-300">Open Report &rarr;</Link>
-          </div>
-        </GlassCard>
+        </div>
+
+        {/* ── Event feed ────────────────────────────────────────── */}
+        <HudPanel
+          eyebrow="SIMULATED EVENT FEED"
+          title="All channels"
+          right={<SimulationBadge />}
+          bodyClassName="p-0"
+        >
+          <ol aria-label="Simulated event feed" className="divide-y divide-cyan-400/10">
+            {/* Pinned current analysis row */}
+            {current && (
+              <li>
+                <button
+                  type="button"
+                  aria-pressed={selectedId === 'analysis-current'}
+                  onClick={() => handleRowClick('analysis-current')}
+                  className={`w-full px-4 py-2.5 text-left font-mono text-xs transition-colors hover:bg-cyan-400/5 ${
+                    selectedId === 'analysis-current'
+                      ? 'border-l-2 border-cyan-400 bg-cyan-400/10'
+                      : 'border-l-2 border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 flex-wrap min-w-0">
+                    <span className="text-slate-500 shrink-0">{istTime(current.at)} IST</span>
+                    <span className="chip bg-cyan-400/10 border-cyan-400/30 text-cyan-300 text-[10px]">YOUR LAST ANALYSIS</span>
+                    <span className="text-slate-300 truncate flex-1">{current.label}</span>
+                    <span className="text-slate-500 shrink-0">{current.report.payment.recipient ?? 'unknown@demo'}</span>
+                    <span className={`font-semibold shrink-0 ${SOC_TONES[socToneForLevel(current.report.level)].text}`}>
+                      RISK {current.report.score}
+                    </span>
+                    <StatusPill tone={socToneForLevel(current.report.level)}>
+                      {STATUS_LABEL[current.report.level === 'HIGH' || current.report.level === 'HIGH_CAUTION'
+                        ? 'HELD'
+                        : current.report.level === 'CAUTION'
+                        ? 'CHECK'
+                        : 'LOW'
+                      ]}
+                    </StatusPill>
+                  </div>
+                </button>
+              </li>
+            )}
+
+            {/* Feed events */}
+            {feed.map((ev: SimEvent) => {
+              const isSelected = selectedId === ev.id;
+              const tone = socToneForLevel(ev.level);
+              return (
+                <li key={ev.id}>
+                  <button
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => handleRowClick(ev.id)}
+                    className={`w-full px-4 py-2.5 text-left font-mono text-xs transition-colors hover:bg-cyan-400/5 ${
+                      isSelected
+                        ? 'border-l-2 border-cyan-400 bg-cyan-400/10'
+                        : 'border-l-2 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-wrap min-w-0">
+                      <span className="text-slate-500 shrink-0">{ev.time} IST</span>
+                      <span className="chip bg-slate-700/50 border-slate-600/40 text-slate-300 text-[10px] shrink-0">{ev.channel}</span>
+                      <span className="text-slate-300 truncate flex-1">{ev.title}</span>
+                      <span className="text-slate-500 shrink-0 truncate max-w-[120px]">{ev.handle}</span>
+                      <span className={`font-semibold shrink-0 ${SOC_TONES[tone].text}`}>RISK {ev.score}</span>
+                      <StatusPill tone={tone}>{STATUS_LABEL[ev.status]}</StatusPill>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </HudPanel>
+
+        {/* ── Channel mix + Session history ─────────────────────── */}
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* Channel Mix */}
+          <HudPanel
+            eyebrow="CHANNEL MIX"
+            title="By channel"
+            className="lg:col-span-5"
+            bodyClassName="p-4"
+            right={<span className="font-mono text-[10px] text-slate-500">SIMULATED HACKATHON DATA</span>}
+          >
+            <div className="flex flex-col gap-1.5">
+              {SIM_CHANNELS.map((ch) => {
+                const count = channelCounts[ch] ?? 0;
+                const pct = Math.round((count / maxChannel) * 100);
+                return (
+                  <div key={ch} className="flex items-center gap-2">
+                    <span className="hud-label w-20 shrink-0 text-right">{ch}</span>
+                    <div className="flex-1 h-3 bg-slate-800 rounded-sm overflow-hidden">
+                      <div
+                        className="h-full bg-cyan-400/40 rounded-sm"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="hud-num text-xs text-slate-400 w-4 shrink-0">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </HudPanel>
+
+          {/* Session History */}
+          <HudPanel
+            eyebrow="SESSION HISTORY"
+            title="Your analyses"
+            className="lg:col-span-7"
+            bodyClassName="p-4"
+            right={<SimulationBadge />}
+          >
+            {history.length === 0 ? (
+              <p className="hud-label text-center py-4 text-slate-600">
+                NO ANALYSES YET — RUN A SHIELD SCAN
+              </p>
+            ) : (
+              <ol className="flex flex-col gap-1">
+                {history.map((record) => {
+                  const tone = socToneForLevel(record.report.level);
+                  return (
+                    <li
+                      key={record.id}
+                      className="flex items-center gap-3 font-mono text-xs py-1 border-b border-cyan-400/10 last:border-0"
+                    >
+                      <span className="text-slate-500 shrink-0">{istTime(record.at)} IST</span>
+                      <span className="text-slate-300 truncate flex-1">{record.label}</span>
+                      <span className={`font-semibold shrink-0 ${SOC_TONES[tone].text}`}>
+                        RISK {record.report.score}
+                      </span>
+                      <StatusPill tone={tone}>{record.report.levelLabel}</StatusPill>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </HudPanel>
+        </div>
       </div>
     </PageShell>
   );
