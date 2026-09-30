@@ -11,7 +11,7 @@ RakshaPay DEMO is the phone companion app for PAYRAKSHA 360, simulating a mobile
    Double-click the `PAYRAKSHA360.exe` file. The console will be served on port `P` (e.g., 8000), and RakshaPay will be served on the next available port `P+1` (e.g., 8001).
 
    You can override the ports using the command line:
-   `PAYRAKSHA360.exe --port 8000 --pay-port 8091`
+   `PAYRAKSHA360.exe --port 8000 --pay-port 9181`
 
 ## Phone Access (Tailscale)
 

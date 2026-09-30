@@ -62,7 +62,7 @@ export default function DeviceLink() {
   const handleResetLink = async () => { await resetLink(); };
 
   const phoneUrlBase = manualPhoneUrl || info?.phoneUrl || info?.payUrl || window.location.origin;
-  const payPort = info?.payUrl ? new URL(info.payUrl).port : '8091';
+  const payPort = info?.payUrl ? new URL(info.payUrl).port : '9181';
 
   const [phoneQr, setPhoneQr] = useState<string>('');
   useEffect(() => {
