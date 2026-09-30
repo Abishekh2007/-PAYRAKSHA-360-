@@ -18,18 +18,21 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
-  variant = 'primary',
-  size = 'md',
-  icon,
-  loading = false,
-  fullWidth = false,
-  className = '',
-  children,
-  disabled,
-  type = 'button',
-  ...rest
-}, ref) => {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>((
+  {
+    variant = 'primary',
+    size = 'md',
+    icon,
+    loading = false,
+    fullWidth = false,
+    className = '',
+    children,
+    disabled,
+    type = 'button',
+    ...rest
+  },
+  ref,
+) => {
   return (
     <button
       ref={ref}
@@ -54,15 +57,18 @@ export interface ButtonLinkProps extends LinkProps {
   fullWidth?: boolean;
 }
 
-export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({
-  variant = 'primary',
-  size = 'md',
-  icon,
-  fullWidth = false,
-  className = '',
-  children,
-  ...rest
-}, ref) => {
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>((
+  {
+    variant = 'primary',
+    size = 'md',
+    icon,
+    fullWidth = false,
+    className = '',
+    children,
+    ...rest
+  },
+  ref,
+) => {
   return (
     <Link
       ref={ref}

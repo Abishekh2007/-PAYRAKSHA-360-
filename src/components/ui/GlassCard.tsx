@@ -11,7 +11,8 @@ export interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function GlassCard({ variant = 'glass', glow = null, padded = true, className = '', ...rest }: GlassCardProps) {
-  const base = variant === 'strong' ? 'glass-strong' : variant === 'light' ? 'glass-light' : 'glass';
+  // light variant keeps glass-light for the printable incident report
+  const base = variant === 'light' ? 'glass-light' : 'hud-panel';
 
   let glowClass = '';
   if (glow === 'LOW') glowClass = 'shadow-glow-low';

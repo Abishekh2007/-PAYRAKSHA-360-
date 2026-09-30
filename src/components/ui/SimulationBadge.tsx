@@ -5,7 +5,11 @@ export interface SimulationBadgeProps { compact?: boolean; className?: string }
 
 export function SimulationBadge({ compact = false, className = '' }: SimulationBadgeProps) {
   return (
-    <span data-testid="simulation-badge" data-compact={compact} className={`chip flex items-center gap-1 ${TONE_CLASSES.demo} ${className}`.trim()}>
+    <span
+      data-testid="simulation-badge"
+      data-compact={compact}
+      className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${TONE_CLASSES.demo} ${className}`.trim()}
+    >
       <FlaskConical className="w-3 h-3" />
       SIMULATION / DEMO
     </span>
