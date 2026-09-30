@@ -72,10 +72,159 @@ export function maskVpa(vpa: string): string {
   return `${local.slice(0, keep)}•••${at >= 0 ? v.slice(at) : ''}`;
 }
 
-export function paymentView(_report: RiskReport): PayView {
-  throw new Error('paymentView: not implemented yet');
+export function paymentView(report: RiskReport): PayView {
+  const { payment, analyses, score, level, levelLabel, explanation } = report;
+
+  // Determine mode
+  const vpa = payment.recipient ?? null;
+  let mode: PayMode;
+  if (!vpa) {
+    mode = 'not-payment';
+  } else if (isDemoVpa(vpa)) {
+    mode = 'demo-pay';
+  } else {
+    mode = 'analysis-only';
+  }
+
+  // displayVpa
+  let displayVpa: string | null;
+  if (!vpa) {
+    displayVpa = null;
+  } else if (mode === 'demo-pay') {
+    displayVpa = vpa;
+  } else {
+    displayVpa = maskVpa(vpa);
+  }
+
+  // Name fallback chain: recipientName ?? merchant ?? QR merchant ?? displayVpa ?? 'Unknown payee'
+  const name =
+    payment.recipientName ??
+    payment.merchant ??
+    (analyses.qr?.fields?.merchant ?? null) ??
+    displayVpa ??
+    'Unknown payee';
+
+  const verified = payment.recipientVerified === true;
+  const initial = name.length > 0 ? name[0].toUpperCase() : '?';
+
+  // Amount and note
+  const amount = payment.amount ?? null;
+  const note = analyses.qr?.fields?.note ?? null;
+
+  // Tone
+  const toneMap: Record<RiskLevelId, PayTone> = {
+    LOW: 'green',
+    CAUTION: 'amber',
+    HIGH_CAUTION: 'orange',
+    HIGH: 'red',
+  };
+  const tone = toneMap[level];
+
+  // levelShort
+  const levelShort = levelLabel;
+
+  // headline and reasons
+  const headline = explanation.headline;
+  const reasons = explanation.reasons
+    .slice(0, 3)
+    .map((r) => r.replace(/\s*\(\+\d+\)\s*$/, ''));
+
+  // Primary action
+  let primary: 'cancel' | 'verify' | 'pay';
+  if (level === 'HIGH' || level === 'HIGH_CAUTION') {
+    primary = 'cancel';
+  } else if (level === 'CAUTION') {
+    primary = 'verify';
+  } else {
+    // LOW
+    primary = mode === 'demo-pay' ? 'pay' : 'verify';
+  }
+
+  // payLabel
+  let payLabel: string | null = null;
+  if (mode === 'demo-pay') {
+    if (amount !== null) {
+      payLabel = `Pay ${formatInr(amount)} (demo)`;
+    } else {
+      payLabel = 'Pay (demo)';
+    }
+  }
+
+  // holdToConfirm
+  const holdToConfirm = level === 'HIGH' || level === 'HIGH_CAUTION';
+
+  return {
+    mode,
+    payee: {
+      name,
+      vpa,
+      displayVpa,
+      verified,
+      initial,
+    },
+    amount,
+    note,
+    score,
+    level,
+    levelShort,
+    tone,
+    headline,
+    reasons,
+    primary,
+    payLabel,
+    holdToConfirm,
+  };
 }
 
-export function withContext(_input: AnalyzeInput, _ctx: PayContext): AnalyzeInput {
-  throw new Error('withContext: not implemented yet');
+export function withContext(input: AnalyzeInput, ctx: PayContext): AnalyzeInput {
+  // Never mutate input; create a shallow copy
+  const result: AnalyzeInput = { ...input };
+
+  // Handle behaviour keys: onCall and screenShare
+  const behaviourKeys: Array<'onCall' | 'screenShare'> = ['onCall', 'screenShare'];
+  const behaviourUpdates: Record<string, boolean> = {};
+  let hasBehaviourUpdate = false;
+
+  for (const key of behaviourKeys) {
+    if (ctx[key] !== undefined) {
+      behaviourUpdates[key] = ctx[key] as boolean;
+      hasBehaviourUpdate = true;
+    }
+  }
+
+  if (hasBehaviourUpdate || result.behaviour) {
+    result.behaviour = { ...(result.behaviour ?? {}), ...behaviourUpdates };
+  }
+
+  // Handle scanToReceive
+  if (ctx.scanToReceive === true) {
+    const existing = result.message ?? '';
+    if (!existing.includes(RECEIVE_CONTEXT_MESSAGE)) {
+      if (existing) {
+        result.message = `${existing}\n${RECEIVE_CONTEXT_MESSAGE}`;
+      } else {
+        result.message = RECEIVE_CONTEXT_MESSAGE;
+      }
+    } else {
+      // Already present, keep as is
+      result.message = existing;
+    }
+  } else if (ctx.scanToReceive === false) {
+    if (result.message) {
+      // Remove the RECEIVE_CONTEXT_MESSAGE along with surrounding newline
+      let msg = result.message;
+      // Remove with preceding newline
+      msg = msg.replace(new RegExp(`\\n?${escapeRegex(RECEIVE_CONTEXT_MESSAGE)}`, 'g'), '');
+      // Trim leading/trailing whitespace
+      msg = msg.trim();
+      result.message = msg || undefined;
+    }
+  }
+  // If scanToReceive is undefined, leave message alone
+
+  return result;
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
