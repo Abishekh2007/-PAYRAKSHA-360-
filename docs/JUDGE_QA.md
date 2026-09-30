@@ -22,7 +22,7 @@ The phone falls back to the JavaScript engine after 2.5 seconds, so the check st
 `engine.mjs` is the reference. `gen-golden.mjs` records its output for 103 inputs, and `test_golden.py` requires the Python port to reproduce every case exactly.
 
 **Q: How does the AI Auditor work, and what if the AI is wrong or unavailable?**
-It collects evidence from the bank DB (look-alike of a known brand, KYC status, merchant age, dispute record, ticket size) and sends it to an OpenAI-compatible model, which must reply with a JSON object only. The auditor and shows each red flag with its evidence plus the raw model output. If the model is unreachable, times out or returns bad JSON, a deterministic simulated auditor produces the report. The audit is advisory, for bank staff, and never blocks anything automatically.
+It collects evidence from the bank DB (look-alike of a known brand, KYC status, merchant age, dispute record, ticket size) and sends it to an OpenAI-compatible model, which must reply with a JSON object only. The auditor shows each red flag with its evidence plus the raw model output. If the model is unreachable, times out or returns bad JSON, a deterministic simulated auditor produces the report. The audit is advisory, for bank staff, and never blocks anything automatically.
 
 **Q: How do you make sure the demo is safe?**
 No payment integration exists at all. A scanned QR can only open a check screen. Non-`@demo` UPI IDs are masked and cannot be paid. No PIN/OTP/password/CVV/card field exists, and tests assert this. Demo codes are checked locally and never stored. See [SECURITY.md](../SECURITY.md).
