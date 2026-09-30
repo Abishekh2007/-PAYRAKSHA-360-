@@ -54,8 +54,7 @@ big rounded corners, mascots or 3D models.
 - Engine (in-browser, synchronous, deterministic) from `src/engine`: `runScenarioLocal(id)`, `scenarios`, `getScenario(id)`,
   `FLAGSHIP_SCENARIO_ID` ('utility_scam', 92 HIGH), `runLiveSimulation()`, `runSignalsConnected()`, `runCounterfactual()`,
   `analyzeLocal(input)`, `levelOf(score)`, `SIMULATION_NOTICE`, `DISCLAIMER`, `engineConfig`.
-- The 3D layer is gone: never import from `src/components/three` (it is a no-op being deleted). If your file imports
-  `GuardianRobot`, `EngineCore` or `HeroScene`, remove the import and the box that held it.
+- The 3D layer is gone (`src/components/three` was deleted): no 3D models, WebGL scenes or mascots.
 - Never edit `package.json`, lockfiles, `src/routes.ts`, `src/components/soc/index.ts`, `tailwind.config.js`, `src/index.css`,
   `src/test/**` or `test/acceptance/**`. No new dependencies. If you need something outside your files, say so in your summary.
 - Existing tests encode spec requirements. Keep every existing assertion about texts, roles, labels, `data-testid`s and behaviour

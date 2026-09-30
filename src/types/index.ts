@@ -26,9 +26,6 @@ export interface BackendHealth {
   ml: { available: boolean; model: string | null };
 }
 
-/** Animation mood of the 3D guardian robot. */
-export type RobotMood = 'idle' | 'wave' | 'thinking' | 'alert' | 'safe' | 'celebrate';
-
 /** Exportable incident report. Demo only, never an official cybercrime report. */
 export interface IncidentReportDoc {
   /** Always 'DEMO REPORT — NOT AN OFFICIAL CYBERCRIME REPORT'. */
