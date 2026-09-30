@@ -39,6 +39,16 @@ describe('SOC kit primitives', () => {
     expect(screen.getByTestId('threat-level')).not.toHaveTextContent('LIVE');
   });
 
+  it('ThreatLevel compact prop keeps data-level and full textContent', () => {
+    render(<ThreatLevel level="HIGH" score={92} compact />);
+    const el = screen.getByTestId('threat-level');
+    expect(el).toHaveAttribute('data-level', 'HIGH');
+    expect(el).toHaveTextContent('THREAT LEVEL');
+    expect(el).toHaveTextContent('HIGH RISK');
+    expect(el).toHaveTextContent('92/100');
+    expect(el).toHaveTextContent('LIVE');
+  });
+
   it('ShieldStatus shows the state label and shieldStateFor maps levels', () => {
     render(<ShieldStatus state="hold" shield="QR SHIELD" score={92} />);
     const el = screen.getByTestId('shield-status');

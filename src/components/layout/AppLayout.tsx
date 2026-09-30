@@ -192,23 +192,25 @@ function TopBar({
         {menuOpen ? <X size={16} /> : <Menu size={16} />}
       </button>
 
-      {/* Breadcrumb */}
-      <span className="hidden flex-1 font-mono text-[11px] uppercase tracking-[0.12em] text-slate-500 md:block">
+      {/* Breadcrumb – only on lg+; min-w-0 + flex-1 so it can shrink */}
+      <span className="hidden lg:block min-w-0 flex-1 truncate font-mono text-[11px] uppercase tracking-[0.12em] text-slate-500">
         {breadcrumb}
       </span>
-      <span className="flex-1 md:hidden" />
+      {/* Spacer below lg */}
+      <span className="flex-1 lg:hidden" />
 
-      {/* Right side */}
-      <div className="flex items-center gap-2">
+      {/* Right-hand cluster – flex-shrink-0 so it never collapses; wrap for safety on very narrow screens */}
+      <div className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
         <ThreatLevel
           level={current?.report.level ?? null}
           score={current?.report.score}
+          compact
         />
 
-        <StatusPill tone="green" pulse className="hidden md:inline-flex">
+        <StatusPill tone="green" pulse className="hidden xl:inline-flex">
           ENGINE ONLINE
         </StatusPill>
-        <StatusPill tone="amber" className="hidden md:inline-flex">
+        <StatusPill tone="amber" className="hidden xl:inline-flex">
           SIMULATION MODE
         </StatusPill>
 
@@ -235,7 +237,7 @@ function AlertTicker() {
   return (
     <Ticker
       items={items}
-      className="border-b border-cyan-400/10 bg-soc-void/60 py-1.5"
+      className="min-w-0 overflow-hidden border-b border-cyan-400/10 bg-soc-void/60 py-1.5"
     />
   );
 }
@@ -274,7 +276,7 @@ export function AppLayout() {
       </a>
 
       {/* Demo banner */}
-      <div className="w-full bg-amber-500/10 border-b border-amber-400/20 py-1 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-amber-300">
+      <div className="min-w-0 overflow-hidden w-full bg-amber-500/10 border-b border-amber-400/20 py-1 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-amber-300">
         DEMO ENVIRONMENT — NO REAL PAYMENTS
       </div>
 
@@ -287,7 +289,7 @@ export function AppLayout() {
           <TopBar menuOpen={sidebarOpen} onMenuToggle={toggleSidebar} />
           <AlertTicker />
 
-          <main id="main" tabIndex={-1} className="flex-1">
+          <main id="main" tabIndex={-1} className="flex-1 min-w-0">
             <Suspense
               fallback={
                 <div className="flex items-center gap-2 px-4 py-6 font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">

@@ -104,6 +104,22 @@ describe('AppLayout & Navigation', () => {
     expect(menuBtn).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByLabelText('Close menu')).toBeInTheDocument();
   });
+
+  it('judge link has correct href and textContent', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<div>child</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const judgeLink = screen.getByRole('link', { name: /JUDGE MODE/ });
+    expect(judgeLink).toHaveAttribute('href', '/judge');
+    expect(judgeLink.textContent).toBe('🏆 JUDGE MODE');
+  });
 });
 
 describe('PageShell', () => {
