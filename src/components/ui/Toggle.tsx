@@ -18,7 +18,7 @@ export function Toggle({ checked, onChange, label, description, disabled = false
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`flex items-center justify-between gap-4 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 rounded-sm p-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-white/5'} ${className}`.trim()}
+      className={`flex items-center justify-between gap-4 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 rounded-xl p-2 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-white/5'} ${className}`.trim()}
     >
       <div className="flex flex-col gap-1">
         <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-200">{label}</span>

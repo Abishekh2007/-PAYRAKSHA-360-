@@ -7,7 +7,7 @@ export interface HudPanelProps {
   title?: ReactNode;
   /** Right side of the header (pills, buttons). */
   right?: ReactNode;
-  /** Colour of the corner brackets. Default cyan. */
+  /** Accent colour for the panel. Default cyan. */
   tone?: SocTone;
   as?: ElementType;
   titleAs?: 'h1' | 'h2' | 'h3' | 'h4';
@@ -18,7 +18,7 @@ export interface HudPanelProps {
   'aria-label'?: string;
 }
 
-/** The SOC console panel: hairline border, dark glass, corner brackets, dashed header rule. */
+/** Frosted glass card with a clean header: eyebrow, title and optional right-side actions. */
 export function HudPanel({
   eyebrow,
   title,
@@ -37,7 +37,7 @@ export function HudPanel({
   return (
     <Tag className={`hud-panel ${className}`} style={style} data-testid={testId} aria-label={ariaLabel}>
       {hasHeader && (
-        <header className="flex items-start justify-between gap-3 border-b border-dashed border-cyan-400/15 px-4 py-3">
+        <header className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3">
           <div className="min-w-0">
             {eyebrow && <p className="hud-eyebrow">{eyebrow}</p>}
             {title && <TitleTag className="hud-title mt-1 break-words">{title}</TitleTag>}

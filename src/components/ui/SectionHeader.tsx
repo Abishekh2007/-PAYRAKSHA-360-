@@ -15,7 +15,7 @@ export function SectionHeader({ eyebrow, title, subtitle, icon, align = 'left', 
     <div className={`flex flex-col gap-2 ${align === 'center' ? 'text-center items-center' : 'text-left items-start'} ${className}`.trim()}>
       <div className="flex w-full justify-between items-start gap-4">
         <div className={`flex flex-col gap-1 ${align === 'center' ? 'items-center mx-auto' : ''}`}>
-          {eyebrow && <p className="hud-eyebrow">// {eyebrow}</p>}
+          {eyebrow && <p className="hud-eyebrow">{eyebrow}</p>}
           <h2 className="hud-title flex items-center gap-2 text-base">
             {icon}
             {title}

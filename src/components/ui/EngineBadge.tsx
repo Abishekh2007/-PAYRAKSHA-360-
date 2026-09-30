@@ -15,7 +15,7 @@ export function EngineBadge({ source, latencyMs = null, className = '' }: Engine
   return (
     <span
       data-source={source}
-      className={`inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] ${borderClass} ${className}`.trim()}
+      className={`chip inline-flex items-center gap-1.5 border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] ${borderClass} ${className}`.trim()}
     >
       <LiveDot tone={tone === 'cyan' ? 'cyan' : 'green'} pulse={false} />
       {text}

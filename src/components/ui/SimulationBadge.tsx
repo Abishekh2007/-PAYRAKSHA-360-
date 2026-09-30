@@ -8,7 +8,7 @@ export function SimulationBadge({ compact = false, className = '' }: SimulationB
     <span
       data-testid="simulation-badge"
       data-compact={compact}
-      className={`inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${TONE_CLASSES.demo} ${className}`.trim()}
+      className={`chip inline-flex items-center gap-1 border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${TONE_CLASSES.demo} ${className}`.trim()}
     >
       <FlaskConical className="w-3 h-3" />
       SIMULATION / DEMO

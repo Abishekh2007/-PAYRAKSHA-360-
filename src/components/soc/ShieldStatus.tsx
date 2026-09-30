@@ -51,7 +51,7 @@ export function ShieldStatus({ state, shield, score = null, detail, className = 
       role="status"
       data-testid="shield-status"
       data-state={state}
-      className={`hud-panel hud-scanlines overflow-hidden px-4 py-3 ${className}`}
+      className={`hud-panel overflow-hidden px-4 py-3 ${className}`}
       style={{ '--hud-accent': t.hex } as CSSProperties}
     >
       <div className="flex items-center gap-3">

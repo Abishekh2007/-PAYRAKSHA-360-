@@ -60,11 +60,11 @@ export function OperationTimeline({
       className={`hud-panel ${className}`}
     >
       {/* Header */}
-      <header className="flex flex-wrap items-center gap-2 border-b border-dashed border-cyan-400/15 px-4 py-3">
+      <header className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
         <h3 className="hud-title text-red-400 hud-glow mr-auto">
           OPERATION {name.toUpperCase()}
         </h3>
-        <span className="inline-flex items-center rounded-sm border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+        <span className="inline-flex items-center chip border-cyan-400/20 bg-cyan-400/10 text-cyan-300">
           {beats.length} BEATS
         </span>
         <span data-testid="operation-status">
@@ -75,7 +75,7 @@ export function OperationTimeline({
             {OPERATION_STATUS_LABEL[status]}
           </StatusPill>
         </span>
-        <span className="inline-flex items-center rounded-sm border border-slate-500/40 bg-slate-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+        <span className="inline-flex items-center chip border-slate-500/40 bg-slate-500/10 text-slate-400">
           SIMULATION
         </span>
       </header>
@@ -125,7 +125,7 @@ export function OperationTimeline({
                   </span>
                   {/* Stage chip */}
                   <span
-                    className={`inline-flex rounded-sm border px-1.5 py-0 font-mono text-[9px] font-bold uppercase tracking-[0.15em] ${t.text} ${t.border} ${t.bg}`}
+                    className={`chip text-[9px] font-bold ${t.text} ${t.border} ${t.bg}`}
                   >
                     {beat.stage}
                   </span>
@@ -160,7 +160,7 @@ export function OperationTimeline({
               type="button"
               aria-label="Replay operation"
               onClick={onReplay}
-              className="rounded-sm border border-cyan-400/40 bg-cyan-400/10 px-4 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400/20"
+              className="btn-outline text-xs"
             >
               Replay operation
             </button>

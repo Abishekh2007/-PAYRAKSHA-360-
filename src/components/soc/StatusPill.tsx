@@ -29,13 +29,13 @@ export interface StatusPillProps {
   title?: string;
 }
 
-/** Mono uppercase status chip with a dot, e.g. "● LIVE", "● ENGINE ONLINE". */
+/** Soft rounded-full status pill with a dot, e.g. "● LIVE", "● ENGINE ONLINE". */
 export function StatusPill({ tone = 'cyan', pulse = false, children, className = '', title }: StatusPillProps) {
   const t = SOC_TONES[tone];
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${t.text} ${t.border} ${t.bg} ${className}`}
+      className={`chip inline-flex items-center gap-1.5 whitespace-nowrap border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${t.text} ${t.border} ${t.bg} ${className}`}
     >
       <LiveDot tone={tone} pulse={pulse} />
       {children}

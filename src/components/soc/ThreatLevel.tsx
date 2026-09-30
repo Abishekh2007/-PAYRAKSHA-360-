@@ -24,7 +24,7 @@ export function ThreatLevel({ level, score = null, live = true, compact = false,
       role="status"
       data-testid="threat-level"
       data-level={level ?? 'NONE'}
-      className={`inline-flex items-center gap-2 rounded-sm border ${compact ? 'px-2 sm:px-3' : 'px-3'} py-1.5 ${t.border} ${t.bg} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border ${compact ? 'px-2 sm:px-3' : 'px-3'} py-1.5 ${t.border} ${t.bg} ${className}`}
     >
       <span className={`font-mono text-[10px] uppercase tracking-[0.28em] text-slate-400 ${compact ? 'hidden sm:inline' : ''}`}>THREAT LEVEL</span>
       <span className={`font-mono text-xs font-bold uppercase tracking-[0.2em] ${t.text}`}>{label}</span>
