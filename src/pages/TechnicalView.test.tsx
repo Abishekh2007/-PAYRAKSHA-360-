@@ -43,5 +43,8 @@ describe('TechnicalView', () => {
 
     // Look for JSON containing the score
     expect(screen.getByText(/"score": 92/)).toBeInTheDocument();
+
+    // Verify new SOC element
+    expect(screen.getByTestId('technical-view-actions')).toBeInTheDocument();
   });
 });

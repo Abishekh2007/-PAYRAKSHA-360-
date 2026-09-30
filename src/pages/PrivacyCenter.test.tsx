@@ -21,6 +21,8 @@ describe('PrivacyCenter', () => {
     expect(screen.getByText('❌ Full card number')).toBeInTheDocument();
 
     expect(screen.getByText('No financial credentials are shared.')).toBeInTheDocument();
+    expect(screen.getByTestId('never-requests-panel')).toBeInTheDocument();
+    expect(screen.getByText('DATA HANDLING MATRIX')).toBeInTheDocument();
     expect(screen.getByTestId('simulation-badge')).toBeInTheDocument();
   });
 

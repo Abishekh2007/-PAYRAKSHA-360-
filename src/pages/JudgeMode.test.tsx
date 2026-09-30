@@ -63,5 +63,6 @@ describe('JudgeMode', () => {
     
     expect(screen.getByText('SIGNALS CONNECTED')).toBeInTheDocument();
     expect(screen.getByText(seq.finalText)).toBeInTheDocument();
+    expect(screen.getByTestId('kpi-demo-steps')).toBeInTheDocument();
   });
 });

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageShell } from '../components/layout';
-import { Button, GlassCard, ScanSteps, RiskGauge, SimulationBadge } from '../components/ui';
+import { Button, ScanSteps, RiskGauge, SimulationBadge } from '../components/ui';
 import { RiskResultView, AttackChainView } from '../components/risk';
+import { HudPanel, KpiTile } from '../components/soc';
 import { getScenario, runScenarioLocal, runSignalsConnected, scenarioToInput } from '../engine';
 import { useDemoStore } from '../store/demoStore';
 
@@ -97,121 +98,136 @@ export default function JudgeMode() {
   };
 
   return (
-    <PageShell eyebrow="DEMO" title="🏆 JUDGE MODE" subtitle="Guided 3-act demo">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <GlassCard>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-xl font-bold">Act {act} of 3</h2>
+    <PageShell eyebrow="SYSTEM" title="JUDGE BRIEFING" width="wide">
+      <div className="mx-auto max-w-5xl space-y-8">
+        <div className="grid gap-4 md:grid-cols-3">
+          <KpiTile label="Demo steps" value="3" tone="cyan" data-testid="kpi-demo-steps" />
+          <KpiTile label="Scenarios" value="2" tone="violet" />
+          <KpiTile label="Real payments" value="0" tone="green" />
+        </div>
+
+        <HudPanel
+          title={`ACT ${act} OF 3`}
+          tone="cyan"
+          right={
             <div className="flex gap-2">
-              <Button onClick={handlePrev} disabled={act === 1} variant="outline">Previous</Button>
-              <Button onClick={resetActState} variant="outline">Reset</Button>
-              <Button onClick={handleNext} disabled={act === 3} variant="outline">Next</Button>
+              <Button onClick={handlePrev} disabled={act === 1} variant="outline" size="sm">Previous</Button>
+              <Button onClick={resetActState} variant="outline" size="sm">Reset</Button>
+              <Button onClick={handleNext} disabled={act === 3} variant="outline" size="sm">Next</Button>
             </div>
-          </div>
-        </GlassCard>
-
-        {act === 1 && (
-          <div className="space-y-6">
-            <GlassCard>
-              <h3 className="font-bold mb-4">Scam Context</h3>
-              <p className="mb-2"><strong>Message:</strong> {act1Scenario.message}</p>
-              <p className="mb-2"><strong>URL:</strong> {act1Scenario.url}</p>
-              <div className="mb-4">
-                <strong>QR Payload lines:</strong>
-                <pre className="mt-2 text-sm text-neutral-300 whitespace-pre-wrap">{act1Scenario.qrText}</pre>
+          }
+        >
+          {act === 1 && (
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="shrink-0 font-mono text-[4rem] font-bold leading-none tracking-tighter text-cyan-400/20">01</div>
+                <div className="w-full space-y-4 pt-2">
+                  <h3 className="hud-title text-cyan-300">Scam Context</h3>
+                  <div className="font-mono text-xs text-slate-300">
+                    <p className="mb-2"><strong className="text-cyan-400">Message:</strong> {act1Scenario.message}</p>
+                    <p className="mb-2"><strong className="text-cyan-400">URL:</strong> {act1Scenario.url}</p>
+                    <div className="mb-4">
+                      <strong className="text-cyan-400">QR Payload lines:</strong>
+                      <pre className="mt-2 whitespace-pre-wrap rounded border border-cyan-400/10 bg-cyan-400/5 p-3 text-[10px] text-cyan-100">{act1Scenario.qrText}</pre>
+                    </div>
+                  </div>
+                  {!running && !finished && (
+                    <Button onClick={() => runAct12(act1Report, 1, 'utility_scam')} variant="primary" fullWidth>RUN ACT 1</Button>
+                  )}
+                </div>
               </div>
-              {!running && !finished && (
-                <Button onClick={() => runAct12(act1Report, 1, 'utility_scam')} variant="primary" fullWidth>RUN ACT 1</Button>
+
+              {(running || finished) && (
+                <div className="border border-dashed border-cyan-400/15 p-4">
+                  <ScanSteps steps={stepsList} activeIndex={stepIndex} />
+                </div>
               )}
-            </GlassCard>
 
-            {(running || finished) && (
-              <GlassCard>
-                <ScanSteps steps={stepsList} activeIndex={stepIndex} />
-              </GlassCard>
-            )}
-
-            {finished && (
-              <div className="space-y-6">
-                <RiskResultView report={act1Report} source="browser" />
-                <GlassCard>
-                  <h4 className="font-bold mb-4">Attack Chain</h4>
-                  <AttackChainView nodes={act1Report.attackChain} />
-                </GlassCard>
-                <GlassCard>
-                   <div className="flex gap-4">
-                     <Link to="/counterfactual"><Button variant="outline">Counterfactual</Button></Link>
-                     <Link to="/what-if"><Button variant="outline">What-If</Button></Link>
-                   </div>
-                </GlassCard>
-              </div>
-            )}
-          </div>
-        )}
-
-        {act === 2 && (
-          <div className="space-y-6">
-            <GlassCard>
-              <h3 className="font-bold mb-4">Safe Context</h3>
-              <p className="mb-2"><strong>Message:</strong> {act2Scenario.message}</p>
-              <p className="mb-2"><strong>URL:</strong> {act2Scenario.url || 'None'}</p>
-              <div className="mb-4">
-                <strong>QR Payload lines:</strong>
-                <pre className="mt-2 text-sm text-neutral-300 whitespace-pre-wrap">{act2Scenario.qrText}</pre>
-              </div>
-              {!running && !finished && (
-                <Button onClick={() => runAct12(act2Report, 2, 'legit_utility')} variant="primary" fullWidth>RUN ACT 2</Button>
+              {finished && (
+                <div className="space-y-6">
+                  <RiskResultView report={act1Report} source="browser" />
+                  <HudPanel title="Attack Chain" tone="red">
+                    <AttackChainView nodes={act1Report.attackChain} />
+                  </HudPanel>
+                  <div className="flex gap-4 border-t border-dashed border-cyan-400/15 pt-4">
+                    <Link to="/counterfactual" className="flex-1"><Button variant="outline" fullWidth>Counterfactual</Button></Link>
+                    <Link to="/what-if" className="flex-1"><Button variant="outline" fullWidth>What-If</Button></Link>
+                  </div>
+                </div>
               )}
-            </GlassCard>
+            </div>
+          )}
 
-            {(running || finished) && (
-              <GlassCard>
-                <ScanSteps steps={stepsList} activeIndex={stepIndex} />
-              </GlassCard>
-            )}
-
-            {finished && (
-              <div className="space-y-6">
-                <RiskResultView report={act2Report} source="browser" />
-                <GlassCard>
-                  <h4 className="font-bold mb-4">Attack Chain</h4>
-                  <AttackChainView nodes={act2Report.attackChain} />
-                </GlassCard>
+          {act === 2 && (
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="shrink-0 font-mono text-[4rem] font-bold leading-none tracking-tighter text-cyan-400/20">02</div>
+                <div className="w-full space-y-4 pt-2">
+                  <h3 className="hud-title text-cyan-300">Safe Context</h3>
+                  <div className="font-mono text-xs text-slate-300">
+                    <p className="mb-2"><strong className="text-cyan-400">Message:</strong> {act2Scenario.message}</p>
+                    <p className="mb-2"><strong className="text-cyan-400">URL:</strong> {act2Scenario.url || 'None'}</p>
+                    <div className="mb-4">
+                      <strong className="text-cyan-400">QR Payload lines:</strong>
+                      <pre className="mt-2 whitespace-pre-wrap rounded border border-cyan-400/10 bg-cyan-400/5 p-3 text-[10px] text-cyan-100">{act2Scenario.qrText}</pre>
+                    </div>
+                  </div>
+                  {!running && !finished && (
+                    <Button onClick={() => runAct12(act2Report, 2, 'legit_utility')} variant="primary" fullWidth>RUN ACT 2</Button>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {act === 3 && (
-          <div className="space-y-6">
-            <GlassCard>
-              <h3 className="font-bold mb-4">Signals Connected</h3>
-              {!running && !finished && (
-                <Button onClick={runAct3} variant="primary" fullWidth>RUN ACT 3</Button>
+              {(running || finished) && (
+                <div className="border border-dashed border-cyan-400/15 p-4">
+                  <ScanSteps steps={stepsList} activeIndex={stepIndex} />
+                </div>
               )}
-            </GlassCard>
 
-            {(running || finished) && (
-              <div className="space-y-4">
-                {act3Sequence.steps.slice(0, stepIndex + 1).map((s) => (
-                  <GlassCard key={s.id} className="animate-in fade-in slide-in-from-bottom-2">
-                    <p className="mb-2 font-bold">{s.label}</p>
-                    <RiskGauge score={s.report.score} level={s.report.level} />
-                  </GlassCard>
-                ))}
+              {finished && (
+                <div className="space-y-6">
+                  <RiskResultView report={act2Report} source="browser" />
+                  <HudPanel title="Attack Chain" tone="green">
+                    <AttackChainView nodes={act2Report.attackChain} />
+                  </HudPanel>
+                </div>
+              )}
+            </div>
+          )}
+
+          {act === 3 && (
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="shrink-0 font-mono text-[4rem] font-bold leading-none tracking-tighter text-cyan-400/20">03</div>
+                <div className="w-full space-y-4 pt-2">
+                  <h3 className="hud-title text-cyan-300">Signals Connected</h3>
+                  {!running && !finished && (
+                    <Button onClick={runAct3} variant="primary" fullWidth>RUN ACT 3</Button>
+                  )}
+                </div>
               </div>
-            )}
 
-            {finished && (
-              <GlassCard className="animate-in fade-in">
-                <h4 className="font-bold mb-2">SIGNALS CONNECTED</h4>
-                <p>{act3Sequence.finalText}</p>
-              </GlassCard>
-            )}
-          </div>
-        )}
+              {(running || finished) && (
+                <div className="space-y-4">
+                  {act3Sequence.steps.slice(0, stepIndex + 1).map((s) => (
+                    <div key={s.id} className="animate-dash-flow border border-dashed border-cyan-400/30 bg-cyan-950/20 p-4">
+                      <p className="hud-label mb-3 text-cyan-200">{s.label}</p>
+                      <RiskGauge score={s.report.score} level={s.report.level} />
+                    </div>
+                  ))}
+                </div>
+              )}
 
-        <div className="flex justify-center mt-8">
+              {finished && (
+                <HudPanel tone="amber" title="SIGNALS CONNECTED" className="animate-in fade-in">
+                  <p className="font-mono text-sm uppercase tracking-wide text-amber-200">{act3Sequence.finalText}</p>
+                </HudPanel>
+              )}
+            </div>
+          )}
+        </HudPanel>
+
+        <div className="mt-8 flex justify-center">
           <SimulationBadge />
         </div>
       </div>

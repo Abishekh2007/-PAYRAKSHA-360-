@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { PageShell } from '../components/layout';
-import { GlassCard, Button, Badge } from '../components/ui';
+import { Button, Badge } from '../components/ui';
 import { ContributionsChart } from '../components/risk';
+import { HudPanel, StatusPill } from '../components/soc';
 import { useCurrentReport } from '../store/demoStore';
 import { FLAGSHIP_SCENARIO_ID, scenarioToInput } from '../engine';
 import { Terminal, Copy, Check } from 'lucide-react';
@@ -10,25 +11,27 @@ function StageCard({ num, title, toggleData, children }: { num: number; title: s
   const [open, setOpen] = useState(false);
 
   return (
-    <GlassCard className="relative overflow-hidden">
-      <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-br-lg bg-slate-800 font-mono text-sm font-bold text-slate-400">
-        {num}
-      </div>
-      <div className="ml-8">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-white">{title}</h2>
-          <Button variant="ghost" size="sm" onClick={() => setOpen(!open)}>
-            {`{ } JSON`}
-          </Button>
-        </div>
-        {children && <div className="mt-4">{children}</div>}
-        {open && (
-          <pre className="mt-4 max-h-96 overflow-auto rounded bg-slate-950 p-4 font-mono text-xs text-slate-300">
-            {JSON.stringify(toggleData, null, 2)}
-          </pre>
-        )}
-      </div>
-    </GlassCard>
+    <HudPanel
+      title={
+        <span className="flex items-center gap-3">
+          <span className="font-mono text-cyan-500/50">{num}</span>
+          {title}
+        </span>
+      }
+      right={
+        <Button variant="ghost" size="sm" onClick={() => setOpen(!open)}>
+          {`{ } JSON`}
+        </Button>
+      }
+      tone="cyan"
+    >
+      {children && <div className={open ? "mb-4" : ""}>{children}</div>}
+      {open && (
+        <pre className="max-h-96 overflow-auto rounded border border-cyan-400/10 bg-black/50 p-4 font-mono text-xs text-slate-300">
+          {JSON.stringify(toggleData, null, 2)}
+        </pre>
+      )}
+    </HudPanel>
   );
 }
 
@@ -71,10 +74,12 @@ export default function TechnicalView() {
   return (
     <PageShell
       title="Technical View"
+      eyebrow="SYSTEM"
+      width="wide"
       icon={<Terminal className="h-8 w-8" />}
       subtitle="The raw processing pipeline for this payment."
       actions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" data-testid="technical-view-actions">
           {copied ? <Badge tone="low" icon={<Check className="h-4 w-4" />}>Copied.</Badge> : null}
           <Button variant="outline" size="sm" icon={<Copy className="h-4 w-4" />} onClick={handleCopy}>
             COPY REPORT JSON
@@ -82,32 +87,35 @@ export default function TechnicalView() {
         </div>
       }
     >
-      <GlassCard variant="strong" className="mb-8">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center justify-between">
-          <div className="flex items-center gap-4 text-sm text-slate-300">
-            <span>
-              <strong>Engine:</strong> {report.engine.name} v{report.engine.version}
-            </span>
-            <span>
-              <strong>Runtime:</strong> {report.engine.runtime}
-            </span>
-            {record && (
-              <>
-                <span>
-                  <strong>Source:</strong> {record.source}
-                </span>
-                {record.latencyMs != null && (
-                  <span>
-                    <strong>Latency:</strong> {Math.round(record.latencyMs)} ms
+      <HudPanel tone="cyan" className="mb-6">
+        <div className="flex flex-col gap-2 font-mono text-xs text-slate-300 md:flex-row md:items-center">
+          <span className="flex items-center gap-2">
+            <span className="text-cyan-400">ENGINE:</span> {report.engine.name} v{report.engine.version}
+          </span>
+          <span className="hidden text-cyan-400/30 md:inline">|</span>
+          <span className="flex items-center gap-2">
+            <span className="text-cyan-400">RUNTIME:</span> {report.engine.runtime}
+          </span>
+          {record && (
+            <>
+              <span className="hidden text-cyan-400/30 md:inline">|</span>
+              <span className="flex items-center gap-2">
+                <span className="text-cyan-400">SOURCE:</span> {record.source}
+              </span>
+              {record.latencyMs != null && (
+                <>
+                  <span className="hidden text-cyan-400/30 md:inline">|</span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-cyan-400">LATENCY:</span> {Math.round(record.latencyMs)} ms
                   </span>
-                )}
-              </>
-            )}
-          </div>
+                </>
+              )}
+            </>
+          )}
         </div>
-      </GlassCard>
+      </HudPanel>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <StageCard num={1} title="Input" toggleData={input} />
 
         <StageCard num={2} title="Signal extraction" toggleData={signalExtractionData} />
@@ -122,12 +130,12 @@ export default function TechnicalView() {
 
         <StageCard num={6} title="Score & level" toggleData={scoreData}>
           <div className="flex items-center gap-4">
-            <div data-testid="risk-score-card" data-score={report.score} className="text-2xl font-bold text-white">
+            <div data-testid="risk-score-card" data-score={report.score} className="font-mono text-2xl font-bold tracking-tight text-white">
               Score: {report.score} / 100
             </div>
-            <Badge tone={report.level === 'HIGH' ? 'high' : report.level === 'HIGH_CAUTION' ? 'high_caution' : report.level === 'CAUTION' ? 'caution' : 'low'}>
+            <StatusPill tone={report.level === 'HIGH' ? 'red' : report.level === 'HIGH_CAUTION' ? 'orange' : report.level === 'CAUTION' ? 'amber' : 'green'}>
               {report.levelLabel}
-            </Badge>
+            </StatusPill>
           </div>
         </StageCard>
 
