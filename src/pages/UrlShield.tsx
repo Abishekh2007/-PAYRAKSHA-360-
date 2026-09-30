@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { PageShell } from '../components/layout';
-import { Button, ErrorNotice, GlassCard, SimulationBadge, SectionHeader, RiskGauge, EngineBadge } from '../components/ui';
-import { GuardianRobot } from '../components/three';
+import { Button, ErrorNotice, SimulationBadge, RiskGauge, EngineBadge } from '../components/ui';
+import { HudPanel, ShieldStatus, shieldStateFor } from '../components/soc';
 import { analyzeUrlRisk } from '../services/api';
-import { getScenario, analyzeUrlLocal } from '../engine';
+import { analyzeUrlLocal } from '../engine';
 import type { UrlResponse } from '../types';
 import { levelTheme } from '../lib/risk';
 
@@ -46,54 +46,57 @@ export default function UrlShield() {
     }
   };
 
-  const sampleIds = ['utility_scam', 'kyc_scam', 'shopping_scam', 'legit_utility'];
-
-  const mood = isAnalyzing ? 'thinking' : urlResult ? (urlResult.analysis.level === 'LOW' ? 'safe' : 'alert') : 'idle';
+  const shieldState = shieldStateFor(urlResult?.analysis.level ?? null, isAnalyzing);
 
   return (
     <PageShell
-      eyebrow="Shield"
       title="URL Shield"
-      subtitle="Analyze suspicious links"
+      subtitle="Paste a link to detect suspicious hosting, age, or threat reports before clicking."
+      eyebrow="SHIELDS"
+      width="wide"
       icon={<span aria-hidden="true">🔗</span>}
+      actions={<SimulationBadge />}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <GlassCard>
-            <SectionHeader title="Input URL" />
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          <HudPanel eyebrow="LINK INTAKE">
             <div className="mb-4">
               <label htmlFor="url-input" className="sr-only">
                 URL to analyze
               </label>
               <input
-                type="text"
                 id="url-input"
-                aria-label="URL to analyze"
-                placeholder="Paste URL"
+                name="url-input"
+                type="text"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full p-3 bg-slate-900/50 text-slate-100 border border-slate-700/50 rounded focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 placeholder:text-slate-500"
+                placeholder="https://"
+                aria-label="URL to analyze"
+                className="font-mono bg-black/40 border border-cyan-400/20 text-slate-200 outline-none p-3 w-full block focus:border-cyan-300 transition-colors"
+                autoComplete="off"
+                spellCheck="false"
               />
             </div>
 
             {error && <ErrorNotice message={error} className="mb-4" />}
 
             <Button
-              onClick={() => handleAnalyze(urlInput)}
-              loading={isAnalyzing}
+              variant="primary"
               fullWidth
+              loading={isAnalyzing}
+              onClick={() => handleAnalyze(urlInput)}
             >
               CHECK URL
             </Button>
 
             <div className="mt-6">
-              <p className="text-sm text-gray-400 mb-3 font-semibold uppercase tracking-wider">Demo URLs:</p>
+              <p className="hud-label mb-3">Demo URLs:</p>
               <div className="flex flex-col gap-2">
                 <div>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    className="w-full justify-start text-left"
                     onClick={() => {
                       const u = 'https://official-demo-bank.example';
                       setUrlInput(u);
@@ -106,8 +109,8 @@ export default function UrlShield() {
                 </div>
                 <div>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    className="w-full justify-start text-left"
                     onClick={() => {
                       const u = 'https://secure-bank-kyc-demo.example';
                       setUrlInput(u);
@@ -120,8 +123,8 @@ export default function UrlShield() {
                 </div>
                 <div>
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
+                    className="w-full justify-start text-left"
                     onClick={() => {
                       const u = 'https://example-shopping-offer.demo';
                       setUrlInput(u);
@@ -135,136 +138,134 @@ export default function UrlShield() {
               </div>
             </div>
 
-            <div className="mt-6">
-              <p className="text-sm text-gray-500 mb-2">Try a sample:</p>
-              <div className="flex flex-wrap gap-2">
-                {sampleIds.map((id) => {
-                  const scenario = getScenario(id);
-                  if (!scenario.url) return null;
-                  return (
-                    <Button
-                      key={id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setUrlInput(scenario.url);
-                        handleAnalyze(scenario.url);
-                      }}
-                    >
-                      {scenario.shortLabel}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <p className="mt-6 text-xs text-gray-400">
-              Simulated intelligence: the link was never opened, fetched or resolved.
+            <p className="mt-6 text-xs text-cyan-400/70 border-t border-cyan-400/15 pt-4">
+              Demo environment: All links are analyzed safely. No external requests are made.
             </p>
-          </GlassCard>
+          </HudPanel>
         </div>
 
-        <div>
-          <div className="h-48 mb-6 relative">
-            <GuardianRobot mood={mood} />
-          </div>
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <ShieldStatus
+            state={shieldState}
+            shield="URL SHIELD"
+            score={urlResult?.analysis.score}
+            detail="Live URL forensics module"
+          />
 
           {urlResult && (
-             <GlassCard className="mb-6" data-testid="risk-result" data-score={String(urlResult.analysis.score)} data-level={urlResult.analysis.level}>
-               <SimulationBadge />
+            <div
+              data-testid="risk-result"
+              data-score={String(urlResult.analysis.score)}
+              data-level={urlResult.analysis.level}
+            >
+              <HudPanel eyebrow="LINK FORENSICS" className="mb-6">
+                <div className="flex justify-end p-4 pb-0">
+                  <SimulationBadge />
+                </div>
+                <div className="p-4 pt-0">
+                  <div className="flex flex-col items-center mt-4 mb-6">
+                    <h3 className="hud-title text-slate-400 tracking-wider mb-2">URL RISK</h3>
+                    <div className="text-5xl font-mono font-bold text-slate-100 my-4">
+                      {urlResult.analysis.score} <span className="text-slate-500 text-3xl">/ 100</span>
+                    </div>
+                    <RiskGauge
+                      score={urlResult.analysis.score}
+                      level={urlResult.analysis.level}
+                      animate={true}
+                    />
+                    <div className="mt-6 text-center">
+                      {(() => {
+                        const theme = levelTheme(urlResult.analysis.level);
+                        return (
+                          <>
+                            <p data-testid="url-level" className={`text-xl font-bold font-mono ${theme.text}`}>
+                              {theme.emoji} {theme.short}
+                            </p>
+                            <p className="text-sm text-slate-300 mt-1">
+                              {URL_VERDICT[urlResult.analysis.level] ?? URL_VERDICT.CAUTION}
+                            </p>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
 
-               <div className="flex flex-col items-center mt-4 mb-6">
-                 <h3 className="text-sm font-semibold text-gray-400 tracking-wider mb-2">URL RISK</h3>
-                 <div className="text-5xl font-mono font-bold text-slate-100 my-4">
-                   {urlResult.analysis.score} <span className="text-slate-500 text-3xl">/ 100</span>
-                 </div>
-                 <RiskGauge
-                   score={urlResult.analysis.score}
-                   level={urlResult.analysis.level}
-                   size={160}
-                   showLabel={false}
-                 />
-                 <div className="mt-2 text-center">
-                   {(() => {
-                     const theme = levelTheme(urlResult.analysis.level);
-                     return (
-                       <>
-                         <p data-testid="url-level" className={`text-xl font-bold ${theme.text}`}>{theme.emoji} {theme.short}</p>
-                         <p className="text-sm text-slate-300 mt-1">{URL_VERDICT[urlResult.analysis.level] ?? URL_VERDICT.CAUTION}</p>
-                       </>
-                     );
-                   })()}
-                 </div>
-               </div>
+                  <div className="mb-6 bg-cyan-950/20 border border-cyan-400/20 p-4 rounded-sm break-all">
+                    <p className="text-xs text-cyan-500 mb-1 font-mono uppercase tracking-widest">Host:</p>
+                    <span className="font-mono text-sm text-cyan-100">{urlResult.analysis.host}</span>
+                  </div>
 
-               <div className="mb-6 bg-slate-900/50 border border-slate-700/50 p-4 rounded-lg break-all">
-                 <p className="text-xs text-slate-400 mb-1">Host:</p>
-                 <span className="font-mono text-sm text-slate-200">{urlResult.analysis.host}</span>
-               </div>
+                  {urlResult.analysis.reputation ? (
+                    <div className="mb-6">
+                      <p className="text-sm text-slate-300">
+                        Demo reputation database: <span className="font-semibold">{urlResult.analysis.reputation}</span> (simulated)
+                      </p>
+                    </div>
+                  ) : null}
 
-               {urlResult.analysis.reputation && (
-                 <div className="mb-6">
-                   <p className="text-sm text-slate-300">
-                     Demo reputation database: <span className="font-semibold">{urlResult.analysis.reputation}</span> (simulated)
-                   </p>
-                 </div>
-               )}
+                  <div className="mb-6">
+                    <h4 className="hud-title text-slate-300 mb-4 border-b border-cyan-400/15 pb-2">
+                      {urlResult.analysis.score < 30 ? 'WHY THIS LINK LOOKS SAFER' : 'WHY THIS LINK WAS FLAGGED'}
+                    </h4>
+                    
 
-               <div className="mb-6">
-                 <h4 className="text-sm font-semibold text-gray-300 tracking-wider mb-4 border-b border-slate-700/50 pb-2">
-                   {urlResult.analysis.score < 30 ? 'WHY THIS LINK LOOKS SAFER' : 'WHY THIS LINK WAS FLAGGED'}
-                 </h4>
+                    {(() => {
+                      const analysis = urlResult.analysis;
+                      const checks = analysis.checks || [];
+                      const riskFactors = checks.filter(c => c.points > 0);
+                      const safeSignals = checks.filter(c => c.points <= 0);
 
-                 {(() => {
-                   const flaggedChecks = urlResult.analysis.checks?.filter((c) => c.points > 0) || [];
-                   const passedChecks = urlResult.analysis.checks?.filter((c) => c.points === 0) || [];
+                      const hasRisks = riskFactors.length > 0;
+                      const hasSafe = safeSignals.length > 0;
 
-                   return (
-                     <>
-                       {flaggedChecks.length > 0 && (
-                         <ul className="space-y-3 mb-4">
-                           {flaggedChecks.map((c) => (
-                             <li key={c.id} className="flex flex-col p-3 bg-slate-800/60 border border-slate-700/50 rounded-lg">
-                               <div className="flex justify-between items-start gap-2 mb-1">
-                                 <span className="font-medium text-slate-200 text-sm">{c.label}</span>
-                                 <span className="text-risk-high font-mono text-sm font-semibold shrink-0">+{c.points}</span>
-                               </div>
-                               <p className="text-xs text-slate-400">{c.detail}</p>
-                             </li>
-                           ))}
-                         </ul>
-                       )}
+                      return (
+                        <>
+                          {hasRisks && (
+                            <ul className="space-y-3 mb-4">
+                              {riskFactors.map(c => (
+                                <li key={c.id} className="flex flex-col p-3 bg-red-950/20 border border-red-900/50 rounded-sm">
+                                  <div className="flex justify-between items-start gap-2 mb-1">
+                                    <span className="font-medium text-slate-200 text-sm font-mono">{c.label}</span>
+                                    <span className="text-risk-high font-mono text-sm font-semibold shrink-0">+{c.points}</span>
+                                  </div>
+                                  <p className="text-xs text-slate-400">{c.detail}</p>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
 
-                       {passedChecks.length > 0 && (
-                         <div className="mt-4">
-                           <details className="group">
-                             <summary className="text-xs font-semibold text-slate-400 cursor-pointer list-none flex items-center gap-2">
-                               <span className="transform group-open:rotate-90 transition-transform">▶</span>
-                               Checks passed ({passedChecks.length})
-                             </summary>
-                             <ul className="space-y-2 mt-3 ml-4 border-l border-slate-700/50 pl-4">
-                               {passedChecks.map((c) => (
-                                 <li key={c.id} className="flex flex-col">
-                                   <span className="font-medium text-slate-300 text-xs">{c.label}</span>
-                                   <p className="text-[11px] text-slate-500">{c.detail}</p>
-                                 </li>
-                               ))}
-                             </ul>
-                           </details>
-                         </div>
-                       )}
-                     </>
-                   );
-                 })()}
-               </div>
+                          {hasSafe && (
+                            <div className="mt-4">
+                              <details className="group">
+                                <summary className="text-xs font-semibold text-slate-400 cursor-pointer list-none flex items-center gap-2">
+                                  <span className="transform group-open:rotate-90 transition-transform text-cyan-500">▶</span>
+                                  Safe signals detected
+                                </summary>
+                                <ul className="space-y-2 mt-3 ml-4 border-l border-cyan-400/20 pl-4">
+                                  {safeSignals.map(c => (
+                                    <li key={c.id} className="flex flex-col">
+                                      <span className="font-medium text-slate-300 text-xs font-mono">{c.label}</span>
+                                      <p className="text-[11px] text-slate-500">{c.detail}</p>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </details>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
 
-               <div className="mt-6 flex flex-col items-center text-center gap-2">
-                 <EngineBadge source={urlResult.source} latencyMs={urlResult.latencyMs} />
-                 <p className="text-[11px] text-slate-500 italic mt-2">
-                   Simulated intelligence — no request was made to this link.
-                 </p>
-               </div>
-             </GlassCard>
+                  <div className="mt-6 flex flex-col items-center text-center gap-2 border-t border-cyan-400/15 pt-6">
+                    <EngineBadge source={urlResult.source} latencyMs={urlResult.latencyMs} />
+                    <p className="text-[11px] text-cyan-500 italic mt-2">
+                      Simulated intelligence — no request was made to this link.
+                    </p>
+                  </div>
+                </div>
+              </HudPanel>
+            </div>
           )}
         </div>
       </div>

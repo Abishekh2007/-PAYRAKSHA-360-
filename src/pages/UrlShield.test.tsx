@@ -36,10 +36,15 @@ describe('UrlShield', () => {
     const user = userEvent.setup();
     renderWithRouter(<UrlShield />);
 
+    const shieldStatus = screen.getByTestId('shield-status');
+    expect(shieldStatus).toHaveAttribute('data-state', 'idle');
+
     const kycBtn = screen.getByRole('button', { name: 'KYC look-alike (demo)' });
     await user.click(kycBtn);
 
     const resultView = await screen.findByTestId('risk-result', {}, { timeout: 5000 });
+
+    expect(shieldStatus).toHaveAttribute('data-state', 'hold');
 
     expect(resultView).toHaveAttribute('data-score', '78');
 
