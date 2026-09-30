@@ -43,7 +43,7 @@ describe('AppLayout & Navigation', () => {
     expect(screen.getAllByText('Privacy').length).toBeGreaterThan(0);
 
     // Assert JUDGE MODE link
-    expect(screen.getAllByText('🏆 JUDGE MODE').length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /JUDGE MODE/ }).length).toBeGreaterThan(0);
   });
 
   it('toggles elder mode class on document element', async () => {

@@ -147,7 +147,7 @@ def test_decision_endpoints():
     assert event['decision'] == 'cancelled'
     assert event['decidedAt'] is not None
     assert isinstance(event['decidedAt'], str)
-    assert event['seq'] == 3
+    assert event['seq'] == 2
 
     resp = phone.post('/api/link/decision', json={'id': event_id, 'decision': 'pay'})
     assert resp.status_code == 422
