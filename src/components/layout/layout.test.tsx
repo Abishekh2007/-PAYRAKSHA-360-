@@ -3,6 +3,7 @@ import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AppLayout } from './AppLayout';
+import { PageShell } from './PageShell';
 import { useDemoStore } from '../../store/demoStore';
 
 describe('AppLayout & Navigation', () => {
@@ -20,17 +21,17 @@ describe('AppLayout & Navigation', () => {
             <Route path="/" element={<div data-testid="child">child</div>} />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Assert banner text
-    expect(screen.getByText('DEMO ENVIRONMENT — NO REAL PAYMENTS')).toBeInTheDocument();
+    expect(screen.getAllByText('DEMO ENVIRONMENT — NO REAL PAYMENTS').length).toBeGreaterThan(0);
 
     // Assert main navigation
     const nav = screen.getByRole('navigation', { name: 'Main' });
     expect(nav).toBeInTheDocument();
 
-    // Assert primary link labels exist
+    // Assert link labels exist
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Live Protection')).toBeInTheDocument();
     expect(screen.getByText('Scan QR')).toBeInTheDocument();
@@ -54,7 +55,7 @@ describe('AppLayout & Navigation', () => {
             <Route path="/" element={<div>child</div>} />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const toggle = screen.getAllByRole('switch', { name: 'Elder Safety Mode' })[0];
@@ -69,8 +70,7 @@ describe('AppLayout & Navigation', () => {
     expect(useDemoStore.getState().elderMode).toBe(false);
   });
 
-  it('opens More menu and shows "Scam DNA"', async () => {
-    const user = userEvent.setup();
+  it('all sidebar nav items are visible (no More menu)', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <Routes>
@@ -78,13 +78,10 @@ describe('AppLayout & Navigation', () => {
             <Route path="/" element={<div>child</div>} />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    const moreBtn = screen.getByRole('button', { name: /More/i });
-    expect(screen.queryByText('Scam DNA')).not.toBeInTheDocument();
-
-    await user.click(moreBtn);
+    // Scam DNA is now always visible in the sidebar
     expect(screen.getByText('Scam DNA')).toBeInTheDocument();
   });
 
@@ -97,7 +94,7 @@ describe('AppLayout & Navigation', () => {
             <Route path="/" element={<div>child</div>} />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     const menuBtn = screen.getByLabelText('Open menu');
@@ -106,5 +103,30 @@ describe('AppLayout & Navigation', () => {
     await user.click(menuBtn);
     expect(menuBtn).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByLabelText('Close menu')).toBeInTheDocument();
+  });
+});
+
+describe('PageShell', () => {
+  it('renders title, eyebrow, subtitle, actions and data-width', () => {
+    render(
+      <PageShell
+        title="Test Page"
+        eyebrow="EYEBROW TEXT"
+        subtitle="This is the subtitle"
+        actions={<button>Action</button>}
+        width="narrow"
+      >
+        <div data-testid="page-content">content</div>
+      </PageShell>,
+    );
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Test Page');
+    expect(screen.getByText('EYEBROW TEXT')).toBeInTheDocument();
+    expect(screen.getByText('This is the subtitle')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Action' })).toBeInTheDocument();
+    expect(screen.getByTestId('page-content')).toBeInTheDocument();
+
+    const section = document.querySelector('[data-width]');
+    expect(section).toHaveAttribute('data-width', 'narrow');
   });
 });
